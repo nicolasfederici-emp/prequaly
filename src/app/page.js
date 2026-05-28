@@ -2,14 +2,12 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Trophy, Calendar, MapPin, Users, Phone, ArrowRight, Star, Megaphone, Clock, X } from 'lucide-react'
+import { Trophy, Calendar, MapPin, Users, ArrowRight, Star, Megaphone, Clock, Sparkles } from 'lucide-react'
 
 export default function Home() {
   const [sponsors, setSponsors] = useState([])
   const [news, setNews] = useState([])
-  const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedMatch, setSelectedMatch] = useState(null)
   const [settings, setSettings] = useState({
     home_card1_title: 'Costo y Detalles',
     home_card1_desc: 'El valor de inscripción es de $60.000 ARS. Los 48 jugadores ya están confirmados para el cuadro principal.',
@@ -25,22 +23,14 @@ export default function Home() {
 
   const fetchHomeData = async () => {
     setLoading(true)
-    const [spRes, nwRes, mtRes, setRes] = await Promise.all([
+    const [spRes, nwRes, setRes] = await Promise.all([
       supabase.from('sponsors').select('*').order('priority', { ascending: true }),
       supabase.from('news').select('*').order('created_at', { ascending: false }).limit(3),
-      supabase.from('matches')
-        .select(`
-          *,
-          player1:player1_id (id, name, club, photo_url),
-          player2:player2_id (id, name, club, photo_url)
-        `)
-        .order('match_number', { ascending: true }),
       supabase.from('settings').select('*')
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
     if (!nwRes.error) setNews(nwRes.data || [])
-    if (!mtRes.error) setMatches(mtRes.data || [])
     
     if (setRes && !setRes.error && setRes.data) {
       const setMap = {}
@@ -53,184 +43,184 @@ export default function Home() {
     setLoading(false)
   }
 
-  const getRoundName = (roundNum) => {
-    switch (roundNum) {
-      case 1: return 'Ronda 1 (R48)'
-      case 2: return 'Ronda 2 (R32)'
-      case 3: return 'Octavos'
-      case 4: return 'Cuartos'
-      case 5: return 'Semifinales'
-      case 6: return 'Final'
-      default: return `Ronda ${roundNum}`
-    }
-  }
-
-  // Group matches by round
-  const matchesByRound = {}
-  for (let r = 1; r <= 6; r++) {
-    matchesByRound[r] = matches.filter(m => m.round === r)
-  }
+  // Duplicate sponsors array to ensure a seamless infinite scroll loop
+  const carouselSponsors = [...sponsors, ...sponsors, ...sponsors]
 
   return (
     <div className="min-h-screen bg-secondary">
-      {/* HERO SECTION */}
-      <div className="relative bg-black py-20 overflow-hidden">
-        {/* Subtle grid background */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#FFE50010_1px,transparent_1px),linear-gradient(to_bottom,#FFE50010_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
-        
-        <div className="container mx-auto px-4 relative text-center max-w-4xl">
-          <span className="text-xs uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-3.5 py-1.5 rounded-full font-bold inline-block mb-4">
-            Torneo Pre-Clasificatorio Oficial
-          </span>
-          <h1 className="text-6xl md:text-8xl font-extrabold text-white tracking-tight mb-4">
-            PREQUALY <span className="text-primary">M15</span>
-          </h1>
-          <p className="text-2xl md:text-3xl text-gray-300 font-bold uppercase tracking-wide mb-8">
-            Villa Constitución
-          </p>
+      {/* 1. SPONSORS CAROUSEL (Calesita superior de patrocinadores) */}
+      {sponsors.length > 0 && (
+        <div className="bg-gray-dark border-b border-primary/20 overflow-hidden py-4 relative">
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-secondary to-transparent z-10 pointer-events-none"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-secondary to-transparent z-10 pointer-events-none"></div>
           
+          <div className="flex animate-infinite-scroll items-center gap-12 whitespace-nowrap">
+            {carouselSponsors.map((sponsor, idx) => (
+              <a 
+                key={`${sponsor.id}-${idx}`}
+                href={sponsor.website || '#'} 
+                target={sponsor.website ? '_blank' : '_self'}
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-16 px-4 hover:scale-105 transition-transform duration-300"
+                title={sponsor.name}
+              >
+                {sponsor.logo_url ? (
+                  <img src={sponsor.logo_url} alt={sponsor.name} className="max-h-12 w-auto object-contain" />
+                ) : (
+                  <span className="text-xs text-primary font-extrabold tracking-wider bg-secondary/80 border border-primary/25 rounded-lg px-4 py-2 uppercase shadow-inner">
+                    {sponsor.name}
+                  </span>
+                )}
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* HERO SECTION */}
+      <div 
+        className="relative py-32 overflow-hidden border-b border-primary/10 bg-cover bg-center"
+        style={{ backgroundImage: 'linear-gradient(rgba(8, 20, 17, 0.82), rgba(8, 20, 17, 0.88)), url("/tennis_hero_bg.png")' }}
+      >
+        {/* Subtle grid background */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(208,253,62,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(208,253,62,0.015)_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none"></div>
+        
+        <div className="container mx-auto px-4 relative text-center max-w-5xl z-10">
+          <span className="text-xs uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-4 py-2 rounded-full font-extrabold inline-flex items-center gap-2 mb-6">
+            <Sparkles className="w-3.5 h-3.5" /> ITF World Tennis Tour
+          </span>
+          
+          <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-4 leading-none">
+            TORNEO M15 <span className="text-primary block md:inline">VILLA CONSTITUCIÓN</span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-gray-300 font-medium tracking-wide max-w-2xl mx-auto mb-10">
+            El evento de tenis profesional más importante de la región.
+          </p>
+
+          {/* Quick Stats Grid */}
           <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm md:text-base text-gray-300 font-medium">
-            <span className="flex items-center gap-2 bg-gray-dark px-4 py-2.5 rounded-xl border border-primary/15">
-              <Calendar className="w-5 h-5 text-primary" /> Semana del 15 de Junio
+            <span className="flex items-center gap-2.5 bg-gray-dark px-5 py-3 rounded-xl border border-primary/15">
+              <Calendar className="w-5 h-5 text-primary" /> Semana del 13 de Julio
             </span>
-            <span className="flex items-center gap-2 bg-gray-dark px-4 py-2.5 rounded-xl border border-primary/15">
-              <MapPin className="w-5 h-5 text-primary" /> Club Empalme Central
+            <span className="flex items-center gap-2.5 bg-gray-dark px-5 py-3 rounded-xl border border-primary/15">
+              <MapPin className="w-5 h-5 text-primary" /> Club Náutico Villa Constitución
             </span>
-            <span className="flex items-center gap-2 bg-gray-dark px-4 py-2.5 rounded-xl border border-primary/15">
-              <Trophy className="w-5 h-5 text-primary" /> WC M15 Principal
+            <span className="flex items-center gap-2.5 bg-gray-dark px-5 py-3 rounded-xl border border-primary/15">
+              <Trophy className="w-5 h-5 text-primary" /> Singles & Dobles
             </span>
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             <Link 
               href="/cuadro" 
-              className="bg-primary text-secondary font-black py-4 px-8 rounded-lg text-lg hover:bg-yellow-300 transition shadow-lg flex items-center justify-center gap-2"
+              className="bg-primary text-secondary font-black py-4 px-8 rounded-lg text-lg hover:bg-white hover:text-secondary transition shadow-lg flex items-center justify-center gap-2"
             >
-              VER CUADRO COMPLETO <ArrowRight className="w-5 h-5" />
+              VER CUADROS DEL TORNEO <ArrowRight className="w-5 h-5" />
             </Link>
             <Link 
               href="/jugadores" 
-              className="bg-gray-dark text-white border border-primary/40 font-bold py-4 px-8 rounded-lg text-lg hover:bg-gray-800 transition flex items-center justify-center gap-2"
+              className="bg-gray-dark text-white border border-primary/30 font-bold py-4 px-8 rounded-lg text-lg hover:bg-gray-800 transition flex items-center justify-center gap-2"
             >
-              JUGADORES REGISTRADOS
+              VER JUGADORES
             </Link>
           </div>
         </div>
       </div>
 
-      {/* QUICK INFO GRID (Border removed from hero, relative z-10 for perfect overlay) */}
-      <div className="container mx-auto px-4 -mt-8 relative mb-16 max-w-5xl z-10">
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-gray-dark border border-primary/20 p-6 rounded-2xl shadow-xl">
-            <span className="text-xs text-primary font-bold uppercase tracking-wider block mb-1">Inscripciones</span>
-            <h3 className="text-xl font-bold text-white mb-2">{settings.home_card1_title}</h3>
-            <p className="text-gray-400 text-sm">{settings.home_card1_desc}</p>
-          </div>
-          <div className="bg-gray-dark border border-primary/20 p-6 rounded-2xl shadow-xl">
-            <span className="text-xs text-primary font-bold uppercase tracking-wider block mb-1">Premios</span>
-            <h3 className="text-xl font-bold text-white mb-2">{settings.home_card2_title}</h3>
-            <p className="text-gray-400 text-sm">{settings.home_card2_desc}</p>
-          </div>
-          <div className="bg-gray-dark border border-primary/20 p-6 rounded-2xl shadow-xl">
-            <span className="text-xs text-primary font-bold uppercase tracking-wider block mb-1">Hospedaje Oficial</span>
-            <h3 className="text-xl font-bold text-white mb-2">{settings.home_card3_title}</h3>
-            <p className="text-gray-400 text-sm">{settings.home_card3_desc}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* CUADRO DEL TORNEO DIRECTAMENTE EN EL INICIO */}
-      <div className="container mx-auto px-4 max-w-7xl mb-16">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white flex items-center justify-center gap-2">
-            <Trophy className="w-8 h-8 text-primary" /> CUADRO Y FIXTURE EN VIVO
+      {/* ROAD TO M15: PRE-TOURNAMENTS DIVISION */}
+      <div className="container mx-auto px-4 max-w-5xl py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-white">
+            EL CAMINO AL <span className="text-primary font-bold">M15</span>
           </h2>
-          <p className="text-gray-400 text-sm mt-1">Haz clic en cualquier partido para ver detalles, horarios y clubes</p>
+          <p className="text-gray-400 text-sm mt-2 max-w-xl mx-auto">
+            Conoce las fases previas clasificatorias oficiales que se disputarán para obtener un lugar en el cuadro principal.
+          </p>
         </div>
 
-        {loading ? (
-          <div className="text-center py-12 text-primary flex items-center justify-center gap-2">
-            <Clock className="w-6 h-6 animate-spin" /> Cargando fixture...
-          </div>
-        ) : matches.length === 0 ? (
-          <div className="bg-gray-dark border border-primary/20 rounded-xl p-12 text-center max-w-xl mx-auto">
-            <Trophy className="w-16 h-16 text-primary/40 mx-auto mb-4" />
-            <p className="text-xl text-gray-300 mb-2">El cuadro aún no ha sido generado.</p>
-            <p className="text-gray-500 text-sm">Los partidos e información del sorteo se publicarán en breve.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto pb-8 -mx-4 px-4 scrollbar-thin scrollbar-thumb-primary scrollbar-track-secondary">
-            <div className="flex gap-8 min-w-[1500px] py-4">
-              {[1, 2, 3, 4, 5, 6].map(roundNum => {
-                const roundMatches = matchesByRound[roundNum] || []
-                return (
-                  <div key={roundNum} className="flex-1 flex flex-col justify-around min-w-[240px]">
-                    <div className="text-center bg-gray-900 border border-primary/20 py-2 rounded-lg mb-6 font-bold text-primary text-xs uppercase tracking-wider">
-                      {getRoundName(roundNum)}
-                    </div>
-                    <div className="flex-1 flex flex-col justify-around gap-6 py-2">
-                      {roundMatches.map(match => {
-                        const isCompleted = match.status === 'completed'
-                        const isLive = match.status === 'live'
-
-                        return (
-                          <div 
-                            key={match.id}
-                            onClick={() => setSelectedMatch(match)}
-                            className={`bg-gray-dark border rounded-xl overflow-hidden shadow-lg transition cursor-pointer hover:border-primary/60 group ${
-                              isLive ? 'border-yellow-400 ring-1 ring-yellow-400/50' : 'border-primary/10'
-                            }`}
-                          >
-                            {isLive && (
-                              <div className="bg-yellow-400 text-black text-[9px] font-bold text-center py-0.5 tracking-widest uppercase">
-                                En Vivo
-                              </div>
-                            )}
-
-                            {/* Player 1 Row */}
-                            <div className={`flex justify-between items-center px-3 py-2 border-b border-secondary/40 ${
-                              isCompleted && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
-                            }`}>
-                              <span className="truncate text-xs max-w-[150px] group-hover:text-white transition">
-                                {match.player1?.name || (roundNum === 1 ? 'BYE / Vacante' : 'A confirmar')}
-                              </span>
-                              <span className="font-mono text-xs font-bold ml-2">
-                                {isCompleted && match.score1 ? match.score1 : isLive ? '🎾' : ''}
-                              </span>
-                            </div>
-
-                            {/* Player 2 Row */}
-                            <div className={`flex justify-between items-center px-3 py-2 ${
-                              isCompleted && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
-                            }`}>
-                              <span className="truncate text-xs max-w-[150px] group-hover:text-white transition">
-                                {match.player2?.name || (roundNum === 1 ? 'BYE / Vacante' : 'A confirmar')}
-                              </span>
-                              <span className="font-mono text-xs font-bold ml-2">
-                                {isCompleted && match.score2 ? match.score2 : ''}
-                              </span>
-                            </div>
-
-                            {/* Optional: schedule time shown directly inside the card */}
-                            {match.scheduled_date && !isCompleted && !isLive && (
-                              <div className="bg-secondary/40 text-[9px] text-gray-500 px-3 py-1 border-t border-secondary/20 flex justify-between">
-                                <span>{new Date(match.scheduled_date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit' })}</span>
-                                <span>{new Date(match.scheduled_date).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} hs</span>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* PREQUALY CARD */}
+          <div className="court-card p-8 flex flex-col justify-between hover:border-primary/50 transition-all duration-300">
+            <div>
+              <div className="flex justify-between items-start mb-6">
+                <span className="text-xs font-black uppercase tracking-widest text-white bg-clay px-3.5 py-1.5 rounded-full z-10">
+                  Fase 1: PreQualy
+                </span>
+                <span className="text-xs text-gray-500 font-mono z-10">15 de Junio</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">Pre-Clasificación Oficial</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-6 z-10 relative">
+                Se jugará en las canchas de polvo de ladrillo del **Club Empalme Central**. Una oportunidad directa para los tenistas locales y regionales de medirse por el acceso al cuadro profesional.
+              </p>
+              
+              <div className="space-y-3 mb-8 z-10 relative">
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <MapPin className="w-4 h-4 text-clay" />
+                  <span>Sede: **Club Empalme Central**</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <span>**Campeón:** Clasifica al Cuadro Principal M15</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <Sparkles className="w-4 h-4 text-primary" />
+                  <span>**Finalista:** Clasifica a la Qualy</span>
+                </div>
+              </div>
             </div>
+            
+            <Link 
+              href="/cuadro?torneo=prequaly" 
+              className="bg-secondary text-primary border border-primary/30 py-3 px-4 rounded-xl font-bold text-center hover:bg-primary hover:text-secondary transition flex items-center justify-center gap-2 z-10"
+            >
+              Cuadro PreQualy <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
-        )}
+
+          {/* QUALY CARD */}
+          <div className="court-card p-8 flex flex-col justify-between hover:border-primary/50 transition-all duration-300">
+            <div>
+              <div className="flex justify-between items-start mb-6">
+                <span className="text-xs font-black uppercase tracking-widest text-white bg-clay px-3.5 py-1.5 rounded-full z-10">
+                  Fase 2: Qualy
+                </span>
+                <span className="text-xs text-gray-500 font-mono z-10">12 y 13 de Julio</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">Clasificación Principal</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-6 z-10 relative">
+                La antesala del torneo principal se jugará en la sede central del torneo en polvo de ladrillo. Los ganadores de esta fase completarán el cuadro del M15.
+              </p>
+              
+              <div className="space-y-3 mb-8 z-10 relative">
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <MapPin className="w-4 h-4 text-clay" />
+                  <span>Sede: **Club Náutico Villa Constitución**</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <span>Cuadro oficial de **32 jugadores**</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <Users className="w-4 h-4 text-primary" />
+                  <span>Otorga las plazas definitivas al cuadro M15</span>
+                </div>
+              </div>
+            </div>
+            
+            <Link 
+              href="/cuadro?torneo=qualy" 
+              className="bg-secondary text-primary border border-primary/30 py-3 px-4 rounded-xl font-bold text-center hover:bg-primary hover:text-secondary transition flex items-center justify-center gap-2 z-10"
+            >
+              Cuadro Qualy <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* BODY CONTENT (NEWS & SPONSORS) */}
+      {/* Información administrativa removida */}
+
+      {/* BODY CONTENT (NEWS & SPONSORS GRID DETAILED) */}
       <div className="container mx-auto px-4 max-w-5xl space-y-16 pb-16">
         
         {/* LATEST NEWS */}
@@ -263,12 +253,12 @@ export default function Home() {
           </div>
         )}
 
-        {/* SPONSORS BANNER (Render all sponsors in a clean grid directly) */}
+        {/* DETAILED SPONSORS BLOCK AT THE BOTTOM */}
         {sponsors.length > 0 && (
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Star className="w-6 h-6 text-primary" /> Patrocinadores Oficiales
+                <Star className="w-6 h-6 text-primary" /> Todos los Patrocinadores
               </h2>
               <Link href="/patrocinadores" className="text-primary hover:underline text-sm font-bold flex items-center gap-1">
                 Ver detalles <ArrowRight className="w-4 h-4" />
@@ -298,96 +288,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      {/* Match Detail Modal */}
-      {selectedMatch && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 animate-fadeIn print:hidden">
-          <div className="bg-gray-dark border border-primary/30 rounded-2xl p-6 max-w-md w-full relative shadow-2xl">
-            <button 
-              onClick={() => setSelectedMatch(null)}
-              className="absolute right-4 top-4 text-gray-400 hover:text-white transition"
-            >
-              <X className="w-6 h-6" />
-            </button>
-
-            <span className="text-xs text-primary font-bold uppercase tracking-wider block mb-2">
-              {getRoundName(selectedMatch.round)} - Partido #{selectedMatch.match_number}
-            </span>
-            <h3 className="text-2xl font-bold text-white mb-6">Detalles del Partido</h3>
-
-            {/* Players vs Box */}
-            <div className="space-y-4 bg-secondary/60 p-4 rounded-xl border border-primary/10 mb-6">
-              <div className="flex justify-between items-center">
-                <div>
-                  <span className="font-bold text-lg text-white">
-                    {selectedMatch.player1?.name || 'Rival a confirmar'}
-                  </span>
-                  <span className="text-xs text-gray-400 block">
-                    {selectedMatch.player1?.club || 'Club no especificado'}
-                  </span>
-                </div>
-                <span className="font-mono text-xl font-bold text-primary">
-                  {selectedMatch.status === 'completed' ? selectedMatch.score1 : ''}
-                </span>
-              </div>
-
-              <div className="border-t border-primary/10 my-2"></div>
-
-              <div className="flex justify-between items-center">
-                <div>
-                  <span className="font-bold text-lg text-white">
-                    {selectedMatch.player2?.name || 'Rival a confirmar'}
-                  </span>
-                  <span className="text-xs text-gray-400 block">
-                    {selectedMatch.player2?.club || 'Club no especificado'}
-                  </span>
-                </div>
-                <span className="font-mono text-xl font-bold text-primary">
-                  {selectedMatch.status === 'completed' ? selectedMatch.score2 : ''}
-                </span>
-              </div>
-            </div>
-
-            {/* Scheduling Info */}
-            <div className="space-y-3 text-sm text-gray-300">
-              <div className="flex items-center gap-2">
-                <Clock className="w-5 h-5 text-primary" />
-                <span>
-                  <strong>Estado:</strong> {
-                    selectedMatch.status === 'completed' ? 'Finalizado' :
-                    selectedMatch.status === 'live' ? 'Jugándose en Vivo' : 'Programado'
-                  }
-                </span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-primary" />
-                <span>
-                  <strong>Programación:</strong> {
-                    selectedMatch.scheduled_date ? new Date(selectedMatch.scheduled_date).toLocaleString('es-AR', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }) : 'Fecha no especificada'
-                  }
-                </span>
-              </div>
-            </div>
-
-            {/* Winner Badge */}
-            {selectedMatch.status === 'completed' && selectedMatch.winner_id && (
-              <div className="mt-6 p-3 bg-green-950/20 border border-green-500/30 rounded-lg text-center text-green-400 font-bold">
-                🏆 GANADOR: {
-                  selectedMatch.winner_id === selectedMatch.player1_id 
-                    ? selectedMatch.player1?.name 
-                    : selectedMatch.player2?.name
-                }
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   )
 }

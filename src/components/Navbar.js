@@ -11,6 +11,7 @@ export default function Navbar() {
     { href: '/cuadro', label: 'Cuadro' },
     { href: '/resultados', label: 'Resultados' },
     { href: '/jugadores', label: 'Jugadores' },
+    { href: '/galeria', label: 'Galería' },
     { href: '/reglamento', label: 'Reglamento' },
     { href: '/patrocinadores', label: 'Sponsors' },
   ]
