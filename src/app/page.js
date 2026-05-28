@@ -61,11 +61,11 @@ export default function Home() {
                 href={sponsor.website || '#'} 
                 target={sponsor.website ? '_blank' : '_self'}
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center h-16 px-4 hover:scale-105 transition-transform duration-300"
+                className="inline-flex items-center justify-center h-32 px-4 hover:scale-105 transition-transform duration-300"
                 title={sponsor.name}
               >
                 {sponsor.logo_url ? (
-                  <img src={sponsor.logo_url} alt={sponsor.name} className="max-h-12 w-auto object-contain" />
+                  <img src={sponsor.logo_url} alt={sponsor.name} className="max-h-24 w-auto object-contain" />
                 ) : (
                   <span className="text-xs text-primary font-extrabold tracking-wider bg-secondary/80 border border-primary/25 rounded-lg px-4 py-2 uppercase shadow-inner">
                     {sponsor.name}
@@ -273,7 +273,7 @@ export default function Home() {
                     href={sponsor.website || '#'} 
                     target={sponsor.website ? '_blank' : '_self'}
                     rel="noopener noreferrer"
-                    className="w-full h-16 flex items-center justify-center p-2 bg-secondary rounded-lg border border-primary/5 hover:border-primary/30 hover:scale-105 transition-all overflow-hidden cursor-pointer"
+                    className="w-full h-32 flex items-center justify-center p-2 bg-secondary rounded-lg border border-primary/5 hover:border-primary/30 hover:scale-105 transition-all overflow-hidden cursor-pointer"
                     title={sponsor.name}
                   >
                     {sponsor.logo_url ? (

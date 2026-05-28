@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Printer, Calendar, Clock, Trophy, RefreshCw, X } from 'lucide-react'
+import { Printer, Calendar, Clock, Trophy, RefreshCw, X, User } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
 function CuadroContent() {
@@ -185,9 +185,16 @@ function CuadroContent() {
                           <div className={`flex justify-between items-center px-4 py-2.5 border-b border-secondary/40 ${
                             isCompleted && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
                           }`}>
-                            <span className="truncate text-xs max-w-[150px] group-hover:text-white transition">
-                              {match.player1?.name || 'A confirmar'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              {match.player1?.photo_url ? (
+                                <img src={match.player1.photo_url} alt={match.player1.name} className="w-6 h-6 rounded-full object-cover" />
+                              ) : (
+                                <User className="w-5 h-5 text-primary" />
+                              )}
+                              <span className="truncate text-xs max-w-[130px] group-hover:text-white transition">
+                                {match.player1?.name || 'A confirmar'}
+                              </span>
+                            </div>
                             <span className="font-mono text-xs font-bold ml-2">
                               {isCompleted && match.score1 ? match.score1 : ''}
                             </span>
@@ -197,9 +204,16 @@ function CuadroContent() {
                           <div className={`flex justify-between items-center px-4 py-2.5 ${
                             isCompleted && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
                           }`}>
-                            <span className="truncate text-xs max-w-[150px] group-hover:text-white transition">
-                              {match.player2?.name || 'A confirmar'}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              {match.player2?.photo_url ? (
+                                <img src={match.player2.photo_url} alt={match.player2.name} className="w-6 h-6 rounded-full object-cover" />
+                              ) : (
+                                <User className="w-5 h-5 text-primary" />
+                              )}
+                              <span className="truncate text-xs max-w-[130px] group-hover:text-white transition">
+                                {match.player2?.name || 'A confirmar'}
+                              </span>
+                            </div>
                             <span className="font-mono text-xs font-bold ml-2">
                               {isCompleted && match.score2 ? match.score2 : ''}
                             </span>
