@@ -1,10 +1,12 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Trophy, Settings } from 'lucide-react'
+import { useState } from 'react'
+import { Trophy, Settings, Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const pathname = usePathname()
+const [mobileOpen, setMobileOpen] = useState(false)
   
   const links = [
     { href: '/', label: 'Inicio' },
@@ -24,6 +26,9 @@ export default function Navbar() {
             <Trophy className="w-6 h-6 text-primary" />
             <span className="font-bold text-xl text-primary">M15</span>
           </Link>
+<button className="md:hidden p-2 text-gray-300 hover:text-primary transition" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+  {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+</button>
           
           <div className="hidden md:flex space-x-4 items-center">
             {links.map((link) => (
@@ -43,6 +48,22 @@ export default function Navbar() {
           </div>
         </div>
       </div>
+{mobileOpen && (
+  <div className="md:hidden bg-secondary border-t border-primary">
+    <div className="flex flex-col px-2 py-2 space-y-1">
+      {links.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className="px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:text-primary"
+          onClick={() => setMobileOpen(false)}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </div>
+  </div>
+)}
     </nav>
   )
 }
