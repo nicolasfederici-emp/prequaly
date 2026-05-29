@@ -1,15 +1,100 @@
 'use client'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, Fragment } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Printer, Calendar, Clock, Trophy, RefreshCw, X, User } from 'lucide-react'
+import { Printer, Calendar, Clock, Trophy, RefreshCw, X, User, ChevronDown, ChevronRight } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 
+/* ── Match Card (shared between desktop & mobile) ── */
+function MatchCard({ match, onClick }) {
+  const isCompleted = match.status === 'completed'
+  return (
+    <div
+      onClick={() => onClick(match)}
+      className="bg-gray-dark border border-primary/10 rounded-xl overflow-hidden shadow-lg transition cursor-pointer hover:border-primary/60 group w-full"
+    >
+      {/* Player 1 */}
+      <div className={`flex justify-between items-center px-3 py-2 border-b border-secondary/40 ${
+        isCompleted && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
+      }`}>
+        <div className="flex items-center gap-2 min-w-0">
+          {match.player1?.photo_url ? (
+            <img src={match.player1.photo_url} alt={match.player1.name} className="w-5 h-5 rounded-full object-cover shrink-0" />
+          ) : (
+            <User className="w-4 h-4 text-primary shrink-0" />
+          )}
+          <span className="truncate text-xs max-w-[120px] group-hover:text-white transition">
+            {match.player1?.name || 'A confirmar'}
+          </span>
+        </div>
+        <span className="font-mono text-[11px] font-bold ml-2 shrink-0">
+          {isCompleted && match.score1 ? match.score1 : ''}
+        </span>
+      </div>
+      {/* Player 2 */}
+      <div className={`flex justify-between items-center px-3 py-2 ${
+        isCompleted && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
+      }`}>
+        <div className="flex items-center gap-2 min-w-0">
+          {match.player2?.photo_url ? (
+            <img src={match.player2.photo_url} alt={match.player2.name} className="w-5 h-5 rounded-full object-cover shrink-0" />
+          ) : (
+            <User className="w-4 h-4 text-primary shrink-0" />
+          )}
+          <span className="truncate text-xs max-w-[120px] group-hover:text-white transition">
+            {match.player2?.name || 'A confirmar'}
+          </span>
+        </div>
+        <span className="font-mono text-[11px] font-bold ml-2 shrink-0">
+          {isCompleted && match.score2 ? match.score2 : ''}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/* ── Bracket Connectors (CSS lines between rounds) ── */
+function BracketConnector({ prevCount, nextCount }) {
+  if (prevCount === 0 || nextCount === 0) return <div className="w-3 shrink-0" />
+
+  // 2:1 merge — two matches feed into one
+  if (prevCount === nextCount * 2) {
+    return (
+      <div className="flex flex-col w-7 shrink-0">
+        {Array.from({ length: nextCount }).map((_, i) => (
+          <div key={i} className="flex-1 flex flex-col">
+            <div className="flex-1 border-b-2 border-r-2 border-primary/20"></div>
+            <div className="flex-1 border-t-2 border-r-2 border-primary/20"></div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // 1:1 pass-through — dashed connecting lines
+  if (prevCount === nextCount) {
+    return (
+      <div className="flex flex-col w-5 shrink-0">
+        {Array.from({ length: prevCount }).map((_, i) => (
+          <div key={i} className="flex-1 flex items-center">
+            <div className="w-full border-t border-dashed border-primary/15"></div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  // Fallback spacer
+  return <div className="w-3 shrink-0" />
+}
+
+/* ── Main Component ── */
 function CuadroContent() {
   const searchParams = useSearchParams()
-  const [tournament, setTournament] = useState('prequaly') // 'prequaly', 'qualy', 'm15_singles', 'm15_doubles'
+  const [tournament, setTournament] = useState('prequaly')
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedMatch, setSelectedMatch] = useState(null)
+  const [collapsedRounds, setCollapsedRounds] = useState({})
 
   useEffect(() => {
     const tParam = searchParams.get('torneo')
@@ -34,25 +119,18 @@ function CuadroContent() {
       .eq('tournament', tournament)
       .order('match_number', { ascending: true })
 
-    if (error) {
-      console.error('Matches Error:', error)
-    } else {
-      setMatches(data || [])
-    }
+    if (error) console.error('Matches Error:', error)
+    else setMatches(data || [])
     setLoading(false)
   }
 
   const getRoundsForTournament = () => {
     switch (tournament) {
-      case 'prequaly':
-        return [1, 2, 3, 4, 5, 6]
+      case 'prequaly': return [1, 2, 3, 4, 5, 6]
       case 'qualy':
-      case 'm15_singles':
-        return [1, 2, 3, 4, 5]
-      case 'm15_doubles':
-        return [1, 2, 3, 4]
-      default:
-        return [1, 2, 3, 4, 5, 6]
+      case 'm15_singles': return [1, 2, 3, 4, 5]
+      case 'm15_doubles': return [1, 2, 3, 4]
+      default: return [1, 2, 3, 4, 5, 6]
     }
   }
 
@@ -88,27 +166,28 @@ function CuadroContent() {
     return `Ronda ${roundNum}`
   }
 
+  const toggleRound = (roundNum) => {
+    setCollapsedRounds(prev => ({ ...prev, [roundNum]: !prev[roundNum] }))
+  }
+
   // Group matches by round
-  const matchesByRound = {}
   const rounds = getRoundsForTournament()
+  const matchesByRound = {}
   rounds.forEach(r => {
     matchesByRound[r] = matches.filter(m => m.round === r)
   })
 
-  const handlePrint = () => {
-    window.print()
-  }
+  const handlePrint = () => window.print()
 
   return (
     <div className="container mx-auto px-4 py-8">
-      {/* Header (Hidden on Print) */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-primary/10 pb-6 print:hidden">
         <div>
           <h1 className="text-4xl font-bold text-primary">CUADROS DEL TORNEO</h1>
           <p className="text-gray-400">Selecciona el torneo para ver la llave de cruces oficial</p>
         </div>
-        
-        <button 
+        <button
           onClick={handlePrint}
           className="flex items-center gap-2 bg-primary text-secondary px-5 py-2.5 rounded-lg font-bold hover:bg-yellow-400 transition shadow-md w-full md:w-auto justify-center"
         >
@@ -117,32 +196,24 @@ function CuadroContent() {
         </button>
       </div>
 
-      {/* Tournament Navigation Tabs (Hidden on Print) */}
+      {/* Tournament Tabs */}
       <div className="flex flex-wrap gap-2 mb-8 bg-gray-dark p-1.5 rounded-xl border border-primary/20 print:hidden">
-        <button
-          onClick={() => setTournament('prequaly')}
-          className={`flex-1 min-w-[120px] text-center py-3 px-4 rounded-lg font-black transition-all text-sm ${tournament === 'prequaly' ? 'bg-primary text-secondary shadow-lg' : 'text-gray-400 hover:text-primary'}`}
-        >
-          🏆 PREQUALY (48)
-        </button>
-        <button
-          onClick={() => setTournament('qualy')}
-          className={`flex-1 min-w-[120px] text-center py-3 px-4 rounded-lg font-black transition-all text-sm ${tournament === 'qualy' ? 'bg-primary text-secondary shadow-lg' : 'text-gray-400 hover:text-primary'}`}
-        >
-          ⚡ QUALY (32)
-        </button>
-        <button
-          onClick={() => setTournament('m15_singles')}
-          className={`flex-1 min-w-[120px] text-center py-3 px-4 rounded-lg font-black transition-all text-sm ${tournament === 'm15_singles' ? 'bg-primary text-secondary shadow-lg' : 'text-gray-400 hover:text-primary'}`}
-        >
-          🎾 M15 SINGLES (32)
-        </button>
-        <button
-          onClick={() => setTournament('m15_doubles')}
-          className={`flex-1 min-w-[120px] text-center py-3 px-4 rounded-lg font-black transition-all text-sm ${tournament === 'm15_doubles' ? 'bg-primary text-secondary shadow-lg' : 'text-gray-400 hover:text-primary'}`}
-        >
-          👥 M15 DOBLES (16)
-        </button>
+        {[
+          { key: 'prequaly', label: '🏆 PREQUALY (48)' },
+          { key: 'qualy', label: '⚡ QUALY (32)' },
+          { key: 'm15_singles', label: '🎾 M15 SINGLES (32)' },
+          { key: 'm15_doubles', label: '👥 M15 DOBLES (16)' },
+        ].map(t => (
+          <button
+            key={t.key}
+            onClick={() => { setTournament(t.key); setCollapsedRounds({}) }}
+            className={`flex-1 min-w-[120px] text-center py-3 px-4 rounded-lg font-black transition-all text-sm ${
+              tournament === t.key ? 'bg-primary text-secondary shadow-lg' : 'text-gray-400 hover:text-primary'
+            }`}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {loading ? (
@@ -156,84 +227,123 @@ function CuadroContent() {
           <p className="text-gray-500 text-sm">Los cruces se verán reflejados tan pronto como se generen las llaves.</p>
         </div>
       ) : (
-        /* Bracket Layout Container */
-        <div className="overflow-x-auto pb-8 -mx-4 px-4 scrollbar-thin scrollbar-thumb-primary scrollbar-track-secondary">
-          <div className="flex gap-8 min-w-[1400px] py-4">
-            
-            {/* Rounds Column Render */}
+        <>
+          {/* ═══════ DESKTOP BRACKET (horizontal, with connector lines) ═══════ */}
+          <div className="hidden md:block overflow-x-auto pb-8 -mx-4 px-4 print:block">
+            <div className="flex items-stretch min-w-[1200px]">
+              {rounds.map((roundNum, roundIdx) => {
+                const roundMatches = matchesByRound[roundNum] || []
+                const isCollapsed = collapsedRounds[roundNum]
+                const nextRound = rounds[roundIdx + 1]
+                const nextMatches = nextRound ? (matchesByRound[nextRound] || []) : []
+                const showConnector = roundIdx < rounds.length - 1
+                  && !isCollapsed
+                  && !collapsedRounds[nextRound]
+
+                return (
+                  <Fragment key={roundNum}>
+                    {/* Round Column */}
+                    <div className={`flex flex-col ${isCollapsed ? 'min-w-[100px]' : 'flex-1 min-w-[200px]'}`}>
+                      {/* Clickable Round Header */}
+                      <button
+                        onClick={() => toggleRound(roundNum)}
+                        className="flex items-center justify-center gap-1.5 bg-gray-900 border border-primary/20 py-2 px-3 rounded-lg mb-4 font-bold text-primary text-xs uppercase tracking-wider hover:bg-gray-800 hover:border-primary/40 transition-all print:hover:bg-gray-900 select-none"
+                      >
+                        {isCollapsed
+                          ? <ChevronRight className="w-3.5 h-3.5" />
+                          : <ChevronDown className="w-3.5 h-3.5" />
+                        }
+                        {getRoundName(roundNum)}
+                        <span className="text-gray-500 font-mono text-[10px] ml-1">({roundMatches.length})</span>
+                      </button>
+
+                      {/* Matches (expanded) */}
+                      {!isCollapsed && (
+                        <div className="flex-1 flex flex-col justify-around">
+                          {roundMatches.map(match => (
+                            <div key={match.id} className="flex-1 flex items-center py-1 px-1">
+                              <MatchCard match={match} onClick={setSelectedMatch} />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Collapsed placeholder */}
+                      {isCollapsed && (
+                        <div className="flex-1 flex items-center justify-center">
+                          <span className="text-gray-600 text-xs italic -rotate-90 whitespace-nowrap select-none">
+                            {roundMatches.length} partidos
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bracket Connector Lines */}
+                    {showConnector && (
+                      <BracketConnector
+                        prevCount={roundMatches.length}
+                        nextCount={nextMatches.length}
+                      />
+                    )}
+
+                    {/* Spacer when connector is hidden */}
+                    {!showConnector && roundIdx < rounds.length - 1 && (
+                      <div className="w-3 shrink-0" />
+                    )}
+                  </Fragment>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* ═══════ MOBILE VIEW (vertical, collapsible accordion) ═══════ */}
+          <div className="md:hidden space-y-3 print:hidden">
             {rounds.map(roundNum => {
               const roundMatches = matchesByRound[roundNum] || []
+              const isCollapsed = collapsedRounds[roundNum]
+
               return (
-                <div key={roundNum} className="flex-1 flex flex-col justify-around min-w-[240px]">
+                <div key={roundNum} className="bg-gray-dark border border-primary/15 rounded-xl overflow-hidden">
                   {/* Round Header */}
-                  <div className="text-center bg-gray-900 border border-primary/20 py-2 rounded-lg mb-6 font-bold text-primary text-xs uppercase tracking-wider">
-                    {getRoundName(roundNum)}
-                  </div>
+                  <button
+                    onClick={() => toggleRound(roundNum)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-gray-900 border-b border-primary/10 text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      {isCollapsed
+                        ? <ChevronRight className="w-4 h-4 text-primary" />
+                        : <ChevronDown className="w-4 h-4 text-primary" />
+                      }
+                      <span className="font-bold text-primary text-sm uppercase tracking-wider">
+                        {getRoundName(roundNum)}
+                      </span>
+                    </div>
+                    <span className="text-xs text-gray-500 font-mono">{roundMatches.length} partidos</span>
+                  </button>
 
-                  {/* Matches list for this round */}
-                  <div className="flex-1 flex flex-col justify-around gap-6 py-2">
-                    {roundMatches.map(match => {
-                      const isCompleted = match.status === 'completed'
-
-                      return (
-                        <div 
-                          key={match.id}
-                          onClick={() => setSelectedMatch(match)}
-                          className="bg-gray-dark border border-primary/10 rounded-xl overflow-hidden shadow-lg transition cursor-pointer hover:border-primary/60 group"
-                        >
-                          {/* Player 1 Row */}
-                          <div className={`flex justify-between items-center px-4 py-2.5 border-b border-secondary/40 ${
-                            isCompleted && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
-                          }`}>
-                            <div className="flex items-center gap-2">
-                              {match.player1?.photo_url ? (
-                                <img src={match.player1.photo_url} alt={match.player1.name} className="w-6 h-6 rounded-full object-cover" />
-                              ) : (
-                                <User className="w-5 h-5 text-primary" />
-                              )}
-                              <span className="truncate text-xs max-w-[130px] group-hover:text-white transition">
-                                {match.player1?.name || 'A confirmar'}
-                              </span>
-                            </div>
-                            <span className="font-mono text-xs font-bold ml-2">
-                              {isCompleted && match.score1 ? match.score1 : ''}
-                            </span>
-                          </div>
-
-                          {/* Player 2 Row */}
-                          <div className={`flex justify-between items-center px-4 py-2.5 ${
-                            isCompleted && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
-                          }`}>
-                            <div className="flex items-center gap-2">
-                              {match.player2?.photo_url ? (
-                                <img src={match.player2.photo_url} alt={match.player2.name} className="w-6 h-6 rounded-full object-cover" />
-                              ) : (
-                                <User className="w-5 h-5 text-primary" />
-                              )}
-                              <span className="truncate text-xs max-w-[130px] group-hover:text-white transition">
-                                {match.player2?.name || 'A confirmar'}
-                              </span>
-                            </div>
-                            <span className="font-mono text-xs font-bold ml-2">
-                              {isCompleted && match.score2 ? match.score2 : ''}
-                            </span>
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
+                  {/* Match Cards */}
+                  {!isCollapsed && (
+                    <div className="p-3 space-y-2">
+                      {roundMatches.map(match => (
+                        <MatchCard key={match.id} match={match} onClick={setSelectedMatch} />
+                      ))}
+                      {roundMatches.length === 0 && (
+                        <p className="text-center text-gray-500 text-xs py-4">Sin partidos en esta ronda</p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )
             })}
           </div>
-        </div>
+        </>
       )}
 
-      {/* Match Detail Modal */}
+      {/* ═══════ MATCH DETAIL MODAL ═══════ */}
       {selectedMatch && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50 animate-fadeIn print:hidden">
           <div className="bg-gray-dark border border-primary/30 rounded-2xl p-6 max-w-md w-full relative shadow-2xl">
-            <button 
+            <button
               onClick={() => setSelectedMatch(null)}
               className="absolute right-4 top-4 text-gray-400 hover:text-white transition"
             >
@@ -245,7 +355,7 @@ function CuadroContent() {
             </span>
             <h3 className="text-2xl font-bold text-white mb-6">Detalles del Partido</h3>
 
-            {/* Players vs Box */}
+            {/* Players */}
             <div className="space-y-4 bg-secondary/60 p-4 rounded-xl border border-primary/10 mb-6">
               <div className="flex justify-between items-center">
                 <div>
@@ -260,9 +370,7 @@ function CuadroContent() {
                   {selectedMatch.status === 'completed' ? selectedMatch.score1 : ''}
                 </span>
               </div>
-
               <div className="border-t border-primary/10 my-2"></div>
-
               <div className="flex justify-between items-center">
                 <div>
                   <span className="font-bold text-lg text-white">
@@ -278,7 +386,7 @@ function CuadroContent() {
               </div>
             </div>
 
-            {/* Scheduling Info */}
+            {/* Schedule */}
             <div className="space-y-3 text-sm text-gray-300">
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-primary" />
@@ -290,24 +398,22 @@ function CuadroContent() {
                 <Calendar className="w-5 h-5 text-primary" />
                 <span>
                   <strong>Programación:</strong> {
-                    selectedMatch.scheduled_date ? new Date(selectedMatch.scheduled_date).toLocaleString('es-AR', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                      hour: '2-digit',
-                      minute: '2-digit'
-                    }) : 'Fecha no especificada'
+                    selectedMatch.scheduled_date
+                      ? new Date(selectedMatch.scheduled_date).toLocaleString('es-AR', {
+                          weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit'
+                        })
+                      : 'Fecha no especificada'
                   }
                 </span>
               </div>
             </div>
 
-            {/* Winner Badge */}
+            {/* Winner */}
             {selectedMatch.status === 'completed' && selectedMatch.winner_id && (
               <div className="mt-6 p-3 bg-green-950/20 border border-green-500/30 rounded-lg text-center text-green-400 font-bold">
                 🏆 GANADOR: {
-                  selectedMatch.winner_id === selectedMatch.player1_id 
-                    ? selectedMatch.player1?.name 
+                  selectedMatch.winner_id === selectedMatch.player1_id
+                    ? selectedMatch.player1?.name
                     : selectedMatch.player2?.name
                 }
               </div>
