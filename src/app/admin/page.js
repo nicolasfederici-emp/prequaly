@@ -466,8 +466,21 @@ export default function AdminPage() {
       const maxR = getMaxRound(match.tournament)
       if (matchForm.status === 'completed' && matchForm.winner_id && match.round < maxR) {
         const nextRound = match.round + 1
-        const targetMatchNumber = Math.floor((match.match_number - 1) / 2) + 1
-        const isPlayer1 = (match.match_number % 2 !== 0)
+        
+        let targetMatchNumber
+        let isPlayer1
+
+        if (match.tournament === 'prequaly' && match.round === 1) {
+          // PreQualy R1 -> R2 is a 1:1 mapping because of the 16 BYEs in Round 2.
+          targetMatchNumber = match.match_number
+          // Top half seeds are Player 1, so R1 winners go to Player 2 (isPlayer1 = false)
+          // Bottom half seeds are Player 2, so R1 winners go to Player 1 (isPlayer1 = true)
+          isPlayer1 = (match.match_number > 8)
+        } else {
+          // Standard 2:1 merge progression
+          targetMatchNumber = Math.floor((match.match_number - 1) / 2) + 1
+          isPlayer1 = (match.match_number % 2 !== 0)
+        }
 
         // Find the match in the next round
         const nextMatch = matches.find(m => m.tournament === match.tournament && m.round === nextRound && m.match_number === targetMatchNumber)
