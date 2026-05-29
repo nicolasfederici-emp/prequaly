@@ -1,15 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Shield, MapPin, Home, Phone, HelpCircle } from 'lucide-react'
+import { Info, MapPin, Phone, HelpCircle } from 'lucide-react'
 
 export default function ReglamentoPage() {
   const [settings, setSettings] = useState({
-    reglamento_inscripcion: '',
-    reglamento_sistema: '',
-    reglamento_premios: '',
+    informacion_torneo: '',
     logistica_sede: '',
-    logistica_hospedaje: '',
     contacto_esteban: '',
     contacto_lucas: '',
     contacto_omar: ''
@@ -45,57 +42,32 @@ export default function ReglamentoPage() {
       
       {/* Page Header */}
       <div className="text-center mb-8 border-b border-primary/10 pb-6">
-        <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2">REGLAMENTO Y LOGÍSTICA</h1>
-        <p className="text-gray-400">Información esencial para jugadores y entrenadores</p>
+        <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2">INFORMACIÓN DEL TORNEO</h1>
+        <p className="text-gray-400">Detalles esenciales y logística para jugadores y acompañantes</p>
       </div>
 
-      {/* Rules Section */}
+      {/* Information Section */}
       <section className="bg-gray-dark border border-primary/20 rounded-2xl p-6 md:p-8 space-y-6">
         <h2 className="text-2xl font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-3">
-          <Shield className="w-6 h-6" /> 1. Reglamento del Torneo
+          <Info className="w-6 h-6" /> 1. Información General
         </h2>
         
-        <div className="space-y-6 text-gray-300">
-          <div>
-            <h3 className="font-bold text-white text-lg mb-2">1.1 Inscripción y Cupos</h3>
-            {settings.reglamento_inscripcion ? (
-              <p className="whitespace-pre-line text-sm leading-relaxed pl-2">{settings.reglamento_inscripcion}</p>
-            ) : (
+        <div className="text-gray-300">
+          {settings.informacion_torneo ? (
+            <p className="whitespace-pre-line text-sm leading-relaxed">{settings.informacion_torneo}</p>
+          ) : (
+            <div className="space-y-4">
+              <p className="text-sm">
+                Bienvenidos a la página de información del Torneo M15 Villa Constitución. Aquí encontrarás todos los detalles relacionados con inscripciones, premios, sistema de juego y pautas generales del torneo.
+              </p>
               <ul className="list-disc list-inside space-y-1.5 text-sm pl-2">
                 <li>Cupo máximo: 48 jugadores (cuadro cerrado).</li>
                 <li>Costo de inscripción: <strong className="text-primary">$60.000 ARS</strong>.</li>
-                <li>El pago se realiza mediante transferencia/Mercado Pago al usuario: <code className="bg-secondary text-primary px-1.5 py-0.5 rounded font-mono">estebanspinetta</code>.</li>
-                <li>Enviar el comprobante de pago vía WhatsApp al <a href="https://wa.me/5493400517063" className="text-primary underline">3400 517063</a> para validar tu participación.</li>
+                <li>Premio Campeón: Wild Card directo al Cuadro Principal del Torneo Internacional M15.</li>
+                <li>Premio Finalista: Wild Card a la Fase de Clasificación (Qualy) del M15.</li>
               </ul>
-            )}
-          </div>
-
-          <div>
-            <h3 className="font-bold text-white text-lg mb-2">1.2 Sistema de Competición</h3>
-            {settings.reglamento_sistema ? (
-              <p className="whitespace-pre-line text-sm leading-relaxed pl-2">{settings.reglamento_sistema}</p>
-            ) : (
-              <ul className="list-disc list-inside space-y-1.5 text-sm pl-2">
-                <li>Formato de juego: Eliminación directa (bracket tradicional).</li>
-                <li>Partidos a: 2 sets regulares con ventaja + match tie-break (a 10 puntos) en caso de un tercer set.</li>
-                <li>Se aplicará el sistema de puntuación "No-Ad" (punto de oro en el deuce) en todos los juegos.</li>
-                <li>Pelotas oficiales del torneo provistas por la organización en cada partido.</li>
-              </ul>
-            )}
-          </div>
-
-          <div>
-            <h3 className="font-bold text-white text-lg mb-2">1.3 Premios y Clasificación</h3>
-            {settings.reglamento_premios ? (
-              <p className="whitespace-pre-line text-sm leading-relaxed pl-2">{settings.reglamento_premios}</p>
-            ) : (
-              <ul className="list-disc list-inside space-y-1.5 text-sm pl-2">
-                <li><strong className="text-primary">Campeón:</strong> Obtiene Wild Card (tarjeta de invitación) para ingresar de forma directa al Cuadro Principal del Torneo Internacional M15.</li>
-                <li><strong className="text-primary">Finalista:</strong> Obtiene Wild Card para la Fase de Clasificación (Qualy) del Torneo Internacional M15.</li>
-                <li>Las invitaciones son personales y no transferibles. Los ganadores deben poseer el carnet IPIN de la ITF al día para hacer efectivo el premio.</li>
-              </ul>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </section>
 
@@ -142,48 +114,10 @@ export default function ReglamentoPage() {
         </div>
       </section>
 
-      {/* Lodging Section */}
-      <section className="bg-gray-dark border border-primary/20 rounded-2xl p-6 md:p-8 space-y-6">
-        <h2 className="text-2xl font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-3">
-          <Home className="w-6 h-6" /> 3. Hospedaje Oficial
-        </h2>
-        
-        <div className="text-gray-300 space-y-4">
-          {settings.logistica_hospedaje ? (
-            <p className="whitespace-pre-line text-sm leading-relaxed">{settings.logistica_hospedaje}</p>
-          ) : (
-            <>
-              <div className="flex justify-between items-start flex-wrap gap-2">
-                <div>
-                  <h3 className="font-bold text-white text-lg">Club Náutico Villa Constitución</h3>
-                  <p className="text-sm text-gray-400">Hospedaje preferencial para jugadores inscriptos y acompañantes.</p>
-                </div>
-                <span className="bg-primary/20 text-primary border border-primary/40 px-3 py-1 rounded-lg text-sm font-black">
-                  $20.000 ARS / día
-                </span>
-              </div>
-              
-              <p className="text-sm">
-                El hospedaje está ubicado a pocos minutos de la sede deportiva, ofreciendo comodidad, espacios verdes frente al río y servicios de gastronomía. Se requiere reserva previa ya que la disponibilidad de camas es limitada.
-              </p>
-            </>
-          )}
-
-          <a 
-            href={`https://wa.me/549${cleanPhone(settings.contacto_esteban || '3400517063')}?text=Hola%20Esteban,%20necesito%20reservar%20hospedaje%20para%20el%20PreQualy%20M15`} 
-            target="_blank"
-            rel="noopener noreferrer"
-            className="bg-primary text-secondary px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-yellow-300 transition inline-block text-center"
-          >
-            Reservar Hospedaje Oficial
-          </a>
-        </div>
-      </section>
-
       {/* Contact Section */}
       <section className="bg-gray-dark border border-primary/20 rounded-2xl p-6 md:p-8 space-y-6">
         <h2 className="text-2xl font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-3">
-          <Phone className="w-6 h-6" /> 4. Contactos y Organización
+          <Phone className="w-6 h-6" /> 3. Contactos y Organización
         </h2>
         
         <div className="grid sm:grid-cols-3 gap-6">

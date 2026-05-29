@@ -8,14 +8,6 @@ export default function Home() {
   const [sponsors, setSponsors] = useState([])
   const [news, setNews] = useState([])
   const [loading, setLoading] = useState(true)
-  const [settings, setSettings] = useState({
-    home_card1_title: 'Costo y Detalles',
-    home_card1_desc: 'El valor de inscripción es de $60.000 ARS. Los 48 jugadores ya están confirmados para el cuadro principal.',
-    home_card2_title: 'Wild Cards',
-    home_card2_desc: 'El campeón obtendrá Wild Card para el cuadro principal del torneo internacional M15. El finalista jugará la Clasificación.',
-    home_card3_title: 'Hospedaje Oficial',
-    home_card3_desc: 'Se ofrece hospedaje oficial en el Club Náutico Villa Constitución a una tarifa promocional de $20.000 por día.',
-  })
 
   useEffect(() => {
     fetchHomeData()
@@ -23,22 +15,13 @@ export default function Home() {
 
   const fetchHomeData = async () => {
     setLoading(true)
-    const [spRes, nwRes, setRes] = await Promise.all([
+    const [spRes, nwRes] = await Promise.all([
       supabase.from('sponsors').select('*').order('priority', { ascending: true }),
-      supabase.from('news').select('*').order('created_at', { ascending: false }).limit(3),
-      supabase.from('settings').select('*')
+      supabase.from('news').select('*').order('created_at', { ascending: false }).limit(3)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
     if (!nwRes.error) setNews(nwRes.data || [])
-    
-    if (setRes && !setRes.error && setRes.data) {
-      const setMap = {}
-      setRes.data.forEach(s => {
-        setMap[s.key] = s.value
-      })
-      setSettings(prev => ({ ...prev, ...setMap }))
-    }
     
     setLoading(false)
   }
@@ -242,7 +225,7 @@ export default function Home() {
                       </div>
                     )}
                     <div className="p-5">
-                      <span className="text-[10px] text-primary font-bold block mb-1">{n.date}</span>
+                      <span className="text-[10px] text-primary font-bold block mb-1">{n.date ? n.date.slice(0, 10) : ''}</span>
                       <h3 className="font-bold text-white text-base mb-2 line-clamp-2">{n.title}</h3>
                       <p className="text-gray-400 text-xs line-clamp-3">{n.content}</p>
                     </div>

@@ -55,14 +55,8 @@ export default function AdminPage() {
 
   // Settings State
   const [settingsForm, setSettingsForm] = useState({
-    home_card1_title: '', home_card1_desc: '',
-    home_card2_title: '', home_card2_desc: '',
-    home_card3_title: '', home_card3_desc: '',
-    reglamento_inscripcion: '',
-    reglamento_sistema: '',
-    reglamento_premios: '',
+    informacion_torneo: '',
     logistica_sede: '',
-    logistica_hospedaje: '',
     contacto_esteban: '',
     contacto_lucas: '',
     contacto_omar: ''
@@ -512,7 +506,7 @@ export default function AdminPage() {
       title: newsForm.title,
       image: newsForm.image,
       content: newsForm.content,
-      date: newsForm.date || new Date().toISOString().slice(0, 10)
+      date: (newsForm.date ? newsForm.date.slice(0, 10) : new Date().toISOString().slice(0, 10))
     }
 
     let error
@@ -1422,7 +1416,7 @@ export default function AdminPage() {
                 <div>
                   {n.image && <img src={n.image} alt={n.title} className="w-full h-48 object-cover border-b border-primary/20" />}
                   <div className="p-6">
-                    <span className="text-xs text-primary font-bold block mb-1">{n.date}</span>
+                    <span className="text-xs text-primary font-bold block mb-1">{n.date ? n.date.slice(0, 10) : ''}</span>
                     <h3 className="text-xl font-bold text-white mb-2">{n.title}</h3>
                     <p className="text-gray-400 text-sm line-clamp-3">{n.content}</p>
                   </div>
@@ -1542,95 +1536,31 @@ export default function AdminPage() {
               <Settings className="w-6 h-6 text-primary" />
               Configuración de Textos de la Web
             </h2>
-            <p className="text-gray-400 text-sm mt-1">Modifica los contenidos de las tarjetas de inicio y la página de reglamento</p>
+            <p className="text-gray-400 text-sm mt-1">Modifica los contenidos de la página de información general, sede y contactos del torneo</p>
           </div>
 
           <form onSubmit={saveSettings} className="space-y-8 bg-gray-dark p-6 rounded-xl border border-primary/20">
-            {/* Home Cards Section */}
-            <div className="space-y-6">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">1. Tarjetas de Información del Inicio</h3>
-              
-              <div className="grid md:grid-cols-3 gap-6">
-                {/* Card 1 */}
-                <div className="space-y-3 bg-secondary/30 p-4 rounded-lg border border-primary/5">
-                  <span className="text-xs font-bold text-primary block">Tarjeta 1 (Inscripciones)</span>
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Título</label>
-                    <input value={settingsForm.home_card1_title} onChange={e => setSettingsForm({...settingsForm, home_card1_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Contenido</label>
-                    <textarea rows="4" value={settingsForm.home_card1_desc} onChange={e => setSettingsForm({...settingsForm, home_card1_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-xs text-white"></textarea>
-                  </div>
-                </div>
-
-                {/* Card 2 */}
-                <div className="space-y-3 bg-secondary/30 p-4 rounded-lg border border-primary/5">
-                  <span className="text-xs font-bold text-primary block">Tarjeta 2 (Premios)</span>
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Título</label>
-                    <input value={settingsForm.home_card2_title} onChange={e => setSettingsForm({...settingsForm, home_card2_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Contenido</label>
-                    <textarea rows="4" value={settingsForm.home_card2_desc} onChange={e => setSettingsForm({...settingsForm, home_card2_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-xs text-white"></textarea>
-                  </div>
-                </div>
-
-                {/* Card 3 */}
-                <div className="space-y-3 bg-secondary/30 p-4 rounded-lg border border-primary/5">
-                  <span className="text-xs font-bold text-primary block">Tarjeta 3 (Hospedaje)</span>
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Título</label>
-                    <input value={settingsForm.home_card3_title} onChange={e => setSettingsForm({...settingsForm, home_card3_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-400 mb-1">Contenido</label>
-                    <textarea rows="4" value={settingsForm.home_card3_desc} onChange={e => setSettingsForm({...settingsForm, home_card3_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-xs text-white"></textarea>
-                  </div>
-                </div>
+            {/* Information Section */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">1. Información del Torneo</h3>
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">Descripción General (admite saltos de línea)</label>
+                <textarea rows="8" value={settingsForm.informacion_torneo} onChange={e => setSettingsForm({...settingsForm, informacion_torneo: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white" placeholder="Escribe el reglamento, sistema de juego y premios aquí..."></textarea>
               </div>
             </div>
 
-            {/* Reglamento Section */}
+            {/* Sede Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">2. Contenido de la Página de Reglamento</h3>
-              
-              <div className="grid md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">1. Inscripción (Detalles)</label>
-                  <textarea rows="6" value={settingsForm.reglamento_inscripcion} onChange={e => setSettingsForm({...settingsForm, reglamento_inscripcion: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">2. Sistema de Juego (Detalles)</label>
-                  <textarea rows="6" value={settingsForm.reglamento_sistema} onChange={e => setSettingsForm({...settingsForm, reglamento_sistema: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">3. Premios (Detalles)</label>
-                  <textarea rows="6" value={settingsForm.reglamento_premios} onChange={e => setSettingsForm({...settingsForm, reglamento_premios: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
-                </div>
-              </div>
-            </div>
-
-            {/* Logística & Hospedaje Section */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">3. Sede y Hospedaje</h3>
-              
-              <div className="grid md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">Información de la Sede (Club Empalme)</label>
-                  <textarea rows="3" value={settingsForm.logistica_sede} onChange={e => setSettingsForm({...settingsForm, logistica_sede: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">Información de Alojamiento (Club Náutico)</label>
-                  <textarea rows="3" value={settingsForm.logistica_hospedaje} onChange={e => setSettingsForm({...settingsForm, logistica_hospedaje: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
-                </div>
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">2. Sede del Torneo</h3>
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">Información de la Sede (Club Empalme)</label>
+                <textarea rows="3" value={settingsForm.logistica_sede} onChange={e => setSettingsForm({...settingsForm, logistica_sede: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
               </div>
             </div>
 
             {/* Contactos Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">4. Teléfonos de Contacto</h3>
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">3. Teléfonos de Contacto</h3>
               
               <div className="grid md:grid-cols-3 gap-6">
                 <div>

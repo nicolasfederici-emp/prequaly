@@ -14,7 +14,7 @@ const [mobileOpen, setMobileOpen] = useState(false)
     { href: '/resultados', label: 'Resultados' },
     { href: '/jugadores', label: 'Jugadores' },
     { href: '/galeria', label: 'Galería' },
-    { href: '/reglamento', label: 'Reglamento' },
+    { href: '/reglamento', label: 'Información' },
     { href: '/patrocinadores', label: 'Sponsors' },
   ]
 

@@ -89,12 +89,7 @@ export default function GaleriaPage() {
         >
           M15 VILLA C.
         </button>
-        <button
-          onClick={() => setFilter('general')}
-          className={`flex-1 min-w-[100px] text-center py-2.5 px-3 rounded-lg font-black transition text-xs ${filter === 'general' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-primary'}`}
-        >
-          GENERAL
-        </button>
+
       </div>
 
       {loading ? (
