@@ -391,7 +391,13 @@ function CuadroContent() {
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-primary" />
                 <span>
-                  <strong>Estado:</strong> {selectedMatch.status === 'completed' ? 'Finalizado' : 'Programado'}
+                  <strong>Estado:</strong> {
+                    selectedMatch.status === 'completed' 
+                      ? 'Finalizado' 
+                      : selectedMatch.status === 'scheduled' 
+                      ? 'Programado' 
+                      : 'Pendiente'
+                  }
                 </span>
               </div>
               <div className="flex items-center gap-2">

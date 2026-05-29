@@ -249,10 +249,10 @@ export default function AdminPage() {
             match_number: i,
             player1_id: null,
             player2_id: null,
-            status: 'scheduled',
+            status: 'pending',
             score1: '', score2: '', winner_id: null,
             tournament: 'prequaly',
-            scheduled_date: new Date(2026, 5, 16, 10 + (i % 4), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 2: 16 matches
@@ -262,10 +262,10 @@ export default function AdminPage() {
             match_number: i,
             player1_id: null,
             player2_id: null,
-            status: 'scheduled',
+            status: 'pending',
             score1: '', score2: '', winner_id: null,
             tournament: 'prequaly',
-            scheduled_date: new Date(2026, 5, 17, 10 + (i % 4), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 3: 8 matches (Octavos)
@@ -273,9 +273,9 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 3,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: 'prequaly',
-            scheduled_date: new Date(2026, 5, 18, 12 + (i % 3), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 4: 4 matches (Cuartos)
@@ -283,9 +283,9 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 4,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: 'prequaly',
-            scheduled_date: new Date(2026, 5, 19, 14 + (i % 2), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 5: 2 matches (Semis)
@@ -293,18 +293,18 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 5,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: 'prequaly',
-            scheduled_date: new Date(2026, 5, 20, 15, 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 6: 1 match (Final)
         matchesToInsert.push({
           round: 6,
           match_number: 1,
-          player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+          player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
           tournament: 'prequaly',
-          scheduled_date: new Date(2026, 5, 21, 16, 0).toISOString()
+          scheduled_date: null
         })
       } else if (tourn === 'qualy' || tourn === 'm15_singles') {
         // Qualy or M15 Singles: 32 players draw
@@ -313,9 +313,9 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 1,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: tourn,
-            scheduled_date: new Date(2026, 6, 12, 10 + (i % 4), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 2: 8 matches (Octavos)
@@ -323,9 +323,9 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 2,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: tourn,
-            scheduled_date: new Date(2026, 6, 13, 10 + (i % 4), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 3: 4 matches (Cuartos)
@@ -333,9 +333,9 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 3,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: tourn,
-            scheduled_date: new Date(2026, 6, 14, 12 + (i % 2), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 4: 2 matches (Semis)
@@ -343,18 +343,18 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 4,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: tourn,
-            scheduled_date: new Date(2026, 6, 15, 14, 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 5: 1 match (Final)
         matchesToInsert.push({
           round: 5,
           match_number: 1,
-          player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+          player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
           tournament: tourn,
-          scheduled_date: new Date(2026, 6, 16, 16, 0).toISOString()
+          scheduled_date: null
         })
       } else if (tourn === 'm15_doubles') {
         // M15 Doubles: 16 pairs draw
@@ -363,9 +363,9 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 1,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: 'm15_doubles',
-            scheduled_date: new Date(2026, 6, 13, 11 + (i % 3), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 2: 4 matches (Cuartos)
@@ -373,9 +373,9 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 2,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: 'm15_doubles',
-            scheduled_date: new Date(2026, 6, 14, 13 + (i % 2), 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 3: 2 matches (Semis)
@@ -383,18 +383,18 @@ export default function AdminPage() {
           matchesToInsert.push({
             round: 3,
             match_number: i,
-            player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
             tournament: 'm15_doubles',
-            scheduled_date: new Date(2026, 6, 15, 15, 0).toISOString()
+            scheduled_date: null
           })
         }
         // ROUND 4: 1 match (Final)
         matchesToInsert.push({
           round: 4,
           match_number: 1,
-          player1_id: null, player2_id: null, status: 'scheduled', score1: '', score2: '', winner_id: null,
+          player1_id: null, player2_id: null, status: 'pending', score1: '', score2: '', winner_id: null,
           tournament: 'm15_doubles',
-          scheduled_date: new Date(2026, 6, 16, 17, 0).toISOString()
+          scheduled_date: null
         })
       }
 
@@ -1102,6 +1102,7 @@ export default function AdminPage() {
                           onChange={e => setMatchForm({...matchForm, status: e.target.value})} 
                           className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"
                         >
+                          <option value="pending">No Programado</option>
                           <option value="scheduled">Programado</option>
                           <option value="completed">Finalizado</option>
                         </select>
@@ -1190,8 +1191,14 @@ export default function AdminPage() {
                     <span className="text-xs font-bold bg-secondary px-2.5 py-1 rounded text-primary border border-primary/10">
                       Partido #{match.match_number}
                     </span>
-                    <span className={`text-xs px-2.5 py-1 rounded font-bold ${match.status === 'completed' ? 'bg-green-900/50 text-green-400' : 'bg-gray-800 text-gray-400'}`}>
-                      {match.status === 'completed' ? 'Finalizado' : 'Programado'}
+                    <span className={`text-xs px-2.5 py-1 rounded font-bold ${
+                      match.status === 'completed' 
+                        ? 'bg-green-900/50 text-green-400' 
+                        : match.status === 'scheduled' 
+                        ? 'bg-blue-900/50 text-blue-400' 
+                        : 'bg-gray-800 text-gray-400'
+                    }`}>
+                      {match.status === 'completed' ? 'Finalizado' : match.status === 'scheduled' ? 'Programado' : 'No Programado'}
                     </span>
                   </div>
 

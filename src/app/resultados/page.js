@@ -66,11 +66,11 @@ export default function ResultadosPage() {
     return `Ronda ${roundNum}`
   }
 
-  // Filter: remove 'live' from statuses, since we only show scheduled and completed
+  // Filter: only show scheduled and completed matches, excluding pending ones
   const filteredMatches = matches.filter(m => {
     if (filter === 'completed') return m.status === 'completed'
     if (filter === 'upcoming') return m.status === 'scheduled'
-    return true
+    return m.status === 'completed' || m.status === 'scheduled'
   })
 
   // Group filtered matches by round
