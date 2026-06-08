@@ -122,7 +122,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
+        <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-8">
           {/* PREQUALY CARD */}
           <div className="court-card p-8 flex flex-col justify-between hover:border-primary/50 transition-all duration-300">
             <div>
@@ -196,6 +196,44 @@ export default function Home() {
               className="bg-secondary text-primary border border-primary/30 py-3 px-4 rounded-xl font-bold text-center hover:bg-primary hover:text-secondary transition flex items-center justify-center gap-2 z-10"
             >
               Cuadro Qualy <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* MAIN DRAW CARD */}
+          <div className="court-card p-8 flex flex-col justify-between hover:border-primary/50 transition-all duration-300">
+            <div>
+              <div className="flex justify-between items-start mb-6">
+                <span className="text-xs font-black uppercase tracking-widest text-secondary bg-primary px-3.5 py-1.5 rounded-full z-10">
+                  Fase 3: Torneo Principal
+                </span>
+                <span className="text-xs text-gray-500 font-mono z-10">15 al 21 de Julio</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">Main Draw M15</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-6 z-10 relative">
+                El evento internacional más importante de la región. Profesionales de todo el mundo compiten por puntos para el ranking ATP mundial.
+              </p>
+              
+              <div className="space-y-3 mb-8 z-10 relative">
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <MapPin className="w-4 h-4 text-clay" />
+                  <span>Sede: **Club Náutico Villa Constitución**</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <Trophy className="w-4 h-4 text-primary" />
+                  <span>Cuadro principal de **32 jugadores**</span>
+                </div>
+                <div className="flex items-center gap-3 text-sm text-gray-300">
+                  <Star className="w-4 h-4 text-primary" />
+                  <span>Puntos para el ranking **ATP Mundial**</span>
+                </div>
+              </div>
+            </div>
+            
+            <Link 
+              href="/cuadro?torneo=main" 
+              className="bg-primary text-secondary border border-primary py-3 px-4 rounded-xl font-bold text-center hover:bg-white hover:text-secondary transition flex items-center justify-center gap-2 z-10"
+            >
+              Cuadro Principal <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
