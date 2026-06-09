@@ -74,44 +74,57 @@ export default function ReglamentoPage() {
       {/* Sede Venue Section */}
       <section className="bg-gray-dark border border-primary/20 rounded-2xl p-6 md:p-8 space-y-6">
         <h2 className="text-2xl font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-3">
-          <MapPin className="w-6 h-6" /> 2. Sede del Torneo
+          <MapPin className="w-6 h-6" /> 2. Sedes del Torneo
         </h2>
         
-        <div className="grid md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4 text-gray-300">
-            <h3 className="font-bold text-white text-lg">Club Empalme Central</h3>
-            {settings.logistica_sede ? (
-              <p className="whitespace-pre-line text-sm leading-relaxed">{settings.logistica_sede}</p>
-            ) : (
-              <>
-                <p className="text-sm">
-                  Las canchas del torneo son de polvo de ladrillo en excelentes condiciones profesionales, con iluminación de última generación.
-                </p>
-                <div className="text-sm space-y-2">
-                  <p>📍 <strong>Dirección:</strong> Juan José Paso 49, Empalme Villa Constitución, Santa Fe, Argentina.</p>
-                  <p>📍 <strong>Coordenadas:</strong> Cerca del acceso principal de la autopista Buenos Aires - Rosario, facilitando la llegada de jugadores de todo el país.</p>
-                </div>
-              </>
-            )}
-            
+        <div className="grid md:grid-cols-2 gap-6 items-stretch">
+          {/* Main Venue */}
+          <div className="bg-secondary/40 p-6 rounded-xl border border-primary/10 flex flex-col justify-between">
+            <div className="space-y-4 text-gray-300 mb-6">
+              <span className="text-xs font-black uppercase tracking-widest text-secondary bg-primary px-3 py-1 rounded-full inline-block">Sede Principal M15 & Qualy</span>
+              <h3 className="font-bold text-white text-xl">Club Náutico Villa Constitución</h3>
+              <p className="text-sm">Sede oficial del torneo internacional M15 y la fase de Qualy. Cuenta con canchas de polvo de ladrillo de primer nivel.</p>
+              <div className="text-sm space-y-2 text-gray-400">
+                <p>📍 <strong>Dirección:</strong> Av. San Martín, Villa Constitución, Santa Fe.</p>
+              </div>
+            </div>
             <a 
-              href="https://maps.google.com/?q=Club+Empalme+Central+Juan+Jose+Paso+49+Empalme+Villa+Constitucion" 
+              href="https://maps.google.com/?q=Club+Nautico+Villa+Constitucion" 
               target="_blank" 
               rel="noopener noreferrer" 
-              className="bg-secondary text-primary border border-primary/30 hover:bg-primary hover:text-secondary px-5 py-2.5 rounded-lg font-bold text-sm transition inline-block text-center w-full sm:w-auto"
+              className="bg-primary text-secondary border border-primary hover:bg-white hover:text-secondary px-5 py-2.5 rounded-lg font-bold text-sm transition inline-block text-center w-full"
             >
               Cómo llegar en Google Maps
             </a>
           </div>
-          
-          <div className="bg-secondary rounded-xl h-48 border border-primary/10 flex items-center justify-center text-gray-500 text-center p-4">
-            <div className="space-y-2">
-              <MapPin className="w-8 h-8 text-primary mx-auto" />
-              <span className="text-xs block text-gray-400">Club Empalme Central</span>
-              <span className="text-[10px] text-gray-600 block">Juan José Paso 49, Empalme Villa Constitución</span>
+
+          {/* PreQualy Venue */}
+          <div className="bg-secondary/40 p-6 rounded-xl border border-primary/10 flex flex-col justify-between">
+            <div className="space-y-4 text-gray-300 mb-6">
+              <span className="text-xs font-black uppercase tracking-widest text-white bg-clay px-3 py-1 rounded-full inline-block">Sede Pre-Qualy & Entrenamiento</span>
+              <h3 className="font-bold text-white text-xl">Club Empalme Central</h3>
+              <p className="text-sm">Sede exclusiva para la fase de Pre-Qualy oficial y canchas de entrenamiento durante el torneo.</p>
+              <div className="text-sm space-y-2 text-gray-400">
+                <p>📍 <strong>Dirección:</strong> Juan José Paso 49, Empalme Villa Constitución, Santa Fe.</p>
+              </div>
             </div>
+            <a 
+              href="https://maps.google.com/?q=Club+Empalme+Central+Juan+Jose+Paso+49+Empalme+Villa+Constitucion" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="bg-gray-dark text-primary border border-primary/30 hover:bg-primary hover:text-secondary px-5 py-2.5 rounded-lg font-bold text-sm transition inline-block text-center w-full"
+            >
+              Cómo llegar en Google Maps
+            </a>
           </div>
         </div>
+        
+        {settings.logistica_sede && (
+           <div className="mt-2 pt-6 border-t border-primary/10">
+              <h3 className="font-bold text-white text-lg mb-3">Información Adicional de Logística</h3>
+              <p className="whitespace-pre-line text-sm text-gray-300 leading-relaxed">{settings.logistica_sede}</p>
+           </div>
+        )}
       </section>
 
       {/* Contact Section */}

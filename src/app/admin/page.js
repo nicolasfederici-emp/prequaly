@@ -1573,7 +1573,7 @@ export default function AdminPage() {
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">2. Sede del Torneo</h3>
               <div>
-                <label className="block text-sm text-gray-300 mb-1">Información de la Sede (Club Empalme)</label>
+                <label className="block text-sm text-gray-300 mb-1">Información Adicional de Sedes y Logística</label>
                 <textarea rows="3" value={settingsForm.logistica_sede} onChange={e => setSettingsForm({...settingsForm, logistica_sede: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
               </div>
             </div>
