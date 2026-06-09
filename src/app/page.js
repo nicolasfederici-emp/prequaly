@@ -41,7 +41,7 @@ export default function Home() {
             {carouselSponsors.map((sponsor, idx) => (
               <a 
                 key={`${sponsor.id}-${idx}`}
-                href={sponsor.website || '#'} 
+                href={sponsor.website ? (sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`) : '#'} 
                 target={sponsor.website ? '_blank' : '_self'}
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center h-32 px-4 hover:scale-105 transition-transform duration-300"
@@ -291,7 +291,7 @@ export default function Home() {
                 {sponsors.map(sponsor => (
                   <a 
                     key={sponsor.id} 
-                    href={sponsor.website || '#'} 
+                    href={sponsor.website ? (sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`) : '#'} 
                     target={sponsor.website ? '_blank' : '_self'}
                     rel="noopener noreferrer"
                     className="w-full h-32 flex items-center justify-center p-2 bg-secondary rounded-lg border border-primary/5 hover:border-primary/30 hover:scale-105 transition-all overflow-hidden cursor-pointer"

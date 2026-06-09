@@ -68,7 +68,7 @@ export default function PatrocinadoresPage() {
               {sponsor.website && (
                 <div className="text-center pt-2">
                   <a 
-                    href={sponsor.website} 
+                    href={sponsor.website.startsWith('http') ? sponsor.website : `https://${sponsor.website}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
                     className="bg-secondary text-primary border border-primary/40 hover:bg-primary hover:text-secondary px-4 py-2 rounded-lg font-bold text-sm transition inline-block w-full"

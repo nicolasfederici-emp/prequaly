@@ -1504,7 +1504,7 @@ export default function AdminPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-gray-300 mb-1 text-sm">Sitio Web URL</label>
+                  <label className="block text-gray-300 mb-1 text-sm">Sitio Web o Instagram URL</label>
                   <input placeholder="https://..." value={sponsorForm.website} onChange={e => setSponsorForm({...sponsorForm, website: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
                 </div>
                 <div>
