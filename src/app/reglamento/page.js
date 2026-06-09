@@ -85,7 +85,7 @@ export default function ReglamentoPage() {
               <h3 className="font-bold text-white text-xl">Club Náutico Villa Constitución</h3>
               <p className="text-sm">Sede oficial del torneo internacional M15 y la fase de Qualy. Cuenta con canchas de polvo de ladrillo de primer nivel.</p>
               <div className="text-sm space-y-2 text-gray-400">
-                <p>📍 <strong>Dirección:</strong> Av. San Martín, Villa Constitución, Santa Fe.</p>
+                <p>📍 <strong>Dirección:</strong> San Luis & Ministro Seguí, Villa Constitución, Santa Fe.</p>
               </div>
             </div>
             <a 
