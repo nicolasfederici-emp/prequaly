@@ -168,7 +168,7 @@ export default function ReglamentoPage() {
 
           <div className="bg-secondary p-5 rounded-xl border border-primary/10 text-center">
             <span className="text-xs text-primary font-bold block mb-1">Árbitro General (Referee)</span>
-            <h4 className="font-bold text-white text-base mb-2">Omar Descarrega</h4>
+            <h4 className="font-bold text-white text-base mb-2">Sergio Aguiar</h4>
             {settings.contacto_omar ? (
               <p className="text-xs text-gray-300 whitespace-pre-line leading-relaxed">{settings.contacto_omar}</p>
             ) : (

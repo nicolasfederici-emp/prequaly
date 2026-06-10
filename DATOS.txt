@@ -13,3 +13,22 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 
 https://github.com/nicolasfederici-emp/prequaly.git
+
+
+Para la página de "Información", el archivo que tienes que editar es:
+
+
+
+src/app/reglamento/page.js
+
+Ahí se encuentran los títulos de cada sección. Te indico las líneas exactas para que puedas modificarlos fácilmente:
+
+Título Principal de la página ("INFORMACIÓN DEL TORNEO"): Línea 45.
+Subtítulo debajo del principal ("Detalles esenciales y logística para..."): Línea 46.
+Título de Sección ("1. Información General"): Línea 52.
+Título de Sección ("2. Sedes del Torneo"): Línea 77.
+Título de Sección ("3. Contactos y Organización"): Línea 133.
+Título inferior ("¿Tenés dudas adicionales?"): Línea 185.
+Nota: Ten en cuenta que los textos más largos (como los párrafos de información y contactos) se pueden modificar también directamente desde el panel de administración, ya que la página los carga desde la base de datos (Supabase). Sin embargo, los títulos de las secciones sí están fijos en este código fuente.
+
+¡Avisame si quieres que modifique alguno por vos!
