@@ -1,13 +1,26 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 import { Trophy, Settings, Menu, X } from 'lucide-react'
 
 export default function Navbar() {
   const pathname = usePathname()
-const [mobileOpen, setMobileOpen] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const [navText, setNavText] = useState('M15')
   
+  useEffect(() => {
+    fetchSettings()
+  }, [])
+
+  const fetchSettings = async () => {
+    const { data } = await supabase.from('settings').select('*').eq('key', 'nav_brand_text')
+    if (data && data.length > 0 && data[0].value) {
+      setNavText(data[0].value)
+    }
+  }
+
   const links = [
     { href: '/', label: 'Inicio' },
     { href: '/cuadro', label: 'Cuadro' },
@@ -24,9 +37,9 @@ const [mobileOpen, setMobileOpen] = useState(false)
         <div className="flex items-center justify-between h-16">
           <Link href="/" className="flex items-center gap-2">
             <Trophy className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl text-primary">M15</span>
+            <span className="font-bold text-xl text-primary">{navText}</span>
           </Link>
-<button className="md:hidden p-2 text-gray-300 hover:text-primary transition" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+          <button className="md:hidden p-2 text-gray-300 hover:text-primary transition" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
   {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
 </button>
           

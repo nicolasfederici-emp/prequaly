@@ -7,6 +7,7 @@ import { Trophy, Calendar, MapPin, Users, ArrowRight, Star, Megaphone, Clock, Sp
 export default function Home() {
   const [sponsors, setSponsors] = useState([])
   const [news, setNews] = useState([])
+  const [settings, setSettings] = useState({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -15,13 +16,21 @@ export default function Home() {
 
   const fetchHomeData = async () => {
     setLoading(true)
-    const [spRes, nwRes] = await Promise.all([
+    const [spRes, nwRes, stRes] = await Promise.all([
       supabase.from('sponsors').select('*').order('priority', { ascending: true }),
-      supabase.from('news').select('*').order('created_at', { ascending: false }).limit(3)
+      supabase.from('news').select('*').order('created_at', { ascending: false }).limit(3),
+      supabase.from('settings').select('*')
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
     if (!nwRes.error) setNews(nwRes.data || [])
+    if (!stRes.error && stRes.data) {
+      const setMap = {}
+      stRes.data.forEach(s => {
+        setMap[s.key] = s.value
+      })
+      setSettings(setMap)
+    }
     
     setLoading(false)
   }
@@ -63,34 +72,34 @@ export default function Home() {
       {/* HERO SECTION */}
       <div 
         className="relative py-32 overflow-hidden border-b border-primary/10 bg-cover bg-center"
-        style={{ backgroundImage: 'linear-gradient(rgba(8, 20, 17, 0.82), rgba(8, 20, 17, 0.88)), url("/tennis_hero_bg.png")' }}
+        style={{ backgroundImage: `linear-gradient(rgba(8, 20, 17, 0.82), rgba(8, 20, 17, 0.88)), url("${settings.home_hero_bg_image || '/tennis_hero_bg.png'}")` }}
       >
         {/* Subtle grid background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(208,253,62,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(208,253,62,0.015)_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none"></div>
         
         <div className="container mx-auto px-4 relative text-center max-w-5xl z-10">
           <span className="text-xs uppercase tracking-widest text-primary bg-primary/10 border border-primary/20 px-4 py-2 rounded-full font-extrabold inline-flex items-center gap-2 mb-6">
-            <Sparkles className="w-3.5 h-3.5" /> ITF World Tennis Tour
+            <Sparkles className="w-3.5 h-3.5" /> {settings.home_badge_text || 'ITF World Tennis Tour'}
           </span>
           
           <h1 className="text-5xl md:text-7xl font-extrabold text-white tracking-tight mb-4 leading-none">
-            TORNEO M15 <span className="text-primary block md:inline">VILLA CONSTITUCIÓN</span>
+            {settings.home_hero_title || 'TORNEO M15'} <span className="text-primary block md:inline">{settings.home_hero_subtitle || 'VILLA CONSTITUCIÓN'}</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-gray-300 font-medium tracking-wide max-w-2xl mx-auto mb-10">
-            El evento de tenis profesional más importante de la región.
+            {settings.home_hero_desc || 'El evento de tenis profesional más importante de la región.'}
           </p>
 
           {/* Quick Stats Grid */}
           <div className="flex flex-wrap justify-center gap-6 mb-12 text-sm md:text-base text-gray-300 font-medium">
             <span className="flex items-center gap-2.5 bg-gray-dark px-5 py-3 rounded-xl border border-primary/15">
-              <Calendar className="w-5 h-5 text-primary" /> Semana del 13 de Julio
+              <Calendar className="w-5 h-5 text-primary" /> {settings.home_stats_1 || 'Semana del 13 de Julio'}
             </span>
             <span className="flex items-center gap-2.5 bg-gray-dark px-5 py-3 rounded-xl border border-primary/15">
-              <MapPin className="w-5 h-5 text-primary" /> Club Náutico Villa Constitución
+              <MapPin className="w-5 h-5 text-primary" /> {settings.home_stats_2 || 'Club Náutico Villa Constitución'}
             </span>
             <span className="flex items-center gap-2.5 bg-gray-dark px-5 py-3 rounded-xl border border-primary/15">
-              <Trophy className="w-5 h-5 text-primary" /> Singles & Dobles
+              <Trophy className="w-5 h-5 text-primary" /> {settings.home_stats_3 || 'Singles & Dobles'}
             </span>
           </div>
 
@@ -115,10 +124,10 @@ export default function Home() {
       <div className="container mx-auto px-4 max-w-5xl py-16">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-extrabold text-white">
-            EL CAMINO AL <span className="text-primary font-bold">M15</span>
+            {settings.home_fases_title || 'EL CAMINO AL M15'}
           </h2>
           <p className="text-gray-400 text-sm mt-2 max-w-xl mx-auto">
-            Conoce las fases previas clasificatorias oficiales que se disputarán para obtener un lugar en el cuadro principal.
+            {settings.home_fases_desc || 'Conoce las fases previas clasificatorias oficiales que se disputarán para obtener un lugar en el cuadro principal.'}
           </p>
         </div>
 
@@ -128,19 +137,19 @@ export default function Home() {
             <div>
               <div className="flex justify-between items-start mb-6">
                 <span className="text-xs font-black uppercase tracking-widest text-white bg-clay px-3.5 py-1.5 rounded-full z-10">
-                  Fase 1: PreQualy
+                  {settings.fase1_name || 'Fase 1: PreQualy'}
                 </span>
-                <span className="text-xs text-gray-500 font-mono z-10">15 de Junio</span>
+                <span className="text-xs text-gray-500 font-mono z-10">{settings.fase1_date || '15 de Junio'}</span>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">Pre-Clasificación Oficial</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">{settings.fase1_title || 'Pre-Clasificación Oficial'}</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6 z-10 relative">
-                Se jugará en las canchas de polvo de ladrillo del **Club Empalme Central**. Una oportunidad directa para los tenistas locales y regionales de medirse por el acceso al cuadro profesional.
+                {settings.fase1_desc || 'Se jugará en las canchas de polvo de ladrillo del **Club Empalme Central**. Una oportunidad directa para los tenistas locales y regionales de medirse por el acceso al cuadro profesional.'}
               </p>
               
               <div className="space-y-3 mb-8 z-10 relative">
                 <div className="flex items-center gap-3 text-sm text-gray-300">
                   <MapPin className="w-4 h-4 text-clay" />
-                  <span>Sede: **Club Empalme Central**</span>
+                  <span>{settings.fase1_venue || 'Sede: **Club Empalme Central**'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-300">
                   <Trophy className="w-4 h-4 text-primary" />
@@ -166,19 +175,19 @@ export default function Home() {
             <div>
               <div className="flex justify-between items-start mb-6">
                 <span className="text-xs font-black uppercase tracking-widest text-white bg-clay px-3.5 py-1.5 rounded-full z-10">
-                  Fase 2: Qualy
+                  {settings.fase2_name || 'Fase 2: Qualy'}
                 </span>
-                <span className="text-xs text-gray-500 font-mono z-10">12 y 13 de Julio</span>
+                <span className="text-xs text-gray-500 font-mono z-10">{settings.fase2_date || '12 y 13 de Julio'}</span>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">Clasificación Principal</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">{settings.fase2_title || 'Clasificación Principal'}</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6 z-10 relative">
-                La antesala del torneo principal se jugará en la sede central del torneo en polvo de ladrillo. Los ganadores de esta fase completarán el cuadro del M15.
+                {settings.fase2_desc || 'La antesala del torneo principal se jugará en la sede central del torneo en polvo de ladrillo. Los ganadores de esta fase completarán el cuadro del M15.'}
               </p>
               
               <div className="space-y-3 mb-8 z-10 relative">
                 <div className="flex items-center gap-3 text-sm text-gray-300">
                   <MapPin className="w-4 h-4 text-clay" />
-                  <span>Sede: **Club Náutico Villa Constitución**</span>
+                  <span>{settings.fase2_venue || 'Sede: **Club Náutico Villa Constitución**'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-300">
                   <Trophy className="w-4 h-4 text-primary" />
@@ -204,19 +213,19 @@ export default function Home() {
             <div>
               <div className="flex justify-between items-start mb-6">
                 <span className="text-xs font-black uppercase tracking-widest text-secondary bg-primary px-3.5 py-1.5 rounded-full z-10">
-                  Fase 3: Torneo Principal
+                  {settings.fase3_name || 'Fase 3: Torneo Principal'}
                 </span>
-                <span className="text-xs text-gray-500 font-mono z-10">15 al 21 de Julio</span>
+                <span className="text-xs text-gray-500 font-mono z-10">{settings.fase3_date || '15 al 21 de Julio'}</span>
               </div>
-              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">Main Draw M15</h3>
+              <h3 className="text-2xl font-bold text-white mb-3 z-10 relative">{settings.fase3_title || 'Main Draw M15'}</h3>
               <p className="text-gray-400 text-sm leading-relaxed mb-6 z-10 relative">
-                El evento internacional más importante de la región. Profesionales de todo el mundo compiten por puntos para el ranking ATP mundial.
+                {settings.fase3_desc || 'El evento internacional más importante de la región. Profesionales de todo el mundo compiten por puntos para el ranking ATP mundial.'}
               </p>
               
               <div className="space-y-3 mb-8 z-10 relative">
                 <div className="flex items-center gap-3 text-sm text-gray-300">
                   <MapPin className="w-4 h-4 text-clay" />
-                  <span>Sede: **Club Náutico Villa Constitución**</span>
+                  <span>{settings.fase3_venue || 'Sede: **Club Náutico Villa Constitución**'}</span>
                 </div>
                 <div className="flex items-center gap-3 text-sm text-gray-300">
                   <Trophy className="w-4 h-4 text-primary" />
@@ -249,7 +258,7 @@ export default function Home() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Megaphone className="w-6 h-6 text-primary" /> Noticias Recientes
+                <Megaphone className="w-6 h-6 text-primary" /> {settings.home_news_title || 'Noticias Recientes'}
               </h2>
             </div>
             
@@ -279,7 +288,7 @@ export default function Home() {
           <div>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Star className="w-6 h-6 text-primary" /> Todos los Patrocinadores
+                <Star className="w-6 h-6 text-primary" /> {settings.home_sponsors_title || 'Todos los Patrocinadores'}
               </h2>
               <Link href="/patrocinadores" className="text-primary hover:underline text-sm font-bold flex items-center gap-1">
                 Ver detalles <ArrowRight className="w-4 h-4" />

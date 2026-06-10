@@ -59,7 +59,46 @@ export default function AdminPage() {
     logistica_sede: '',
     contacto_esteban: '',
     contacto_lucas: '',
-    contacto_omar: ''
+    contacto_omar: '',
+    home_hero_bg_image: '',
+    home_hero_title: '',
+    home_hero_subtitle: '',
+    home_hero_desc: '',
+    home_stats_1: '',
+    home_stats_2: '',
+    home_stats_3: '',
+    home_fases_title: '',
+    home_fases_desc: '',
+    fase1_name: '',
+    fase1_date: '',
+    fase1_title: '',
+    fase1_desc: '',
+    fase1_venue: '',
+    fase2_name: '',
+    fase2_date: '',
+    fase2_title: '',
+    fase2_desc: '',
+    fase2_venue: '',
+    fase3_name: '',
+    fase3_date: '',
+    fase3_title: '',
+    fase3_desc: '',
+    fase3_venue: '',
+    home_news_title: '',
+    home_sponsors_title: '',
+    reglas_main_title: '',
+    reglas_main_desc: '',
+    reglas_sec1_title: '',
+    reglas_sec2_title: '',
+    reglas_sec3_title: '',
+    home_badge_text: '',
+    contacto_nombre_1: '',
+    contacto_rol_1: '',
+    contacto_nombre_2: '',
+    contacto_rol_2: '',
+    contacto_nombre_3: '',
+    contacto_rol_3: '',
+    nav_brand_text: ''
   })
 
   const login = (e) => {
@@ -1556,13 +1595,160 @@ export default function AdminPage() {
               <Settings className="w-6 h-6 text-primary" />
               Configuración de Textos de la Web
             </h2>
-            <p className="text-gray-400 text-sm mt-1">Modifica los contenidos de la página de información general, sede y contactos del torneo</p>
+            <p className="text-gray-400 text-sm mt-1">Configura todos los textos e imágenes de la página principal e información.</p>
           </div>
 
           <form onSubmit={saveSettings} className="space-y-8 bg-gray-dark p-6 rounded-xl border border-primary/20">
-            {/* Information Section */}
+            
+            {/* INICIO SECTION */}
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">1. Información del Torneo</h3>
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2 flex justify-between items-center">
+                A. Portada (Inicio)
+              </h3>
+              
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">Imagen de Fondo (URL o subir archivo)</label>
+                <div className="flex gap-2">
+                  <input 
+                    type="file" 
+                    accept="image/*"
+                    onChange={e => uploadFile(e, 'home_hero_bg_image', settingsForm, setSettingsForm)}
+                    className="w-1/3 bg-secondary border border-primary/20 rounded px-2.5 py-1 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-2 file:py-0.5 file:font-black file:cursor-pointer"
+                  />
+                  <input placeholder="/tennis_hero_bg.png" value={settingsForm.home_hero_bg_image} onChange={e => setSettingsForm({...settingsForm, home_hero_bg_image: e.target.value})} className="flex-1 bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Badge (Ej: ITF World Tennis Tour)</label>
+                  <input placeholder="ITF World Tennis Tour" value={settingsForm.home_badge_text} onChange={e => setSettingsForm({...settingsForm, home_badge_text: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Texto Barra de Navegación</label>
+                  <input placeholder="M15" value={settingsForm.nav_brand_text} onChange={e => setSettingsForm({...settingsForm, nav_brand_text: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título Principal</label>
+                  <input placeholder="TORNEO M15" value={settingsForm.home_hero_title} onChange={e => setSettingsForm({...settingsForm, home_hero_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Subtítulo (Highlight)</label>
+                  <input placeholder="VILLA CONSTITUCIÓN" value={settingsForm.home_hero_subtitle} onChange={e => setSettingsForm({...settingsForm, home_hero_subtitle: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-300 mb-1">Descripción de Portada</label>
+                <input placeholder="El evento de tenis profesional más importante de la región." value={settingsForm.home_hero_desc} onChange={e => setSettingsForm({...settingsForm, home_hero_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Dato Rápido 1</label>
+                  <input placeholder="Semana del 13 de Julio" value={settingsForm.home_stats_1} onChange={e => setSettingsForm({...settingsForm, home_stats_1: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Dato Rápido 2</label>
+                  <input placeholder="Club Náutico Villa Const..." value={settingsForm.home_stats_2} onChange={e => setSettingsForm({...settingsForm, home_stats_2: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Dato Rápido 3</label>
+                  <input placeholder="Singles & Dobles" value={settingsForm.home_stats_3} onChange={e => setSettingsForm({...settingsForm, home_stats_3: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* FASES SECTION */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">B. Fases del Torneo (Inicio)</h3>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título de Sección Fases</label>
+                  <input placeholder="EL CAMINO AL M15" value={settingsForm.home_fases_title} onChange={e => setSettingsForm({...settingsForm, home_fases_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Subtítulo de Sección Fases</label>
+                  <input placeholder="Conoce las fases previas..." value={settingsForm.home_fases_desc} onChange={e => setSettingsForm({...settingsForm, home_fases_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-6 bg-secondary/30 p-4 rounded-xl border border-primary/10">
+                {/* FASE 1 */}
+                <div className="space-y-3">
+                  <h4 className="font-bold text-white text-sm">Fase 1</h4>
+                  <input placeholder="Fase 1: PreQualy" value={settingsForm.fase1_name} onChange={e => setSettingsForm({...settingsForm, fase1_name: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="15 de Junio" value={settingsForm.fase1_date} onChange={e => setSettingsForm({...settingsForm, fase1_date: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="Pre-Clasificación" value={settingsForm.fase1_title} onChange={e => setSettingsForm({...settingsForm, fase1_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="Sede: Club Empalme Central" value={settingsForm.fase1_venue} onChange={e => setSettingsForm({...settingsForm, fase1_venue: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <textarea rows="2" placeholder="Descripción corta..." value={settingsForm.fase1_desc} onChange={e => setSettingsForm({...settingsForm, fase1_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white"></textarea>
+                </div>
+                {/* FASE 2 */}
+                <div className="space-y-3">
+                  <h4 className="font-bold text-white text-sm">Fase 2</h4>
+                  <input placeholder="Fase 2: Qualy" value={settingsForm.fase2_name} onChange={e => setSettingsForm({...settingsForm, fase2_name: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="12 y 13 de Julio" value={settingsForm.fase2_date} onChange={e => setSettingsForm({...settingsForm, fase2_date: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="Clasificación Principal" value={settingsForm.fase2_title} onChange={e => setSettingsForm({...settingsForm, fase2_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="Sede: Club Náutico" value={settingsForm.fase2_venue} onChange={e => setSettingsForm({...settingsForm, fase2_venue: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <textarea rows="2" placeholder="Descripción corta..." value={settingsForm.fase2_desc} onChange={e => setSettingsForm({...settingsForm, fase2_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white"></textarea>
+                </div>
+                {/* FASE 3 */}
+                <div className="space-y-3">
+                  <h4 className="font-bold text-white text-sm">Fase 3</h4>
+                  <input placeholder="Fase 3: Torneo Principal" value={settingsForm.fase3_name} onChange={e => setSettingsForm({...settingsForm, fase3_name: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="15 al 21 de Julio" value={settingsForm.fase3_date} onChange={e => setSettingsForm({...settingsForm, fase3_date: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="Main Draw M15" value={settingsForm.fase3_title} onChange={e => setSettingsForm({...settingsForm, fase3_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <input placeholder="Sede: Club Náutico" value={settingsForm.fase3_venue} onChange={e => setSettingsForm({...settingsForm, fase3_venue: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white" />
+                  <textarea rows="2" placeholder="Descripción corta..." value={settingsForm.fase3_desc} onChange={e => setSettingsForm({...settingsForm, fase3_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1 text-xs text-white"></textarea>
+                </div>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título Sección Noticias</label>
+                  <input placeholder="Noticias Recientes" value={settingsForm.home_news_title} onChange={e => setSettingsForm({...settingsForm, home_news_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título Sección Patrocinadores</label>
+                  <input placeholder="Todos los Patrocinadores" value={settingsForm.home_sponsors_title} onChange={e => setSettingsForm({...settingsForm, home_sponsors_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+            </div>
+
+            {/* INFORMACION SECTION */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">C. Textos Página Información</h3>
+              
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título de Página Información</label>
+                  <input placeholder="INFORMACIÓN DEL TORNEO" value={settingsForm.reglas_main_title} onChange={e => setSettingsForm({...settingsForm, reglas_main_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Subtítulo de Página Información</label>
+                  <input placeholder="Detalles esenciales y logística..." value={settingsForm.reglas_main_desc} onChange={e => setSettingsForm({...settingsForm, reglas_main_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título Sección 1</label>
+                  <input placeholder="1. Información General" value={settingsForm.reglas_sec1_title} onChange={e => setSettingsForm({...settingsForm, reglas_sec1_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título Sección 2</label>
+                  <input placeholder="2. Sedes del Torneo" value={settingsForm.reglas_sec2_title} onChange={e => setSettingsForm({...settingsForm, reglas_sec2_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título Sección 3</label>
+                  <input placeholder="3. Contactos y Organización" value={settingsForm.reglas_sec3_title} onChange={e => setSettingsForm({...settingsForm, reglas_sec3_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm text-gray-300 mb-1">Descripción General (admite saltos de línea)</label>
                 <textarea rows="8" value={settingsForm.informacion_torneo} onChange={e => setSettingsForm({...settingsForm, informacion_torneo: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white" placeholder="Escribe el reglamento, sistema de juego y premios aquí..."></textarea>
@@ -1571,7 +1757,7 @@ export default function AdminPage() {
 
             {/* Sede Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">2. Sede del Torneo</h3>
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">D. Sede Logística Adicional</h3>
               <div>
                 <label className="block text-sm text-gray-300 mb-1">Información Adicional de Sedes y Logística</label>
                 <textarea rows="3" value={settingsForm.logistica_sede} onChange={e => setSettingsForm({...settingsForm, logistica_sede: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
@@ -1580,20 +1766,55 @@ export default function AdminPage() {
 
             {/* Contactos Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">3. Teléfonos de Contacto</h3>
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">E. Organización y Contactos</h3>
               
               <div className="grid md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">Esteban Spinetta (Teléfono)</label>
-                  <input value={settingsForm.contacto_esteban} onChange={e => setSettingsForm({...settingsForm, contacto_esteban: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                <div className="bg-secondary/30 p-4 rounded-xl border border-primary/10 space-y-3">
+                  <h4 className="font-bold text-white text-sm">Contacto 1</h4>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Nombre</label>
+                    <input placeholder="Esteban Spinetta" value={settingsForm.contacto_nombre_1} onChange={e => setSettingsForm({...settingsForm, contacto_nombre_1: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Rol</label>
+                    <input placeholder="Director de Torneo" value={settingsForm.contacto_rol_1} onChange={e => setSettingsForm({...settingsForm, contacto_rol_1: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Teléfono</label>
+                    <input value={settingsForm.contacto_esteban} onChange={e => setSettingsForm({...settingsForm, contacto_esteban: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">Lucas Mazzei (Teléfono)</label>
-                  <input value={settingsForm.contacto_lucas} onChange={e => setSettingsForm({...settingsForm, contacto_lucas: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+
+                <div className="bg-secondary/30 p-4 rounded-xl border border-primary/10 space-y-3">
+                  <h4 className="font-bold text-white text-sm">Contacto 2</h4>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Nombre</label>
+                    <input placeholder="Lucas Mazzei" value={settingsForm.contacto_nombre_2} onChange={e => setSettingsForm({...settingsForm, contacto_nombre_2: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Rol</label>
+                    <input placeholder="Director de Torneo" value={settingsForm.contacto_rol_2} onChange={e => setSettingsForm({...settingsForm, contacto_rol_2: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Teléfono</label>
+                    <input value={settingsForm.contacto_lucas} onChange={e => setSettingsForm({...settingsForm, contacto_lucas: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm text-gray-300 mb-1">Omar Descarrega (Teléfono/Texto)</label>
-                  <input value={settingsForm.contacto_omar} onChange={e => setSettingsForm({...settingsForm, contacto_omar: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+
+                <div className="bg-secondary/30 p-4 rounded-xl border border-primary/10 space-y-3">
+                  <h4 className="font-bold text-white text-sm">Contacto 3</h4>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Nombre</label>
+                    <input placeholder="Omar Descarrega" value={settingsForm.contacto_nombre_3} onChange={e => setSettingsForm({...settingsForm, contacto_nombre_3: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Rol</label>
+                    <input placeholder="Árbitro General (Referee)" value={settingsForm.contacto_rol_3} onChange={e => setSettingsForm({...settingsForm, contacto_rol_3: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Descripción extra / Teléfono</label>
+                    <input value={settingsForm.contacto_omar} onChange={e => setSettingsForm({...settingsForm, contacto_omar: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-2 py-1.5 text-sm text-white" />
+                  </div>
                 </div>
               </div>
             </div>

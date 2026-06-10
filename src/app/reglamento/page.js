@@ -42,14 +42,14 @@ export default function ReglamentoPage() {
       
       {/* Page Header */}
       <div className="text-center mb-8 border-b border-primary/10 pb-6">
-        <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2">INFORMACIÓN DEL TORNEO</h1>
-        <p className="text-gray-400">Detalles esenciales y logística para jugadores y acompañantes</p>
+        <h1 className="text-4xl md:text-5xl font-bold text-primary mb-2">{settings.reglas_main_title || 'INFORMACIÓN DEL TORNEO'}</h1>
+        <p className="text-gray-400">{settings.reglas_main_desc || 'Detalles esenciales y logística para jugadores y acompañantes'}</p>
       </div>
 
       {/* Information Section */}
       <section className="bg-gray-dark border border-primary/20 rounded-2xl p-6 md:p-8 space-y-6">
         <h2 className="text-2xl font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-3">
-          <Info className="w-6 h-6" /> 1. Información General
+          <Info className="w-6 h-6" /> {settings.reglas_sec1_title || '1. Información General'}
         </h2>
         
         <div className="text-gray-300">
@@ -74,7 +74,7 @@ export default function ReglamentoPage() {
       {/* Sede Venue Section */}
       <section className="bg-gray-dark border border-primary/20 rounded-2xl p-6 md:p-8 space-y-6">
         <h2 className="text-2xl font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-3">
-          <MapPin className="w-6 h-6" /> 2. Sedes del Torneo
+          <MapPin className="w-6 h-6" /> {settings.reglas_sec2_title || '2. Sedes del Torneo'}
         </h2>
         
         <div className="grid md:grid-cols-2 gap-6 items-stretch">
@@ -130,13 +130,13 @@ export default function ReglamentoPage() {
       {/* Contact Section */}
       <section className="bg-gray-dark border border-primary/20 rounded-2xl p-6 md:p-8 space-y-6">
         <h2 className="text-2xl font-bold text-primary flex items-center gap-2 border-b border-primary/10 pb-3">
-          <Phone className="w-6 h-6" /> 3. Contactos y Organización
+          <Phone className="w-6 h-6" /> {settings.reglas_sec3_title || '3. Contactos y Organización'}
         </h2>
         
         <div className="grid sm:grid-cols-3 gap-6">
           <div className="bg-secondary p-5 rounded-xl border border-primary/10 text-center">
-            <span className="text-xs text-primary font-bold block mb-1">Director de Torneo</span>
-            <h4 className="font-bold text-white text-base mb-2">Esteban Spinetta</h4>
+            <span className="text-xs text-primary font-bold block mb-1">{settings.contacto_rol_1 || 'Director de Torneo'}</span>
+            <h4 className="font-bold text-white text-base mb-2">{settings.contacto_nombre_1 || 'Esteban Spinetta'}</h4>
             <a href={`tel:${cleanPhone(settings.contacto_esteban || '3400517063')}`} className="text-sm text-gray-300 hover:text-primary transition block mb-1">
               📞 {settings.contacto_esteban || '3400 517063'}
             </a>
@@ -151,8 +151,8 @@ export default function ReglamentoPage() {
           </div>
 
           <div className="bg-secondary p-5 rounded-xl border border-primary/10 text-center">
-            <span className="text-xs text-primary font-bold block mb-1">Director de Torneo</span>
-            <h4 className="font-bold text-white text-base mb-2">Lucas Mazzei</h4>
+            <span className="text-xs text-primary font-bold block mb-1">{settings.contacto_rol_2 || 'Director de Torneo'}</span>
+            <h4 className="font-bold text-white text-base mb-2">{settings.contacto_nombre_2 || 'Lucas Mazzei'}</h4>
             <a href={`tel:${cleanPhone(settings.contacto_lucas || '3402496892')}`} className="text-sm text-gray-300 hover:text-primary transition block mb-1">
               📞 {settings.contacto_lucas || '3402 496892'}
             </a>
@@ -167,8 +167,8 @@ export default function ReglamentoPage() {
           </div>
 
           <div className="bg-secondary p-5 rounded-xl border border-primary/10 text-center">
-            <span className="text-xs text-primary font-bold block mb-1">Árbitro General (Referee)</span>
-            <h4 className="font-bold text-white text-base mb-2">Sergio Aguiar</h4>
+            <span className="text-xs text-primary font-bold block mb-1">{settings.contacto_rol_3 || 'Árbitro General (Referee)'}</span>
+            <h4 className="font-bold text-white text-base mb-2">{settings.contacto_nombre_3 || 'Sergio Aguiar'}</h4>
             {settings.contacto_omar ? (
               <p className="text-xs text-gray-300 whitespace-pre-line leading-relaxed">{settings.contacto_omar}</p>
             ) : (
