@@ -2,13 +2,14 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Trophy, Calendar, MapPin, Users, ArrowRight, Star, Megaphone, Clock, Sparkles } from 'lucide-react'
+import { Trophy, Calendar, MapPin, Users, ArrowRight, Star, Megaphone, Clock, Sparkles, X } from 'lucide-react'
 
 export default function Home() {
   const [sponsors, setSponsors] = useState([])
   const [news, setNews] = useState([])
   const [settings, setSettings] = useState({})
   const [loading, setLoading] = useState(true)
+  const [selectedNews, setSelectedNews] = useState(null)
 
   useEffect(() => {
     fetchHomeData()
@@ -264,7 +265,11 @@ export default function Home() {
             
             <div className="grid md:grid-cols-3 gap-6">
               {news.map(n => (
-                <div key={n.id} className="bg-gray-dark border border-primary/15 rounded-xl overflow-hidden flex flex-col justify-between">
+                <div 
+                  key={n.id} 
+                  className="bg-gray-dark border border-primary/15 hover:border-primary/50 transition-all duration-300 rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer"
+                  onClick={() => setSelectedNews(n)}
+                >
                   <div>
                     {n.image && (
                       <div className="w-full h-40 overflow-hidden relative">
@@ -318,6 +323,37 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* NEWS MODAL */}
+      {selectedNews && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" onClick={() => setSelectedNews(null)}>
+          <div 
+            className="bg-gray-dark border border-primary/50 rounded-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto shadow-2xl relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              className="absolute top-4 right-4 bg-black/50 text-white p-2 rounded-full hover:bg-primary hover:text-secondary transition z-10"
+              onClick={() => setSelectedNews(null)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            {selectedNews.image && (
+              <div className="w-full max-h-[50vh] overflow-hidden bg-black flex items-center justify-center">
+                <img src={selectedNews.image} alt={selectedNews.title} className="w-full h-auto max-h-[50vh] object-contain" />
+              </div>
+            )}
+            
+            <div className="p-8">
+              <span className="text-sm text-primary font-bold block mb-2">{selectedNews.date ? selectedNews.date.slice(0, 10) : ''}</span>
+              <h2 className="text-3xl font-extrabold text-white mb-6 leading-tight">{selectedNews.title}</h2>
+              <div className="text-gray-300 leading-relaxed whitespace-pre-wrap text-lg">
+                {selectedNews.content}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
