@@ -19,6 +19,11 @@ export default function AdminPage() {
   const [showPlayerForm, setShowPlayerForm] = useState(false)
   const [playerForm, setPlayerForm] = useState({ name: '', age: '', hand: 'right', club: '', paid: false, photo_url: '', tournament: 'prequaly' })
 
+  // Auto-Draw State
+  const [showSeedModal, setShowSeedModal] = useState(false)
+  const [selectedSeedTournament, setSelectedSeedTournament] = useState('prequaly')
+  const [localSeeds, setLocalSeeds] = useState({})
+
   // Matches State
   const [matches, setMatches] = useState([])
   const [editingMatchId, setEditingMatchId] = useState(null)
@@ -259,7 +264,154 @@ export default function AdminPage() {
     return `Ronda ${rNum}`
   }
 
-  // Bracket Structure Generator
+  // --- AUTO DRAW LOGIC ---
+  const handleAutoDraw = async () => {
+    if (!confirm(`¿Estás seguro? Esto ELIMINARÁ todos los partidos actuales de ${selectedSeedTournament.toUpperCase()} y generará un nuevo cuadro. Asegúrate de tener guardados los datos importantes.`)) return;
+    setLoading(true);
+    setMsg('Generando cuadro automáticamente...');
+
+    try {
+      // 1. Get players for this tournament
+      const tournPlayers = players.filter(p => p.tournament === selectedSeedTournament);
+      
+      // 2. Parse seeds
+      const seededPlayers = []; 
+      const unseededPlayers = [];
+      
+      tournPlayers.forEach(p => {
+        const seedStr = localSeeds[p.id];
+        const s = parseInt(seedStr);
+        if (s && !isNaN(s)) {
+          seededPlayers.push({ player: p, seed: s });
+        } else {
+          unseededPlayers.push(p);
+        }
+      });
+      
+      // Shuffle unseeded players
+      for (let i = unseededPlayers.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [unseededPlayers[i], unseededPlayers[j]] = [unseededPlayers[j], unseededPlayers[i]];
+      }
+
+      // 3. Determine draw size
+      let drawSize = 32;
+      let SEED_SLOTS = { 1: 1, 2: 32, 3: 9, 4: 24, 5: 8, 6: 16, 7: 17, 8: 25 };
+      if (selectedSeedTournament === 'prequaly') {
+        drawSize = 64;
+        SEED_SLOTS = { 1: 1, 2: 64, 3: 17, 4: 48, 5: 16, 6: 32, 7: 33, 8: 49, 9: 8, 10: 9, 11: 24, 12: 25, 13: 40, 14: 41, 15: 56, 16: 57 };
+      } else if (selectedSeedTournament === 'm15_doubles') {
+        drawSize = 16;
+        SEED_SLOTS = { 1: 1, 2: 16, 3: 5, 4: 12 };
+      }
+      
+      // 4. Fill slots (1-indexed array)
+      const slots = new Array(drawSize + 1).fill(null);
+      
+      seededPlayers.forEach(({player, seed}) => {
+        const pos = SEED_SLOTS[seed];
+        if (pos) {
+          slots[pos] = player;
+        } else {
+          unseededPlayers.push(player); 
+        }
+      });
+      
+      const numByes = drawSize - tournPlayers.length;
+      for (let s = 1; s <= numByes; s++) {
+        const seedPos = SEED_SLOTS[s];
+        if (seedPos) {
+          const oppPos = seedPos % 2 === 0 ? seedPos - 1 : seedPos + 1;
+          slots[oppPos] = 'BYE';
+        }
+      }
+      
+      for (let i = 1; i <= drawSize; i++) {
+        if (slots[i] === null) {
+          if (unseededPlayers.length > 0) {
+            slots[i] = unseededPlayers.pop();
+          } else {
+            slots[i] = 'BYE';
+          }
+        }
+      }
+
+      // 5. Generate database records
+      const { error: dErr } = await supabase.from('matches').delete().eq('tournament', selectedSeedTournament);
+      if (dErr) throw new Error('Error al limpiar partidos anteriores: ' + dErr.message);
+
+      const matchesToInsert = [];
+      const numMatchesR1 = drawSize / 2;
+      
+      for (let i = 1; i <= numMatchesR1; i++) {
+        const p1 = slots[i * 2 - 1];
+        const p2 = slots[i * 2];
+        
+        let m = {
+          round: 1,
+          match_number: i,
+          tournament: selectedSeedTournament,
+          status: 'pending',
+          score1: '', score2: '', winner_id: null,
+          player1_id: p1 && p1 !== 'BYE' ? p1.id : null,
+          player2_id: p2 && p2 !== 'BYE' ? p2.id : null,
+        };
+        
+        if (p1 === 'BYE' || p2 === 'BYE') {
+          m.status = 'completed';
+          m.score1 = 'BYE';
+          if (p1 !== 'BYE' && p1) m.winner_id = p1.id;
+          if (p2 !== 'BYE' && p2) m.winner_id = p2.id;
+        }
+        matchesToInsert.push(m);
+      }
+      
+      const totalRounds = Math.log2(drawSize);
+      for (let r = 2; r <= totalRounds; r++) {
+        const matchesInRound = drawSize / Math.pow(2, r);
+        for (let i = 1; i <= matchesInRound; i++) {
+          matchesToInsert.push({
+            round: r,
+            match_number: i,
+            tournament: selectedSeedTournament,
+            status: 'pending',
+            score1: '', score2: '', winner_id: null,
+            player1_id: null, player2_id: null
+          });
+        }
+      }
+      
+      const { data: insertedMatches, error: insErr } = await supabase.from('matches').insert(matchesToInsert).select();
+      if (insErr) throw insErr;
+      
+      // Push BYE winners to R2
+      const r1Matches = insertedMatches.filter(m => m.round === 1 && m.status === 'completed' && m.winner_id);
+      for (const m of r1Matches) {
+        const targetMatchNumber = Math.floor((m.match_number - 1) / 2) + 1;
+        const isPlayer1 = (m.match_number % 2 !== 0);
+        
+        const nextMatch = insertedMatches.find(nm => nm.round === 2 && nm.match_number === targetMatchNumber);
+        if (nextMatch) {
+          const advData = isPlayer1 ? { player1_id: m.winner_id } : { player2_id: m.winner_id };
+          await supabase.from('matches').update(advData).eq('id', nextMatch.id);
+        }
+      }
+
+      // Save seeds
+      const settingKey = `${selectedSeedTournament}_seeds`;
+      await supabase.from('settings').upsert({ key: settingKey, value: JSON.stringify(localSeeds) });
+
+      setMsg('Cuadro generado automáticamente con éxito.');
+      setShowSeedModal(false);
+      fetchMatches();
+      
+    } catch (e) {
+      setMsg('Error: ' + e.message);
+    }
+    setLoading(false);
+  }
+
+  // Bracket Structure Generator (Empty)
   const generateBracketStructure = async (tourn) => {
     const labels = {
       prequaly: 'PreQualy (48 jugadores)',
@@ -860,13 +1012,111 @@ export default function AdminPage() {
               <Users className="w-6 h-6 text-primary" />
               Jugadores ({players.length})
             </h2>
-            <button 
-              onClick={() => { resetPlayerForm(); setShowPlayerForm(true) }}
-              className="flex items-center gap-2 bg-primary text-secondary px-4 py-2 rounded-lg font-bold hover:bg-yellow-400 transition"
-            >
-              <Plus className="w-5 h-5" /> Nuevo Jugador
-            </button>
+            <div className="flex flex-wrap gap-2">
+              <button 
+                onClick={() => { 
+                  // Load saved seeds when opening modal
+                  try {
+                    const savedStr = settingsForm[`${selectedSeedTournament}_seeds`]
+                    if (savedStr) setLocalSeeds(JSON.parse(savedStr))
+                    else setLocalSeeds({})
+                  } catch (e) {}
+                  setShowSeedModal(true) 
+                }}
+                className="flex items-center gap-2 bg-gray-700 text-white px-4 py-2 rounded-lg font-bold hover:bg-gray-600 transition"
+              >
+                <RefreshCw className="w-5 h-5" /> Armar Cuadro Auto
+              </button>
+              <button 
+                onClick={() => { resetPlayerForm(); setShowPlayerForm(true) }}
+                className="flex items-center gap-2 bg-primary text-secondary px-4 py-2 rounded-lg font-bold hover:bg-yellow-400 transition"
+              >
+                <Plus className="w-5 h-5" /> Nuevo Jugador
+              </button>
+            </div>
           </div>
+
+          {/* AUTO DRAW MODAL */}
+          {showSeedModal && (
+            <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 overflow-y-auto">
+              <div className="bg-gray-dark p-6 rounded-xl border-2 border-primary/30 max-w-2xl w-full relative shadow-2xl my-8">
+                <button 
+                  onClick={() => setShowSeedModal(false)} 
+                  className="absolute right-4 top-4 text-gray-400 hover:text-white transition"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+                
+                <h3 className="text-xl font-bold text-primary mb-2 flex items-center gap-2">
+                  <RefreshCw className="w-6 h-6" /> Armado Automático de Cuadro
+                </h3>
+                <p className="text-gray-400 text-sm mb-6">Selecciona el torneo y asigna la pre-clasificación (Seed: 1, 2, 3...) a los mejores jugadores. El resto será sorteado al azar.</p>
+
+                <div className="mb-6">
+                  <label className="block text-gray-300 mb-2 font-bold text-sm">Seleccionar Torneo a Sortear</label>
+                  <select 
+                    value={selectedSeedTournament} 
+                    onChange={e => {
+                      setSelectedSeedTournament(e.target.value)
+                      try {
+                        const savedStr = settingsForm[`${e.target.value}_seeds`]
+                        if (savedStr) setLocalSeeds(JSON.parse(savedStr))
+                        else setLocalSeeds({})
+                      } catch (err) {}
+                    }} 
+                    className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-3 text-white font-bold"
+                  >
+                    <option value="prequaly">PreQualy (64 Slots)</option>
+                    <option value="qualy">Qualy (32 Slots)</option>
+                    <option value="m15_singles">M15 Singles (32 Slots)</option>
+                    <option value="m15_doubles">M15 Dobles (16 Slots)</option>
+                  </select>
+                </div>
+
+                <div className="max-h-60 overflow-y-auto bg-secondary/50 rounded-lg border border-primary/20 p-2 mb-6">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-primary border-b border-primary/20">
+                        <th className="p-2">Jugador</th>
+                        <th className="p-2 w-24 text-center">Seed #</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {players.filter(p => p.tournament === selectedSeedTournament).map(p => (
+                        <tr key={p.id} className="border-b border-gray-700/50">
+                          <td className="p-2 text-white">{p.name} <span className="text-xs text-gray-500">({p.club || 'Sin club'})</span></td>
+                          <td className="p-2">
+                            <input 
+                              type="number" 
+                              min="1" max="32"
+                              value={localSeeds[p.id] || ''}
+                              onChange={e => setLocalSeeds(prev => ({ ...prev, [p.id]: e.target.value }))}
+                              className="w-full bg-gray-dark border border-primary/30 rounded px-2 py-1 text-center text-white focus:border-primary"
+                              placeholder="-"
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                      {players.filter(p => p.tournament === selectedSeedTournament).length === 0 && (
+                        <tr><td colSpan="2" className="p-4 text-center text-gray-400">No hay jugadores inscriptos en este torneo.</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex gap-4">
+                  <button 
+                    onClick={handleAutoDraw}
+                    disabled={loading || players.filter(p => p.tournament === selectedSeedTournament).length === 0}
+                    className="flex-1 bg-primary text-secondary font-black py-4 rounded-lg hover:bg-yellow-400 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} /> 
+                    {loading ? 'Generando...' : '¡GENERAR CUADRO AHORA!'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {showPlayerForm && (
             <div className="bg-gray-dark p-6 rounded-xl border border-primary/20 mb-8 max-w-2xl">
@@ -1224,9 +1474,9 @@ export default function AdminPage() {
           )}
 
           {/* Matches List grouped by selected round and tournament */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {matches.filter(m => m.tournament === selectedMatchTournament && m.round === selectedRound).map(match => (
-              <div key={match.id} className="bg-gray-dark p-6 rounded-xl border border-primary/20 flex flex-col justify-between">
+              <div key={match.id} className="bg-gray-dark p-4 rounded-xl border border-primary/20 flex flex-col justify-between">
                 <div>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold bg-secondary px-2.5 py-1 rounded text-primary border border-primary/10">
