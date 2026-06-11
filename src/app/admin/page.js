@@ -103,7 +103,15 @@ export default function AdminPage() {
     contacto_rol_2: '',
     contacto_nombre_3: '',
     contacto_rol_3: '',
-    nav_brand_text: ''
+    nav_brand_text: '',
+    sede_principal_nombre: '',
+    sede_principal_direccion: '',
+    sede_principal_desc: '',
+    sede_principal_mapa: '',
+    sede_prequaly_nombre: '',
+    sede_prequaly_direccion: '',
+    sede_prequaly_desc: '',
+    sede_prequaly_mapa: ''
   })
 
   const login = (e) => {
@@ -1996,10 +2004,55 @@ export default function AdminPage() {
 
             {/* Sede Section */}
             <div className="space-y-4">
-              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">D. Sede Logística Adicional</h3>
-              <div>
-                <label className="block text-sm text-gray-300 mb-1">Información Adicional de Sedes y Logística</label>
-                <textarea rows="3" value={settingsForm.logistica_sede} onChange={e => setSettingsForm({...settingsForm, logistica_sede: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white"></textarea>
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2">D. Detalles de las Sedes del Torneo</h3>
+              
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Sede Principal */}
+                <div className="bg-secondary/30 p-4 rounded-xl border border-primary/10 space-y-3">
+                  <h4 className="font-bold text-white mb-2">Sede Principal (M15 & Qualy)</h4>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Nombre del Club</label>
+                    <input placeholder="Club Náutico Villa Constitución" value={settingsForm.sede_principal_nombre} onChange={e => setSettingsForm({...settingsForm, sede_principal_nombre: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Descripción corta</label>
+                    <textarea rows="2" placeholder="Sede oficial del torneo internacional M15..." value={settingsForm.sede_principal_desc} onChange={e => setSettingsForm({...settingsForm, sede_principal_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white"></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Dirección exacta</label>
+                    <input placeholder="San Luis & Ministro Seguí..." value={settingsForm.sede_principal_direccion} onChange={e => setSettingsForm({...settingsForm, sede_principal_direccion: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Link de Google Maps</label>
+                    <input placeholder="https://maps.google.com/..." value={settingsForm.sede_principal_mapa} onChange={e => setSettingsForm({...settingsForm, sede_principal_mapa: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
+                  </div>
+                </div>
+
+                {/* Sede Pre-Qualy */}
+                <div className="bg-secondary/30 p-4 rounded-xl border border-primary/10 space-y-3">
+                  <h4 className="font-bold text-white mb-2">Sede Secundaria (Pre-Qualy)</h4>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Nombre del Club</label>
+                    <input placeholder="Club Empalme Central" value={settingsForm.sede_prequaly_nombre} onChange={e => setSettingsForm({...settingsForm, sede_prequaly_nombre: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Descripción corta</label>
+                    <textarea rows="2" placeholder="Sede exclusiva para la fase de Pre-Qualy..." value={settingsForm.sede_prequaly_desc} onChange={e => setSettingsForm({...settingsForm, sede_prequaly_desc: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white"></textarea>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Dirección exacta</label>
+                    <input placeholder="Juan José Paso 49..." value={settingsForm.sede_prequaly_direccion} onChange={e => setSettingsForm({...settingsForm, sede_prequaly_direccion: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Link de Google Maps</label>
+                    <input placeholder="https://maps.google.com/..." value={settingsForm.sede_prequaly_mapa} onChange={e => setSettingsForm({...settingsForm, sede_prequaly_mapa: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-sm text-white" />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="mt-4">
+                <label className="block text-sm text-gray-300 mb-1">Información Adicional de Logística (Opcional)</label>
+                <textarea rows="4" value={settingsForm.logistica_sede} onChange={e => setSettingsForm({...settingsForm, logistica_sede: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded p-3 text-sm text-white" placeholder="Ej: Hay servicio de encordado, viandas, etc."></textarea>
               </div>
             </div>
 

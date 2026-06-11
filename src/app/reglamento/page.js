@@ -82,14 +82,14 @@ export default function ReglamentoPage() {
           <div className="bg-secondary/40 p-6 rounded-xl border border-primary/10 flex flex-col justify-between">
             <div className="space-y-4 text-gray-300 mb-6">
               <span className="text-xs font-black uppercase tracking-widest text-secondary bg-primary px-3 py-1 rounded-full inline-block">Sede Principal M15 & Qualy</span>
-              <h3 className="font-bold text-white text-xl">Club Náutico Villa Constitución</h3>
-              <p className="text-sm">Sede oficial del torneo internacional M15 y la fase de Qualy. Cuenta con canchas de polvo de ladrillo de primer nivel.</p>
+              <h3 className="font-bold text-white text-xl">{settings.sede_principal_nombre || 'Club Náutico Villa Constitución'}</h3>
+              <p className="text-sm">{settings.sede_principal_desc || 'Sede oficial del torneo internacional M15 y la fase de Qualy. Cuenta con canchas de polvo de ladrillo de primer nivel.'}</p>
               <div className="text-sm space-y-2 text-gray-400">
-                <p>📍 <strong>Dirección:</strong> San Luis & Ministro Seguí, Villa Constitución, Santa Fe.</p>
+                <p>📍 <strong>Dirección:</strong> {settings.sede_principal_direccion || 'San Luis & Ministro Seguí, Villa Constitución, Santa Fe.'}</p>
               </div>
             </div>
             <a 
-              href="https://maps.google.com/?q=Club+Nautico+Villa+Constitucion" 
+              href={settings.sede_principal_mapa || 'https://maps.google.com/?q=Club+Nautico+Villa+Constitucion'} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="bg-primary text-secondary border border-primary hover:bg-white hover:text-secondary px-5 py-2.5 rounded-lg font-bold text-sm transition inline-block text-center w-full"
@@ -102,14 +102,14 @@ export default function ReglamentoPage() {
           <div className="bg-secondary/40 p-6 rounded-xl border border-primary/10 flex flex-col justify-between">
             <div className="space-y-4 text-gray-300 mb-6">
               <span className="text-xs font-black uppercase tracking-widest text-white bg-clay px-3 py-1 rounded-full inline-block">Sede Pre-Qualy & Entrenamiento</span>
-              <h3 className="font-bold text-white text-xl">Club Empalme Central</h3>
-              <p className="text-sm">Sede exclusiva para la fase de Pre-Qualy oficial y canchas de entrenamiento durante el torneo.</p>
+              <h3 className="font-bold text-white text-xl">{settings.sede_prequaly_nombre || 'Club Empalme Central'}</h3>
+              <p className="text-sm">{settings.sede_prequaly_desc || 'Sede exclusiva para la fase de Pre-Qualy oficial y canchas de entrenamiento durante el torneo.'}</p>
               <div className="text-sm space-y-2 text-gray-400">
-                <p>📍 <strong>Dirección:</strong> Juan José Paso 49, Empalme Villa Constitución, Santa Fe.</p>
+                <p>📍 <strong>Dirección:</strong> {settings.sede_prequaly_direccion || 'Juan José Paso 49, Empalme Villa Constitución, Santa Fe.'}</p>
               </div>
             </div>
             <a 
-              href="https://maps.google.com/?q=Club+Empalme+Central+Juan+Jose+Paso+49+Empalme+Villa+Constitucion" 
+              href={settings.sede_prequaly_mapa || 'https://maps.google.com/?q=Club+Empalme+Central+Juan+Jose+Paso+49+Empalme+Villa+Constitucion'} 
               target="_blank" 
               rel="noopener noreferrer" 
               className="bg-gray-dark text-primary border border-primary/30 hover:bg-primary hover:text-secondary px-5 py-2.5 rounded-lg font-bold text-sm transition inline-block text-center w-full"
