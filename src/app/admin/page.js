@@ -285,8 +285,8 @@ export default function AdminPage() {
     if (players.length === 0) return setMsg('No hay jugadores para exportar')
     
     const headers = ['Nombre', 'Torneo', 'Edad', 'Mano', 'Club', 'Pagado', 'Fecha de Registro']
-    const csvContent = [
-      headers.join(','),
+    const csvContent = '\uFEFF' + [
+      headers.join(';'),
       ...players.map(p => [
         `"${p.name}"`,
         `"${p.tournament}"`,
@@ -295,7 +295,7 @@ export default function AdminPage() {
         `"${p.club || ''}"`,
         p.paid ? 'SI' : 'NO',
         `"${new Date(p.created_at).toLocaleDateString()}"`
-      ].join(','))
+      ].join(';'))
     ].join('\n')
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })

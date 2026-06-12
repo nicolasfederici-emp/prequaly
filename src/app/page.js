@@ -29,7 +29,7 @@ export default function Home() {
         *,
         player1:player1_id (name, photo_url),
         player2:player2_id (name, photo_url)
-      `).eq('status', 'scheduled').not('scheduled_date', 'is', null).order('scheduled_date', { ascending: true }).limit(10)
+      `).order('scheduled_date', { ascending: true, nullsFirst: false }).limit(10)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
@@ -44,7 +44,7 @@ export default function Home() {
     }
     
     if (!mtRes.error && mtRes.data) {
-      // Filtrar para mostrar solo los de hoy o los próximos 10
+      // Solo filtrar si realmente hay partidos para "hoy", si no mostrar los próximos/últimos cargados
       const today = new Date().toISOString().slice(0, 10)
       const todaysMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.startsWith(today))
       setUpcomingMatches(todaysMatches.length > 0 ? todaysMatches : mtRes.data)
@@ -78,9 +78,15 @@ export default function Home() {
                 title={sponsor.name}
               >
                 {sponsor.logo_url ? (
-                  <img src={sponsor.logo_url} alt={sponsor.name} className="max-h-24 w-auto object-contain" />
+                  <img src={sponsor.logo_url} alt={sponsor.name} className={`w-auto object-contain transition-all duration-300 ${
+                    sponsor.category === 'principal' ? 'max-h-28 drop-shadow-[0_0_15px_rgba(208,253,62,0.4)] scale-110' :
+                    sponsor.category === 'oficial' ? 'max-h-20 opacity-95' : 'max-h-14 opacity-70 grayscale hover:grayscale-0'
+                  }`} />
                 ) : (
-                  <span className="text-xs text-primary font-extrabold tracking-wider bg-secondary/80 border border-primary/25 rounded-lg px-4 py-2 uppercase shadow-inner">
+                  <span className={`text-xs text-primary font-extrabold tracking-wider bg-secondary/80 border border-primary/25 rounded-lg px-4 py-2 uppercase shadow-inner ${
+                    sponsor.category === 'principal' ? 'scale-110' :
+                    sponsor.category === 'colaborador' ? 'scale-90 opacity-70' : ''
+                  }`}>
                     {sponsor.name}
                   </span>
                 )}
