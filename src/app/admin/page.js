@@ -1084,8 +1084,8 @@ export default function AdminPage() {
                     className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
                   >
                     <option value="">A confirmar</option>
-                    {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'})</option>
+                    {players.map(p => (
+                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'} - {p.tournament})</option>
                     ))}
                   </select>
                 </div>
@@ -1097,8 +1097,8 @@ export default function AdminPage() {
                     className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
                   >
                     <option value="">A confirmar</option>
-                    {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'})</option>
+                    {players.map(p => (
+                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'} - {p.tournament})</option>
                     ))}
                   </select>
                 </div>
