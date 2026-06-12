@@ -44,11 +44,14 @@ export default function Home() {
     }
     
     if (!mtRes.error && mtRes.data) {
-      // Filter matches that actually have a valid date
-      const validMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.trim() !== '')
+      // Filter matches that actually have a valid date and are not completed
+      const validMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.trim() !== '' && m.status !== 'completed')
       
-      const today = new Date().toISOString().slice(0, 10)
-      const todaysMatches = validMatches.filter(m => m.scheduled_date.startsWith(today))
+      const todayDate = new Date()
+      const todaysMatches = validMatches.filter(m => {
+        const d = new Date(m.scheduled_date)
+        return !isNaN(d) && d.getDate() === todayDate.getDate() && d.getMonth() === todayDate.getMonth() && d.getFullYear() === todayDate.getFullYear()
+      })
       
       // If we have matches today, show them. Otherwise, show all upcoming valid matches
       setUpcomingMatches(todaysMatches.length > 0 ? todaysMatches : validMatches.slice(0, 10))
@@ -172,7 +175,7 @@ export default function Home() {
               
               <div 
                 className="flex animate-infinite-scroll gap-4 pb-4 items-center"
-                style={{ animationDuration: '60s' }}
+                style={{ animationDuration: `${settings.matches_carousel_speed || 30}s` }}
               >
                 {carouselMatches.map((match, idx) => {
                   const dateObj = new Date(match.scheduled_date)

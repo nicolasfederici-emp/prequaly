@@ -8,7 +8,7 @@ export default function ResultadosPage() {
   const [tournament, setTournament] = useState('prequaly') // 'prequaly', 'qualy', 'm15_singles', 'm15_doubles'
   const [matches, setMatches] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('all') // 'all', 'upcoming', 'completed'
+  const [filter, setFilter] = useState('upcoming') // 'upcoming', 'completed', 'all'
   const [viewMode, setViewMode] = useState('cronograma') // 'cronograma' | 'cuadro'
 
   useEffect(() => {
@@ -68,13 +68,13 @@ export default function ResultadosPage() {
     return `Ronda ${roundNum}`
   }
 
-  // Filter: only show scheduled and completed matches, excluding pending ones.
-  // User request: do not show "programados" (upcoming) if they don't have a valid scheduled_date.
+  // Filter: only show matches with dates or completed ones.
+  // "Programados" means ANY match (pending or scheduled) that has a valid scheduled_date.
   const filteredMatches = matches.filter(m => {
     const hasDate = m.scheduled_date && m.scheduled_date.trim() !== ''
     if (filter === 'completed') return m.status === 'completed'
-    if (filter === 'upcoming') return m.status === 'scheduled' && hasDate
-    return m.status === 'completed' || (m.status === 'scheduled' && hasDate)
+    if (filter === 'upcoming') return m.status !== 'completed' && hasDate
+    return m.status === 'completed' || (m.status !== 'completed' && hasDate)
   })
 
   // Group filtered matches by date
@@ -167,7 +167,7 @@ export default function ResultadosPage() {
 
       {viewMode === 'cronograma' && (
         <div className="mb-6 flex gap-2 w-full md:w-auto">
-          {['all', 'upcoming', 'completed'].map(f => (
+          {['upcoming', 'completed', 'all'].map(f => (
             <button 
               key={f} 
               onClick={() => setFilter(f)} 

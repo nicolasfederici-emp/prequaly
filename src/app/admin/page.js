@@ -2144,6 +2144,11 @@ export default function AdminPage() {
                     <p className="text-xs text-gray-500 mb-2">Un número menor significa mayor velocidad. Recomendado: 40.</p>
                     <input type="number" min="5" placeholder="40" value={settingsForm.carousel_speed} onChange={e => setSettingsForm({...settingsForm, carousel_speed: e.target.value})} className="w-full bg-gray-dark border border-primary/20 rounded px-4 py-2 text-sm text-white" />
                   </div>
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-1">Velocidad Carrusel Partidos (Segundos)</label>
+                    <p className="text-xs text-gray-500 mb-2">Un número menor significa mayor velocidad. Recomendado: 30.</p>
+                    <input type="number" min="5" placeholder="30" value={settingsForm.matches_carousel_speed} onChange={e => setSettingsForm({...settingsForm, matches_carousel_speed: e.target.value})} className="w-full bg-gray-dark border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                  </div>
                 </div>
 
                 <div>
