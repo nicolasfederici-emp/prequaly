@@ -47,7 +47,10 @@ export default function Home() {
           <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-secondary to-transparent z-10 pointer-events-none"></div>
           <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-secondary to-transparent z-10 pointer-events-none"></div>
           
-          <div className="flex animate-infinite-scroll items-center gap-12 whitespace-nowrap">
+          <div 
+            className="flex animate-infinite-scroll items-center gap-12 whitespace-nowrap"
+            style={{ animationDuration: `${settings.carousel_speed || 40}s` }}
+          >
             {carouselSponsors.map((sponsor, idx) => (
               <a 
                 key={`${sponsor.id}-${idx}`}

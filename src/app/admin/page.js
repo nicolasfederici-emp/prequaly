@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { 
   Trash2, Edit, Save, X, Plus, Users, Trophy, Megaphone, ShieldAlert,
-  CheckCircle, RefreshCw, Upload, Calendar, Star, Settings, Camera
+  CheckCircle, RefreshCw, Upload, Calendar, Star, Settings, Camera, LayoutGrid
 } from 'lucide-react'
+import Bracket from '@/components/Bracket'
 
 export default function AdminPage() {
   const [auth, setAuth] = useState(false)
@@ -111,7 +112,8 @@ export default function AdminPage() {
     sede_prequaly_nombre: '',
     sede_prequaly_direccion: '',
     sede_prequaly_desc: '',
-    sede_prequaly_mapa: ''
+    sede_prequaly_mapa: '',
+    carousel_speed: '40'
   })
 
   const login = (e) => {
@@ -975,7 +977,13 @@ export default function AdminPage() {
             onClick={() => { setActiveTab('matches'); setMsg('') }} 
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold transition text-xs ${activeTab === 'matches' ? 'bg-primary text-secondary' : 'bg-gray-dark text-gray-300 hover:text-primary'}`}
           >
-            <Trophy className="w-4 h-4" /> Partidos
+            <Calendar className="w-4 h-4" /> Programación
+          </button>
+          <button 
+            onClick={() => { setActiveTab('cuadro'); setMsg('') }} 
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold transition text-xs ${activeTab === 'cuadro' ? 'bg-primary text-secondary' : 'bg-gray-dark text-gray-300 hover:text-primary'}`}
+          >
+            <LayoutGrid className="w-4 h-4" /> Cuadro
           </button>
           <button 
             onClick={() => { setActiveTab('gallery'); setMsg('') }} 
@@ -1009,6 +1017,141 @@ export default function AdminPage() {
         <div className={`mb-6 p-4 rounded-lg flex items-center gap-2 font-medium ${msg.includes('Error') ? 'bg-red-900/30 border border-red-500 text-red-400' : 'bg-green-900/30 border border-green-500 text-green-400'}`}>
           <ShieldAlert className="w-5 h-5 flex-shrink-0" />
           <span>{msg}</span>
+        </div>
+      )}
+
+      {/* Edit Match Modal (Shared across tabs) */}
+      {editingMatchId && (
+        <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-gray-dark p-6 rounded-xl border-2 border-primary/30 max-w-3xl w-full relative shadow-2xl my-8">
+            <button 
+              type="button"
+              onClick={() => setEditingMatchId(null)} 
+              className="absolute right-4 top-4 text-gray-400 hover:text-white transition"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <h3 className="text-xl font-bold text-primary mb-4">Cargar Resultado de Partido</h3>
+            
+            <form onSubmit={saveMatch} className="space-y-6">
+              {/* Players selection manual */}
+              <div className="grid md:grid-cols-2 gap-6 bg-secondary/50 p-4 rounded-lg border border-primary/10">
+                <div>
+                  <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Jugador 1 / Pareja 1</label>
+                  <select 
+                    value={matchForm.player1_id} 
+                    onChange={e => setMatchForm({...matchForm, player1_id: e.target.value})} 
+                    className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
+                  >
+                    <option value="">A confirmar</option>
+                    {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
+                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'})</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Jugador 2 / Pareja 2</label>
+                  <select 
+                    value={matchForm.player2_id} 
+                    onChange={e => setMatchForm({...matchForm, player2_id: e.target.value})} 
+                    className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
+                  >
+                    <option value="">A confirmar</option>
+                    {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
+                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-6">
+                {/* Status, Date and Time */}
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Estado del Partido</label>
+                    <select 
+                      value={matchForm.status} 
+                      onChange={e => setMatchForm({...matchForm, status: e.target.value})} 
+                      className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"
+                    >
+                      <option value="pending">No Programado</option>
+                      <option value="scheduled">Programado</option>
+                      <option value="completed">Finalizado</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Fecha y Hora Programada</label>
+                    <input 
+                      type="datetime-local" 
+                      value={matchForm.scheduled_date} 
+                      onChange={e => setMatchForm({...matchForm, scheduled_date: e.target.value})} 
+                      className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" 
+                    />
+                  </div>
+                </div>
+
+                {/* Score Entry */}
+                <div className="space-y-3">
+                  <label className="block text-gray-300 text-sm font-medium">Marcador por Sets</label>
+                  <div className="grid grid-cols-4 gap-2 text-center items-center">
+                    <span className="text-xs text-gray-400">Set</span>
+                    <span className="text-xs text-primary">J1</span>
+                    <span className="text-xs text-primary">J2</span>
+                    <span></span>
+
+                    <span className="font-bold text-sm text-gray-300">Set 1:</span>
+                    <input type="number" placeholder="0" value={matchForm.set1_p1} onChange={e => setMatchForm({...matchForm, set1_p1: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
+                    <input type="number" placeholder="0" value={matchForm.set1_p2} onChange={e => setMatchForm({...matchForm, set1_p2: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
+                    <span></span>
+
+                    <span className="font-bold text-sm text-gray-300">Set 2:</span>
+                    <input type="number" placeholder="0" value={matchForm.set2_p1} onChange={e => setMatchForm({...matchForm, set2_p1: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
+                    <input type="number" placeholder="0" value={matchForm.set2_p2} onChange={e => setMatchForm({...matchForm, set2_p2: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
+                    <span></span>
+
+                    <span className="font-bold text-sm text-gray-300">Set 3:</span>
+                    <input type="number" placeholder="0" value={matchForm.set3_p1} onChange={e => setMatchForm({...matchForm, set3_p1: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
+                    <input type="number" placeholder="0" value={matchForm.set3_p2} onChange={e => setMatchForm({...matchForm, set3_p2: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Winner selection */}
+              {matchForm.status === 'completed' && (
+                <div>
+                  <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Ganador *</label>
+                  <select 
+                    required
+                    value={matchForm.winner_id} 
+                    onChange={e => setMatchForm({...matchForm, winner_id: e.target.value})} 
+                    className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"
+                  >
+                    <option value="">Selecciona al ganador...</option>
+                    {matchForm.player1_id && (
+                      <option value={matchForm.player1_id}>
+                        {players.find(p => p.id === matchForm.player1_id)?.name || 'Jugador 1'}
+                      </option>
+                    )}
+                    {matchForm.player2_id && (
+                      <option value={matchForm.player2_id}>
+                        {players.find(p => p.id === matchForm.player2_id)?.name || 'Jugador 2'}
+                      </option>
+                    )}
+                  </select>
+                </div>
+              )}
+
+              <div className="flex gap-4 pt-2">
+                <button disabled={loading} type="submit" className="flex-1 bg-primary text-secondary font-bold py-3 rounded-lg hover:bg-yellow-400 transition flex items-center justify-center gap-2">
+                  <Save className="w-5 h-5" /> Guardar Resultado
+                </button>
+                <button type="button" onClick={() => setEditingMatchId(null)} className="px-6 bg-gray-700 text-white font-bold py-3 rounded-lg hover:bg-gray-600 transition">Cancelar</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
@@ -1273,8 +1416,8 @@ export default function AdminPage() {
         <div>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-primary/10 pb-4">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Trophy className="w-6 h-6 text-primary" />
-              Gestión de Partidos ({matches.filter(m => m.tournament === selectedMatchTournament).length})
+              <Calendar className="w-6 h-6 text-primary" />
+              Programación ({matches.filter(m => m.tournament === selectedMatchTournament).length})
             </h2>
             
             <div className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -1333,207 +1476,141 @@ export default function AdminPage() {
             </button>
           </div>
 
-          {/* Round Selector Tab */}
-          <div className="flex gap-1 overflow-x-auto bg-gray-dark p-1.5 rounded-lg border border-primary/10 mb-6">
-            {(selectedMatchTournament === 'prequaly' ? [1, 2, 3, 4, 5, 6] : selectedMatchTournament === 'm15_doubles' ? [1, 2, 3, 4] : [1, 2, 3, 4, 5]).map(r => (
-              <button
-                key={r}
-                onClick={() => setSelectedRound(r)}
-                className={`flex-1 min-w-[100px] text-center py-2 px-3 rounded-md font-bold transition text-xs ${selectedRound === r ? 'bg-primary text-secondary shadow-md' : 'text-gray-400 hover:text-primary'}`}
+          {/* Matches List grouped by selected round and tournament */}
+          {(() => {
+            const currentMatches = matches.filter(m => m.tournament === selectedMatchTournament);
+            const todayBA = new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+            
+            const grouped = currentMatches.reduce((acc, m) => {
+              if (m.status === 'completed') {
+                acc['Finalizados'] = acc['Finalizados'] || [];
+                acc['Finalizados'].push(m);
+                return acc;
+              }
+              
+              if (!m.scheduled_date) {
+                acc['No Programados'] = acc['No Programados'] || [];
+                acc['No Programados'].push(m);
+                return acc;
+              }
+              
+              const mDate = new Date(m.scheduled_date).toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+              
+              if (mDate === todayBA) {
+                acc['Hoy'] = acc['Hoy'] || [];
+                acc['Hoy'].push(m);
+              } else {
+                acc['Próximos Días'] = acc['Próximos Días'] || [];
+                acc['Próximos Días'].push(m);
+              }
+              return acc;
+            }, {});
+
+            const groupsOrder = ['Hoy', 'Próximos Días', 'No Programados', 'Finalizados'];
+
+            return (
+              <div className="space-y-8">
+                {groupsOrder.map(groupName => {
+                  if (!grouped[groupName] || grouped[groupName].length === 0) return null;
+                  return (
+                    <div key={groupName}>
+                      <h3 className="text-xl font-bold text-primary mb-4 border-b border-primary/20 pb-2 flex items-center gap-2">
+                        {groupName === 'Hoy' && <Calendar className="w-5 h-5" />}
+                        {groupName === 'Próximos Días' && <Calendar className="w-5 h-5" />}
+                        {groupName === 'No Programados' && <Clock className="w-5 h-5" />}
+                        {groupName === 'Finalizados' && <CheckCircle className="w-5 h-5" />}
+                        {groupName} ({grouped[groupName].length})
+                      </h3>
+                      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {grouped[groupName].map(match => (
+                          <div key={match.id} className="bg-gray-dark p-4 rounded-xl border border-primary/20 flex flex-col justify-between">
+                            <div>
+                              <div className="flex justify-between items-center mb-3">
+                                <span className="text-xs font-bold bg-secondary px-2.5 py-1 rounded text-primary border border-primary/10">
+                                  {getRoundNameLabel(match.round, selectedMatchTournament)} - P#{match.match_number}
+                                </span>
+                                <span className={`text-xs px-2.5 py-1 rounded font-bold ${
+                                  match.status === 'completed' 
+                                    ? 'bg-green-900/50 text-green-400' 
+                                    : match.status === 'scheduled' 
+                                    ? 'bg-blue-900/50 text-blue-400' 
+                                    : 'bg-gray-800 text-gray-400'
+                                }`}>
+                                  {match.status === 'completed' ? 'Finalizado' : match.status === 'scheduled' ? 'Programado' : 'No Programado'}
+                                </span>
+                              </div>
+
+                              <div className="space-y-2 mb-4">
+                                <div className={`flex justify-between items-center p-2 rounded ${match.winner_id === match.player1_id && match.status === 'completed' ? 'bg-primary/10 text-primary font-bold' : 'text-gray-300'}`}>
+                                  <span>{match.player1?.name || 'A confirmar'}</span>
+                                  <span className="font-mono text-sm">{match.status === 'completed' && match.score1 ? match.score1 : '-'}</span>
+                                </div>
+                                <div className={`flex justify-between items-center p-2 rounded ${match.winner_id === match.player2_id && match.status === 'completed' ? 'bg-primary/10 text-primary font-bold' : 'text-gray-300'}`}>
+                                  <span>{match.player2?.name || 'A confirmar'}</span>
+                                  <span className="font-mono text-sm">{match.status === 'completed' && match.score2 ? match.score2 : '-'}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex justify-between items-center border-t border-primary/10 pt-4 mt-2">
+                              <span className="text-xs text-gray-500 flex items-center gap-1">
+                                <Calendar className="w-3.5 h-3.5" />
+                                {match.scheduled_date ? new Date(match.scheduled_date).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'Sin fecha'}
+                              </span>
+                              
+                              <button 
+                                onClick={() => editMatch(match)}
+                                className="flex items-center gap-1.5 bg-secondary text-primary border border-primary/30 px-3.5 py-1.5 rounded-lg hover:bg-primary hover:text-secondary transition text-sm font-bold"
+                              >
+                                <Edit className="w-4 h-4" /> Cargar
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+                {currentMatches.length === 0 && (
+                  <div className="col-span-full p-8 text-center text-gray-400 bg-gray-dark rounded-xl border border-primary/10">
+                    No hay partidos generados en esta ronda. Haz clic en "Generar Cuadro" en la parte superior derecha para empezar.
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+        </div>
+      )}
+
+      {/* --- CUADRO TAB --- */}
+      {activeTab === 'cuadro' && (
+        <div className="bg-gray-dark p-6 rounded-2xl border border-primary/10 overflow-hidden relative">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-primary/10 pb-4">
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <LayoutGrid className="w-6 h-6 text-primary" />
+              Vista de Cuadro
+            </h2>
+          </div>
+          
+          <div className="flex flex-wrap gap-2 mb-6 bg-secondary/80 p-1.5 rounded-xl border border-primary/20">
+            {['prequaly', 'qualy', 'm15_singles', 'm15_doubles'].map(t => (
+              <button 
+                key={t}
+                onClick={() => setSelectedMatchTournament(t)}
+                className={`flex-1 text-center py-2.5 rounded-lg font-black transition text-xs uppercase ${selectedMatchTournament === t ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-primary'}`}
               >
-                {getRoundNameLabel(r, selectedMatchTournament)}
+                {t.replace('_', ' ')}
               </button>
             ))}
           </div>
-
-          {/* Edit Match Modal */}
-          {editingMatchId && (
-            <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 overflow-y-auto">
-              <div className="bg-gray-dark p-6 rounded-xl border-2 border-primary/30 max-w-3xl w-full relative shadow-2xl my-8">
-                <button 
-                  type="button"
-                  onClick={() => setEditingMatchId(null)} 
-                  className="absolute right-4 top-4 text-gray-400 hover:text-white transition"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-                
-                <h3 className="text-xl font-bold text-primary mb-4">Cargar Resultado de Partido</h3>
-                
-                <form onSubmit={saveMatch} className="space-y-6">
-                  {/* Players selection manual */}
-                  <div className="grid md:grid-cols-2 gap-6 bg-secondary/50 p-4 rounded-lg border border-primary/10">
-                    <div>
-                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Jugador 1 / Pareja 1</label>
-                      <select 
-                        value={matchForm.player1_id} 
-                        onChange={e => setMatchForm({...matchForm, player1_id: e.target.value})} 
-                        className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
-                      >
-                        <option value="">A confirmar</option>
-                        {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
-                          <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'})</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Jugador 2 / Pareja 2</label>
-                      <select 
-                        value={matchForm.player2_id} 
-                        onChange={e => setMatchForm({...matchForm, player2_id: e.target.value})} 
-                        className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
-                      >
-                        <option value="">A confirmar</option>
-                        {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
-                          <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'})</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    {/* Status, Date and Time */}
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-gray-300 mb-1 text-sm">Estado del Partido</label>
-                        <select 
-                          value={matchForm.status} 
-                          onChange={e => setMatchForm({...matchForm, status: e.target.value})} 
-                          className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"
-                        >
-                          <option value="pending">No Programado</option>
-                          <option value="scheduled">Programado</option>
-                          <option value="completed">Finalizado</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-gray-300 mb-1 text-sm">Fecha y Hora Programada</label>
-                        <input 
-                          type="datetime-local" 
-                          value={matchForm.scheduled_date} 
-                          onChange={e => setMatchForm({...matchForm, scheduled_date: e.target.value})} 
-                          className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" 
-                        />
-                      </div>
-                    </div>
-
-                    {/* Score Entry */}
-                    <div className="space-y-3">
-                      <label className="block text-gray-300 text-sm font-medium">Marcador por Sets</label>
-                      <div className="grid grid-cols-4 gap-2 text-center items-center">
-                        <span className="text-xs text-gray-400">Set</span>
-                        <span className="text-xs text-primary">J1</span>
-                        <span className="text-xs text-primary">J2</span>
-                        <span></span>
-
-                        <span className="font-bold text-sm text-gray-300">Set 1:</span>
-                        <input type="number" placeholder="0" value={matchForm.set1_p1} onChange={e => setMatchForm({...matchForm, set1_p1: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
-                        <input type="number" placeholder="0" value={matchForm.set1_p2} onChange={e => setMatchForm({...matchForm, set1_p2: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
-                        <span></span>
-
-                        <span className="font-bold text-sm text-gray-300">Set 2:</span>
-                        <input type="number" placeholder="0" value={matchForm.set2_p1} onChange={e => setMatchForm({...matchForm, set2_p1: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
-                        <input type="number" placeholder="0" value={matchForm.set2_p2} onChange={e => setMatchForm({...matchForm, set2_p2: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
-                        <span></span>
-
-                        <span className="font-bold text-sm text-gray-300">Set 3:</span>
-                        <input type="number" placeholder="0" value={matchForm.set3_p1} onChange={e => setMatchForm({...matchForm, set3_p1: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
-                        <input type="number" placeholder="0" value={matchForm.set3_p2} onChange={e => setMatchForm({...matchForm, set3_p2: e.target.value})} className="bg-secondary border border-primary/30 rounded py-1 px-2 text-center text-white" />
-                        <span></span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Winner selection */}
-                  {matchForm.status === 'completed' && (
-                    <div>
-                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Ganador *</label>
-                      <select 
-                        required
-                        value={matchForm.winner_id} 
-                        onChange={e => setMatchForm({...matchForm, winner_id: e.target.value})} 
-                        className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"
-                      >
-                        <option value="">Selecciona al ganador...</option>
-                        {matchForm.player1_id && (
-                          <option value={matchForm.player1_id}>
-                            {players.find(p => p.id === matchForm.player1_id)?.name || 'Jugador 1'}
-                          </option>
-                        )}
-                        {matchForm.player2_id && (
-                          <option value={matchForm.player2_id}>
-                            {players.find(p => p.id === matchForm.player2_id)?.name || 'Jugador 2'}
-                          </option>
-                        )}
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="flex gap-4 pt-2">
-                    <button disabled={loading} type="submit" className="flex-1 bg-primary text-secondary font-bold py-3 rounded-lg hover:bg-yellow-400 transition flex items-center justify-center gap-2">
-                      <Save className="w-5 h-5" /> Guardar Resultado
-                    </button>
-                    <button type="button" onClick={() => setEditingMatchId(null)} className="px-6 bg-gray-700 text-white font-bold py-3 rounded-lg hover:bg-gray-600 transition">Cancelar</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* Matches List grouped by selected round and tournament */}
-          <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {matches.filter(m => m.tournament === selectedMatchTournament && m.round === selectedRound).map(match => (
-              <div key={match.id} className="bg-gray-dark p-4 rounded-xl border border-primary/20 flex flex-col justify-between">
-                <div>
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs font-bold bg-secondary px-2.5 py-1 rounded text-primary border border-primary/10">
-                      Partido #{match.match_number}
-                    </span>
-                    <span className={`text-xs px-2.5 py-1 rounded font-bold ${
-                      match.status === 'completed' 
-                        ? 'bg-green-900/50 text-green-400' 
-                        : match.status === 'scheduled' 
-                        ? 'bg-blue-900/50 text-blue-400' 
-                        : 'bg-gray-800 text-gray-400'
-                    }`}>
-                      {match.status === 'completed' ? 'Finalizado' : match.status === 'scheduled' ? 'Programado' : 'No Programado'}
-                    </span>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    <div className={`flex justify-between items-center p-2 rounded ${match.winner_id === match.player1_id && match.status === 'completed' ? 'bg-primary/10 text-primary font-bold' : 'text-gray-300'}`}>
-                      <span>{match.player1?.name || 'A confirmar'}</span>
-                      <span className="font-mono text-sm">{match.status === 'completed' && match.score1 ? match.score1 : '-'}</span>
-                    </div>
-                    <div className={`flex justify-between items-center p-2 rounded ${match.winner_id === match.player2_id && match.status === 'completed' ? 'bg-primary/10 text-primary font-bold' : 'text-gray-300'}`}>
-                      <span>{match.player2?.name || 'A confirmar'}</span>
-                      <span className="font-mono text-sm">{match.status === 'completed' && match.score2 ? match.score2 : '-'}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center border-t border-primary/10 pt-4 mt-2">
-                  <span className="text-xs text-gray-500 flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5" />
-                    {match.scheduled_date ? new Date(match.scheduled_date).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'Sin fecha'}
-                  </span>
-                  
-                  <button 
-                    onClick={() => editMatch(match)}
-                    className="flex items-center gap-1.5 bg-secondary text-primary border border-primary/30 px-3.5 py-1.5 rounded-lg hover:bg-primary hover:text-secondary transition text-sm font-bold"
-                  >
-                    <Edit className="w-4 h-4" /> Cargar
-                  </button>
-                </div>
-              </div>
-            ))}
-            {matches.filter(m => m.tournament === selectedMatchTournament && m.round === selectedRound).length === 0 && (
-              <div className="col-span-2 p-8 text-center text-gray-400 bg-gray-dark rounded-xl border border-primary/10">
-                No hay partidos generados en esta ronda. Haz clic en "Generar Cuadro" en la parte superior derecha para empezar.
-              </div>
-            )}
-          </div>
+          
+          <Bracket 
+            tournament={selectedMatchTournament} 
+            matches={matches.filter(m => m.tournament === selectedMatchTournament)} 
+            onMatchClick={editMatch} 
+          />
+        </div>
+      )}
         </div>
       )}
 
@@ -1955,6 +2032,21 @@ export default function AdminPage() {
               </div>
               
               <div className="grid md:grid-cols-2 gap-4 mt-2">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Título Sección Galería</label>
+                  <input placeholder="Momentos Destacados" value={settingsForm.home_gallery_title} onChange={e => setSettingsForm({...settingsForm, home_gallery_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                </div>
+                
+                <div className="bg-secondary/40 p-4 rounded-lg border border-primary/10 col-span-2 space-y-4">
+                  <h4 className="text-lg font-bold text-primary mb-2">Ajustes Adicionales</h4>
+                  
+                  <div>
+                    <label className="block text-sm text-gray-300 mb-1">Velocidad Carrusel Patrocinadores (Segundos)</label>
+                    <p className="text-xs text-gray-500 mb-2">Un número menor significa mayor velocidad. Recomendado: 40.</p>
+                    <input type="number" min="5" placeholder="40" value={settingsForm.carousel_speed} onChange={e => setSettingsForm({...settingsForm, carousel_speed: e.target.value})} className="w-full bg-gray-dark border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm text-gray-300 mb-1">Título Sección Noticias</label>
                   <input placeholder="Noticias Recientes" value={settingsForm.home_news_title} onChange={e => setSettingsForm({...settingsForm, home_news_title: e.target.value})} className="w-full bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
