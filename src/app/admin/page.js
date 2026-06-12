@@ -1085,7 +1085,7 @@ export default function AdminPage() {
                   >
                     <option value="">A confirmar</option>
                     {players.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'} - {p.tournament})</option>
+                      <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
                 </div>
@@ -1098,7 +1098,7 @@ export default function AdminPage() {
                   >
                     <option value="">A confirmar</option>
                     {players.map(p => (
-                      <option key={p.id} value={p.id}>{p.name} ({p.club || 'Sin club'} - {p.tournament})</option>
+                      <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
                 </div>
