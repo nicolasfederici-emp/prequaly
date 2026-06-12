@@ -12,6 +12,9 @@ module.exports = {
         secondary: '#081411',    // Verde cancha oscuro
         clay: '#C2563C',         // Polvo de ladrillo
         'gray-dark': '#111E1A',  // Fondo de tarjetas oscuro
+      },
+      fontFamily: {
+        score: ['var(--font-oswald)', 'sans-serif'],
       }
     },
   },

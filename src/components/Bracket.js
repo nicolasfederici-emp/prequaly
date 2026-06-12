@@ -10,44 +10,62 @@ const CONN_W = 28    // connector column width
 const COL_MIN_W = 180 // minimum column width
 
 // ── Match Card (compact, fixed-height) ──
-function MatchCard({ match, onClick }) {
+function MatchCard({ match, onClick, hoveredPlayerId, setHoveredPlayerId }) {
   const done = match.status === 'completed'
+  const isP1Hovered = hoveredPlayerId && match.player1_id && match.player1_id === hoveredPlayerId
+  const isP2Hovered = hoveredPlayerId && match.player2_id && match.player2_id === hoveredPlayerId
+  const isMatchHovered = isP1Hovered || isP2Hovered
+  const isDimmed = hoveredPlayerId && !isMatchHovered
+
   return (
     <div
       onClick={() => onClick && onClick(match)}
-      className="bg-gray-dark border border-primary/10 rounded-lg overflow-hidden cursor-pointer hover:border-primary/50 transition h-full flex flex-col"
+      className={`bg-gray-dark border rounded-lg overflow-hidden cursor-pointer transition-all duration-300 h-full flex flex-col ${
+        isMatchHovered ? 'border-primary ring-2 ring-primary/50 z-10 relative scale-105' : 
+        isDimmed ? 'border-primary/5 opacity-40 grayscale' : 'border-primary/10 hover:border-primary/50'
+      }`}
     >
       {/* Player 1 */}
-      <div className={`flex-1 flex justify-between items-center px-2.5 border-b border-secondary/30 ${
-        done && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
-      }`}>
+      <div 
+        onMouseEnter={() => match.player1_id && setHoveredPlayerId(match.player1_id)}
+        onMouseLeave={() => setHoveredPlayerId(null)}
+        className={`flex-1 flex justify-between items-center px-2.5 border-b border-secondary/30 transition-colors ${
+          isP1Hovered ? 'bg-primary/20 text-white font-bold' :
+          done && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
+        }`}
+      >
         <div className="flex items-center gap-1.5 min-w-0">
           {match.player1?.photo_url
             ? <img src={match.player1.photo_url} alt="" className="w-4 h-4 rounded-full object-cover shrink-0" />
-            : <User className="w-3.5 h-3.5 text-primary/40 shrink-0" />
+            : <User className={`w-3.5 h-3.5 shrink-0 ${isP1Hovered ? 'text-white' : 'text-primary/40'}`} />
           }
           <span className="truncate text-[11px] max-w-[105px]">
             {match.player1?.name || 'A confirmar'}
           </span>
         </div>
-        <span className="font-mono text-[10px] font-bold ml-1 shrink-0">
+        <span className="font-score text-[12px] tracking-wider font-bold ml-1 shrink-0">
           {done && match.score1 ? match.score1 : ''}
         </span>
       </div>
       {/* Player 2 */}
-      <div className={`flex-1 flex justify-between items-center px-2.5 ${
-        done && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
-      }`}>
+      <div 
+        onMouseEnter={() => match.player2_id && setHoveredPlayerId(match.player2_id)}
+        onMouseLeave={() => setHoveredPlayerId(null)}
+        className={`flex-1 flex justify-between items-center px-2.5 transition-colors ${
+          isP2Hovered ? 'bg-primary/20 text-white font-bold' :
+          done && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
+        }`}
+      >
         <div className="flex items-center gap-1.5 min-w-0">
           {match.player2?.photo_url
             ? <img src={match.player2.photo_url} alt="" className="w-4 h-4 rounded-full object-cover shrink-0" />
-            : <User className="w-3.5 h-3.5 text-primary/40 shrink-0" />
+            : <User className={`w-3.5 h-3.5 shrink-0 ${isP2Hovered ? 'text-white' : 'text-primary/40'}`} />
           }
           <span className="truncate text-[11px] max-w-[105px]">
             {match.player2?.name || 'A confirmar'}
           </span>
         </div>
-        <span className="font-mono text-[10px] font-bold ml-1 shrink-0">
+        <span className="font-score text-[12px] tracking-wider font-bold ml-1 shrink-0">
           {done && match.score2 ? match.score2 : ''}
         </span>
       </div>
@@ -109,6 +127,7 @@ function SvgConnector({ prevCount, nextCount, prevSlotH, totalH }) {
 
 export default function Bracket({ tournament, matches, onMatchClick }) {
   const [collapsedRounds, setCollapsedRounds] = React.useState({})
+  const [hoveredPlayerId, setHoveredPlayerId] = React.useState(null)
 
   const getRoundsForTournament = () => {
     switch (tournament) {
@@ -227,7 +246,12 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
 
                         {/* Match Card */}
                         <div className="flex-1 min-w-0" style={{ height: MATCH_H }}>
-                          <MatchCard match={match} onClick={onMatchClick} />
+                          <MatchCard 
+                            match={match} 
+                            onClick={onMatchClick} 
+                            hoveredPlayerId={hoveredPlayerId}
+                            setHoveredPlayerId={setHoveredPlayerId}
+                          />
                         </div>
 
                         {/* Right output stub (connects to connector) */}
@@ -291,7 +315,12 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
                 <div className="p-3 space-y-2">
                   {roundMatches.map(match => (
                     <div key={match.id} style={{ height: 52 }}>
-                      <MatchCard match={match} onClick={onMatchClick} />
+                      <MatchCard 
+                        match={match} 
+                        onClick={onMatchClick}
+                        hoveredPlayerId={hoveredPlayerId}
+                        setHoveredPlayerId={setHoveredPlayerId}
+                      />
                     </div>
                   ))}
                   {roundMatches.length === 0 && (

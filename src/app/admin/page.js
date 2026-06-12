@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { 
   Trash2, Edit, Save, X, Plus, Users, Trophy, Megaphone, ShieldAlert,
-  CheckCircle, RefreshCw, Upload, Calendar, Star, Settings, Camera, LayoutGrid, Clock
+  CheckCircle, RefreshCw, Upload, Calendar, Star, Settings, Camera, LayoutGrid, Clock, Download
 } from 'lucide-react'
 import Bracket from '@/components/Bracket'
 
@@ -90,7 +90,7 @@ export default function AdminPage() {
   const [sponsors, setSponsors] = useState([])
   const [editingSponsorId, setEditingSponsorId] = useState(null)
   const [showSponsorForm, setShowSponsorForm] = useState(false)
-  const [sponsorForm, setSponsorForm] = useState({ name: '', logo_url: '', website: '', description: '', priority: 0 })
+  const [sponsorForm, setSponsorForm] = useState({ name: '', logo_url: '', website: '', description: '', priority: 0, category: 'colaborador' })
 
   // Gallery State
   const [gallery, setGallery] = useState([])
@@ -279,6 +279,33 @@ export default function AdminPage() {
     setPlayerForm({ name: '', age: '', hand: 'right', club: '', paid: false, photo_url: '', tournament: 'prequaly' })
     setEditingPlayerId(null)
     setShowPlayerForm(false)
+  }
+
+  const exportPlayersCSV = () => {
+    if (players.length === 0) return setMsg('No hay jugadores para exportar')
+    
+    const headers = ['Nombre', 'Torneo', 'Edad', 'Mano', 'Club', 'Pagado', 'Fecha de Registro']
+    const csvContent = [
+      headers.join(','),
+      ...players.map(p => [
+        `"${p.name}"`,
+        `"${p.tournament}"`,
+        p.age,
+        `"${p.hand}"`,
+        `"${p.club || ''}"`,
+        p.paid ? 'SI' : 'NO',
+        `"${new Date(p.created_at).toLocaleDateString()}"`
+      ].join(','))
+    ].join('\n')
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `jugadores_inscritos_${new Date().toLocaleDateString().replace(/\//g, '-')}.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   // --- MATCHES API ---
@@ -816,7 +843,8 @@ export default function AdminPage() {
       logo_url: sponsorForm.logo_url,
       website: sponsorForm.website,
       description: sponsorForm.description,
-      priority: parseInt(sponsorForm.priority) || 0
+      priority: parseInt(sponsorForm.priority) || 0,
+      category: sponsorForm.category
     }
 
     let error
@@ -844,7 +872,8 @@ export default function AdminPage() {
       logo_url: s.logo_url || '',
       website: s.website || '',
       description: s.description || '',
-      priority: s.priority || 0
+      priority: s.priority || 0,
+      category: s.category || 'colaborador'
     })
     setEditingSponsorId(s.id)
     setShowSponsorForm(true)
@@ -863,7 +892,7 @@ export default function AdminPage() {
   }
 
   const resetSponsorForm = () => {
-    setSponsorForm({ name: '', logo_url: '', website: '', description: '', priority: 0 })
+    setSponsorForm({ name: '', logo_url: '', website: '', description: '', priority: 0, category: 'colaborador' })
     setEditingSponsorId(null)
     setShowSponsorForm(false)
   }
@@ -1397,6 +1426,15 @@ export default function AdminPage() {
             </div>
           )}
 
+          <div className="flex justify-end mb-4">
+            <button 
+              onClick={exportPlayersCSV}
+              className="flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold transition text-sm"
+            >
+              <Download className="w-4 h-4" /> Exportar CSV
+            </button>
+          </div>
+
           <div className="bg-gray-dark rounded-xl border border-primary/20 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -1895,15 +1933,26 @@ export default function AdminPage() {
                 </button>
               </div>
               <form onSubmit={saveSponsor} className="space-y-4">
-                <div>
-                  <label className="block text-gray-300 mb-1 text-sm">Nombre de la Empresa *</label>
-                  <input required value={sponsorForm.name} onChange={e => setSponsorForm({...sponsorForm, name: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-300 mb-1 text-sm">Prioridad de Visualización (0 = Alta)</label>
-                    <input type="number" placeholder="0" value={sponsorForm.priority} onChange={e => setSponsorForm({...sponsorForm, priority: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
+                    <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Nombre / Empresa</label>
+                    <input required value={sponsorForm.name} onChange={e => setSponsorForm({...sponsorForm, name: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Categoría</label>
+                      <select required value={sponsorForm.category} onChange={e => setSponsorForm({...sponsorForm, category: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white">
+                        <option value="principal">Title Sponsor (Principal)</option>
+                        <option value="oficial">Sponsor Oficial</option>
+                        <option value="colaborador">Colaborador</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Prioridad Visual (0-99)</label>
+                      <input type="number" min="0" value={sponsorForm.priority} onChange={e => setSponsorForm({...sponsorForm, priority: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
+                    </div>
+                  </div>
+                </div>
                   
                   {/* Sponsor Storage Upload support */}
                   <div>
@@ -1916,7 +1965,6 @@ export default function AdminPage() {
                     />
                     <input placeholder="https://..." value={sponsorForm.logo_url} onChange={e => setSponsorForm({...sponsorForm, logo_url: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-xs mt-2" />
                   </div>
-                </div>
                 <div>
                   <label className="block text-gray-300 mb-1 text-sm">Sitio Web o Instagram URL</label>
                   <input placeholder="https://..." value={sponsorForm.website} onChange={e => setSponsorForm({...sponsorForm, website: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
@@ -1944,7 +1992,7 @@ export default function AdminPage() {
                     {s.logo_url ? <img src={s.logo_url} alt={s.name} className="max-h-full max-w-full object-contain" /> : <Star className="w-8 h-8 text-primary" />}
                   </div>
                   <h3 className="text-xl font-bold text-white mb-1">{s.name}</h3>
-                  <span className="text-xs text-primary font-mono block mb-2">Prioridad: {s.priority}</span>
+                  <span className="text-xs text-primary font-mono block mb-2">Categoría: {s.category || 'colaborador'} | Prioridad: {s.priority}</span>
                   <p className="text-gray-400 text-sm mb-4 line-clamp-2">{s.description || 'Sin descripción'}</p>
                 </div>
                 <div className="border-t border-primary/10 pt-4 flex justify-end gap-2 bg-secondary/10 -mx-6 -mb-6 p-4 mt-2">

@@ -9,6 +9,7 @@ export default function Home() {
   const [news, setNews] = useState([])
   const [gallery, setGallery] = useState([])
   const [settings, setSettings] = useState({})
+  const [upcomingMatches, setUpcomingMatches] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedNews, setSelectedNews] = useState(null)
   const [selectedImage, setSelectedImage] = useState(null)
@@ -19,11 +20,16 @@ export default function Home() {
 
   const fetchHomeData = async () => {
     setLoading(true)
-    const [spRes, nwRes, stRes, glRes] = await Promise.all([
+    const [spRes, nwRes, stRes, glRes, mtRes] = await Promise.all([
       supabase.from('sponsors').select('*').order('priority', { ascending: true }),
       supabase.from('news').select('*').order('created_at', { ascending: false }).limit(2),
       supabase.from('settings').select('*'),
-      supabase.from('gallery').select('*').order('created_at', { ascending: false }).limit(4)
+      supabase.from('gallery').select('*').order('created_at', { ascending: false }).limit(4),
+      supabase.from('matches').select(`
+        *,
+        player1:player1_id (name, photo_url),
+        player2:player2_id (name, photo_url)
+      `).eq('status', 'scheduled').not('scheduled_date', 'is', null).order('scheduled_date', { ascending: true }).limit(10)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
@@ -35,6 +41,13 @@ export default function Home() {
         setMap[s.key] = s.value
       })
       setSettings(setMap)
+    }
+    
+    if (!mtRes.error && mtRes.data) {
+      // Filtrar para mostrar solo los de hoy o los próximos 10
+      const today = new Date().toISOString().slice(0, 10)
+      const todaysMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.startsWith(today))
+      setUpcomingMatches(todaysMatches.length > 0 ? todaysMatches : mtRes.data)
     }
     
     setLoading(false)
@@ -127,6 +140,69 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* MATCHES CAROUSEL */}
+      {upcomingMatches.length > 0 && (
+        <div className="bg-gray-900 border-b border-primary/10 py-8">
+          <div className="container mx-auto px-4 max-w-7xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2">
+                <Clock className="w-6 h-6 text-primary" />
+                PROGRAMACIÓN
+              </h2>
+              <Link href="/resultados" className="text-primary hover:text-white text-sm font-bold flex items-center gap-1 transition">
+                Ver todo <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+            
+            <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory hide-scrollbar">
+              {upcomingMatches.map(match => {
+                const dateObj = new Date(match.scheduled_date)
+                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                return (
+                  <div key={match.id} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 snap-start shrink-0 hover:border-primary/50 transition">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                        {match.court || 'Cancha a def.'}
+                      </span>
+                      <span className="text-xs text-gray-400 font-mono font-bold flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {timeStr}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {match.player1?.photo_url ? (
+                            <img src={match.player1.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                              <span className="text-[10px] text-gray-400">P1</span>
+                            </div>
+                          )}
+                          <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player1?.name || 'A confirmar'}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {match.player2?.photo_url ? (
+                            <img src={match.player2.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                              <span className="text-[10px] text-gray-400">P2</span>
+                            </div>
+                          )}
+                          <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player2?.name || 'A confirmar'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ROAD TO M15: PRE-TOURNAMENTS DIVISION */}
       <div className="container mx-auto px-4 max-w-5xl py-16">
