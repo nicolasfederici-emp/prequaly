@@ -2,14 +2,16 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import { Trophy, Calendar, MapPin, Users, ArrowRight, Star, Megaphone, Clock, Sparkles, X } from 'lucide-react'
+import { Trophy, Calendar, MapPin, Users, ArrowRight, Star, Megaphone, Clock, Sparkles, X, Camera } from 'lucide-react'
 
 export default function Home() {
   const [sponsors, setSponsors] = useState([])
   const [news, setNews] = useState([])
+  const [gallery, setGallery] = useState([])
   const [settings, setSettings] = useState({})
   const [loading, setLoading] = useState(true)
   const [selectedNews, setSelectedNews] = useState(null)
+  const [selectedImage, setSelectedImage] = useState(null)
 
   useEffect(() => {
     fetchHomeData()
@@ -17,14 +19,16 @@ export default function Home() {
 
   const fetchHomeData = async () => {
     setLoading(true)
-    const [spRes, nwRes, stRes] = await Promise.all([
+    const [spRes, nwRes, stRes, glRes] = await Promise.all([
       supabase.from('sponsors').select('*').order('priority', { ascending: true }),
-      supabase.from('news').select('*').order('created_at', { ascending: false }).limit(3),
-      supabase.from('settings').select('*')
+      supabase.from('news').select('*').order('created_at', { ascending: false }).limit(2),
+      supabase.from('settings').select('*'),
+      supabase.from('gallery').select('*').order('created_at', { ascending: false }).limit(4)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
     if (!nwRes.error) setNews(nwRes.data || [])
+    if (!glRes.error) setGallery(glRes.data || [])
     if (!stRes.error && stRes.data) {
       const setMap = {}
       stRes.data.forEach(s => {
@@ -257,39 +261,77 @@ export default function Home() {
       {/* BODY CONTENT (NEWS & SPONSORS GRID DETAILED) */}
       <div className="container mx-auto px-4 max-w-5xl space-y-16 pb-16">
         
-        {/* LATEST NEWS */}
-        {news.length > 0 && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Megaphone className="w-6 h-6 text-primary" /> {settings.home_news_title || 'Noticias Recientes'}
-              </h2>
-            </div>
-            
-            <div className="grid md:grid-cols-3 gap-6">
-              {news.map(n => (
-                <div 
-                  key={n.id} 
-                  className="bg-gray-dark border border-primary/15 hover:border-primary/50 transition-all duration-300 rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer"
-                  onClick={() => setSelectedNews(n)}
-                >
-                  <div>
-                    {n.image && (
-                      <div className="w-full h-40 overflow-hidden relative">
-                        <img src={n.image} alt={n.title} className="w-full h-full object-cover" />
+        {/* NEWS & GALLERY SPLIT SECTION */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          
+          {/* LATEST NEWS (Left Column) */}
+          {news.length > 0 && (
+            <div className="lg:col-span-1">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Megaphone className="w-6 h-6 text-primary" /> {settings.home_news_title || 'Noticias Recientes'}
+                </h2>
+              </div>
+              
+              <div className="space-y-6">
+                {news.map(n => (
+                  <div 
+                    key={n.id} 
+                    className="bg-gray-dark border border-primary/15 hover:border-primary/50 transition-all duration-300 rounded-xl overflow-hidden flex flex-col justify-between cursor-pointer"
+                    onClick={() => setSelectedNews(n)}
+                  >
+                    <div>
+                      {n.image && (
+                        <div className="w-full h-40 overflow-hidden relative">
+                          <img src={n.image} alt={n.title} className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                      <div className="p-5">
+                        <span className="text-[10px] text-primary font-bold block mb-1">{n.date ? n.date.slice(0, 10) : ''}</span>
+                        <h3 className="font-bold text-white text-base mb-2 line-clamp-2">{n.title}</h3>
+                        <p className="text-gray-400 text-xs line-clamp-3">{n.content}</p>
                       </div>
-                    )}
-                    <div className="p-5">
-                      <span className="text-[10px] text-primary font-bold block mb-1">{n.date ? n.date.slice(0, 10) : ''}</span>
-                      <h3 className="font-bold text-white text-base mb-2 line-clamp-2">{n.title}</h3>
-                      <p className="text-gray-400 text-xs line-clamp-3">{n.content}</p>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+
+          {/* GALLERY PREVIEW (Right Columns) */}
+          {gallery.length > 0 && (
+            <div className="lg:col-span-2">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Camera className="w-6 h-6 text-primary" /> Galería Destacada
+                </h2>
+                <Link href="/galeria" className="text-primary hover:underline text-sm font-bold flex items-center gap-1">
+                  Ver galería <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {gallery.map(img => (
+                  <div 
+                    key={img.id} 
+                    className="bg-gray-dark border border-primary/15 rounded-xl overflow-hidden h-40 md:h-[18.5rem] hover:border-primary/50 transition cursor-pointer group relative"
+                    onClick={() => setSelectedImage(img)}
+                  >
+                    <img src={img.image_url} alt={img.caption || 'Galería'} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Sparkles className="w-8 h-8 text-primary" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {gallery.length === 0 && (
+                <div className="h-full min-h-[300px] border border-dashed border-primary/20 rounded-xl flex items-center justify-center text-gray-500">
+                  Aún no hay fotos en la galería
+                </div>
+              )}
+            </div>
+          )}
+        </div>
 
         {/* DETAILED SPONSORS BLOCK AT THE BOTTOM */}
         {sponsors.length > 0 && (
@@ -354,6 +396,38 @@ export default function Home() {
                 {selectedNews.content}
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* GALLERY IMAGE MODAL */}
+      {selectedImage && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm" onClick={() => setSelectedImage(null)}>
+          <div 
+            className="w-full max-w-5xl max-h-[90vh] flex flex-col relative"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              className="absolute -top-12 right-0 md:-right-12 md:top-0 bg-primary text-secondary p-2 rounded-full hover:bg-white transition z-10"
+              onClick={() => setSelectedImage(null)}
+            >
+              <X className="w-6 h-6" />
+            </button>
+            
+            <div className="w-full flex-1 overflow-hidden flex items-center justify-center">
+              <img 
+                src={selectedImage.image_url} 
+                alt={selectedImage.caption || 'Foto de galería'} 
+                className="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl" 
+              />
+            </div>
+            
+            {selectedImage.caption && (
+              <div className="text-center mt-4">
+                <p className="text-white text-lg font-medium">{selectedImage.caption}</p>
+                <span className="text-primary text-sm font-bold uppercase tracking-wider">{selectedImage.tournament.replace('_', ' ')}</span>
+              </div>
+            )}
           </div>
         </div>
       )}
