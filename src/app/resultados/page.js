@@ -69,11 +69,12 @@ export default function ResultadosPage() {
   }
 
   // Filter: only show scheduled and completed matches, excluding pending ones.
-  // User request: do not show "programados" (upcoming) if they don't have a scheduled_date.
+  // User request: do not show "programados" (upcoming) if they don't have a valid scheduled_date.
   const filteredMatches = matches.filter(m => {
+    const hasDate = m.scheduled_date && m.scheduled_date.trim() !== ''
     if (filter === 'completed') return m.status === 'completed'
-    if (filter === 'upcoming') return m.status === 'scheduled' && m.scheduled_date != null
-    return m.status === 'completed' || (m.status === 'scheduled' && m.scheduled_date != null)
+    if (filter === 'upcoming') return m.status === 'scheduled' && hasDate
+    return m.status === 'completed' || (m.status === 'scheduled' && hasDate)
   })
 
   // Group filtered matches by date

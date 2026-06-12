@@ -29,7 +29,7 @@ export default function Home() {
         *,
         player1:player1_id (name, photo_url),
         player2:player2_id (name, photo_url)
-      `).eq('status', 'scheduled').not('scheduled_date', 'is', null).order('scheduled_date', { ascending: true }).limit(10)
+      `).order('match_number', { ascending: true }).limit(30)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
@@ -44,10 +44,14 @@ export default function Home() {
     }
     
     if (!mtRes.error && mtRes.data) {
-      // Solo filtrar si realmente hay partidos para "hoy", si no mostrar los próximos/últimos cargados
+      // Filter matches that actually have a valid date
+      const validMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.trim() !== '')
+      
       const today = new Date().toISOString().slice(0, 10)
-      const todaysMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.startsWith(today))
-      setUpcomingMatches(todaysMatches.length > 0 ? todaysMatches : mtRes.data)
+      const todaysMatches = validMatches.filter(m => m.scheduled_date.startsWith(today))
+      
+      // If we have matches today, show them. Otherwise, show all upcoming valid matches
+      setUpcomingMatches(todaysMatches.length > 0 ? todaysMatches : validMatches.slice(0, 10))
     }
     
     setLoading(false)
@@ -55,6 +59,7 @@ export default function Home() {
 
   // Duplicate sponsors array to ensure a seamless infinite scroll loop
   const carouselSponsors = [...sponsors, ...sponsors, ...sponsors]
+  const carouselMatches = [...upcomingMatches, ...upcomingMatches, ...upcomingMatches]
 
   return (
     <div className="min-h-screen bg-secondary">
@@ -161,12 +166,19 @@ export default function Home() {
               </Link>
             </div>
             
-            <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory hide-scrollbar">
-              {upcomingMatches.map(match => {
-                const dateObj = new Date(match.scheduled_date)
-                const timeStr = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                return (
-                  <div key={match.id} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 snap-start shrink-0 hover:border-primary/50 transition">
+            <div className="relative overflow-hidden w-full">
+              <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-gray-900 to-transparent z-10 pointer-events-none"></div>
+              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-gray-900 to-transparent z-10 pointer-events-none"></div>
+              
+              <div 
+                className="flex animate-infinite-scroll gap-4 pb-4 items-center"
+                style={{ animationDuration: '60s' }}
+              >
+                {carouselMatches.map((match, idx) => {
+                  const dateObj = new Date(match.scheduled_date)
+                  const timeStr = isNaN(dateObj) ? '-' : dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  return (
+                    <div key={`${match.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 shrink-0 hover:border-primary/50 transition">
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
                         {match.court || 'Cancha a def.'}
@@ -205,6 +217,7 @@ export default function Home() {
                   </div>
                 )
               })}
+              </div>
             </div>
           </div>
         </div>
