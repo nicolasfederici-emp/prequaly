@@ -1611,8 +1611,7 @@ export default function AdminPage() {
           />
         </div>
       )}
-        </div>
-      )}
+
 
       {/* --- GALLERY TAB --- */}
       {activeTab === 'gallery' && (
