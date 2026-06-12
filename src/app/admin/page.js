@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import { 
   Trash2, Edit, Save, X, Plus, Users, Trophy, Megaphone, ShieldAlert,
-  CheckCircle, RefreshCw, Upload, Calendar, Star, Settings, Camera, LayoutGrid
+  CheckCircle, RefreshCw, Upload, Calendar, Star, Settings, Camera, LayoutGrid, Clock
 } from 'lucide-react'
 import Bracket from '@/components/Bracket'
 
@@ -1518,7 +1518,10 @@ export default function AdminPage() {
           {/* Matches List grouped by selected round and tournament */}
           {(() => {
             const currentMatches = matches.filter(m => m.tournament === selectedMatchTournament);
-            const todayBA = new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+            let todayBA = 'Hoy';
+            try {
+              todayBA = new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+            } catch (e) {}
             
             const grouped = currentMatches.reduce((acc, m) => {
               if (m.status === 'completed') {
@@ -1533,7 +1536,10 @@ export default function AdminPage() {
                 return acc;
               }
               
-              const mDate = new Date(m.scheduled_date).toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+              let mDate = 'Desconocido';
+              try {
+                mDate = new Date(m.scheduled_date).toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
+              } catch (e) {}
               
               if (mDate === todayBA) {
                 acc['Hoy'] = acc['Hoy'] || [];
@@ -1594,7 +1600,14 @@ export default function AdminPage() {
                             <div className="flex justify-between items-center border-t border-primary/10 pt-4 mt-2">
                               <span className="text-xs text-gray-500 flex items-center gap-1">
                                 <Calendar className="w-3.5 h-3.5" />
-                                {match.scheduled_date ? new Date(match.scheduled_date).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : 'Sin fecha'}
+                                {(() => {
+                                  if (!match.scheduled_date) return 'Sin fecha';
+                                  try {
+                                    return new Date(match.scheduled_date).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+                                  } catch (e) {
+                                    return 'Fecha inválida';
+                                  }
+                                })()}
                               </span>
                               
                               <button 
