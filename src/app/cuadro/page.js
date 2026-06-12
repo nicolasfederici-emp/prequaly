@@ -117,7 +117,14 @@ function CuadroContent() {
         <div className="text-center py-16 text-primary flex items-center justify-center gap-2">
           <RefreshCw className="w-6 h-6 animate-spin" /> Cargando cruces del cuadro...
         </div>
-          <Bracket tournament={tournament} matches={matches} onMatchClick={setSelectedMatch} />
+      ) : matches.length === 0 ? (
+        <div className="bg-gray-dark border border-primary/20 rounded-xl p-12 text-center max-w-xl mx-auto my-8">
+          <Trophy className="w-16 h-16 text-primary/40 mx-auto mb-4" />
+          <p className="text-xl text-gray-300 mb-2">Este cuadro aún no ha sido cargado por la organización.</p>
+          <p className="text-gray-500 text-sm">Los cruces se verán reflejados tan pronto como se generen las llaves.</p>
+        </div>
+      ) : (
+        <Bracket tournament={tournament} matches={matches} onMatchClick={setSelectedMatch} />
       )}
 
       {/* ═══════ MATCH DETAIL MODAL ═══════ */}
