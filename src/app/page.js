@@ -29,7 +29,7 @@ export default function Home() {
         *,
         player1:player1_id (name, photo_url),
         player2:player2_id (name, photo_url)
-      `).order('scheduled_date', { ascending: true, nullsFirst: false }).limit(10)
+      `).eq('status', 'scheduled').not('scheduled_date', 'is', null).order('scheduled_date', { ascending: true }).limit(10)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])

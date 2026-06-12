@@ -68,11 +68,12 @@ export default function ResultadosPage() {
     return `Ronda ${roundNum}`
   }
 
-  // Filter: only show scheduled and completed matches, excluding pending ones
+  // Filter: only show scheduled and completed matches, excluding pending ones.
+  // User request: do not show "programados" (upcoming) if they don't have a scheduled_date.
   const filteredMatches = matches.filter(m => {
     if (filter === 'completed') return m.status === 'completed'
-    if (filter === 'upcoming') return m.status === 'scheduled'
-    return m.status === 'completed' || m.status === 'scheduled'
+    if (filter === 'upcoming') return m.status === 'scheduled' && m.scheduled_date != null
+    return m.status === 'completed' || (m.status === 'scheduled' && m.scheduled_date != null)
   })
 
   // Group filtered matches by date
