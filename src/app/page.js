@@ -29,7 +29,7 @@ export default function Home() {
         *,
         player1:player1_id (name, photo_url),
         player2:player2_id (name, photo_url)
-      `).order('match_number', { ascending: true }).limit(30)
+      `).not('scheduled_date', 'is', null).order('scheduled_date', { ascending: true }).limit(30)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
@@ -44,7 +44,7 @@ export default function Home() {
     }
     
     if (!mtRes.error && mtRes.data) {
-      // Filter matches that actually have a valid date and are not completed
+      // Filter out completed matches and empty dates
       const validMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.trim() !== '' && m.status !== 'completed')
       
       const todayDate = new Date()
@@ -62,7 +62,9 @@ export default function Home() {
 
   // Duplicate sponsors array to ensure a seamless infinite scroll loop
   const carouselSponsors = [...sponsors, ...sponsors, ...sponsors]
-  const carouselMatches = [...upcomingMatches, ...upcomingMatches, ...upcomingMatches]
+  
+  // Duplicate matches enough times to always overflow the screen width for seamless animation
+  const carouselMatches = [...upcomingMatches, ...upcomingMatches, ...upcomingMatches, ...upcomingMatches, ...upcomingMatches, ...upcomingMatches]
 
   return (
     <div className="min-h-screen bg-secondary">
