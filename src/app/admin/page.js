@@ -7,6 +7,45 @@ import {
 } from 'lucide-react'
 import Bracket from '@/components/Bracket'
 
+const getMaxRound = (tournament) => {
+  if (tournament === 'prequaly') return 6
+  if (tournament === 'qualy' || tournament === 'm15_singles') return 5
+  if (tournament === 'm15_doubles') return 4
+  return 1
+}
+
+const getRoundNameLabel = (roundNum, tournament) => {
+  if (tournament === 'prequaly') {
+    switch (roundNum) {
+      case 1: return 'Ronda 1 (R48)'
+      case 2: return 'Ronda 2 (R32)'
+      case 3: return 'Octavos'
+      case 4: return 'Cuartos'
+      case 5: return 'Semis'
+      case 6: return 'Final'
+      default: return `Ronda ${roundNum}`
+    }
+  } else if (tournament === 'qualy' || tournament === 'm15_singles') {
+    switch (roundNum) {
+      case 1: return 'Ronda 1 (R32)'
+      case 2: return 'Octavos'
+      case 3: return 'Cuartos'
+      case 4: return 'Semis'
+      case 5: return 'Final'
+      default: return `Ronda ${roundNum}`
+    }
+  } else if (tournament === 'm15_doubles') {
+    switch (roundNum) {
+      case 1: return 'Ronda 1 (R16)'
+      case 2: return 'Cuartos'
+      case 3: return 'Semis'
+      case 4: return 'Final'
+      default: return `Ronda ${roundNum}`
+    }
+  }
+  return `Ronda ${roundNum}`
+}
+
 export default function AdminPage() {
   const [auth, setAuth] = useState(false)
   const [pass, setPass] = useState('')
