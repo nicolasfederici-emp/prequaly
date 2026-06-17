@@ -181,41 +181,65 @@ export default function Home() {
               >
                 {carouselMatches.map((match, idx) => {
                   const dateObj = new Date(match.scheduled_date)
-                  const timeStr = isNaN(dateObj) ? '-' : dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                  const timeStr = isNaN(dateObj) ? '-' : dateObj.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false }) + ' hs'
+                  
+                  let dateStr = 'A confirmar'
+                  if (!isNaN(dateObj)) {
+                    let dStr = dateObj.toLocaleDateString('es-AR', {
+                      timeZone: 'America/Argentina/Buenos_Aires',
+                      weekday: 'long',
+                      day: 'numeric',
+                      month: 'short'
+                    })
+                    dateStr = dStr.charAt(0).toUpperCase() + dStr.slice(1)
+                  }
+
                   return (
-                    <div key={`${match.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 shrink-0 hover:border-primary/50 transition">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
-                        {match.court || 'Cancha a def.'}
-                      </span>
-                      <span className="text-xs text-gray-400 font-mono font-bold flex items-center gap-1">
-                        <Clock className="w-3 h-3" /> {timeStr}
-                      </span>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {match.player1?.photo_url ? (
-                            <img src={match.player1.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
-                              <span className="text-[10px] text-gray-400">P1</span>
-                            </div>
-                          )}
-                          <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player1?.name || 'A confirmar'}</span>
+                    <div key={`${match.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 shrink-0 hover:border-primary/50 transition flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                          {match.court || 'Cancha a def.'}
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {match.player1?.photo_url ? (
+                              <img src={match.player1.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                <span className="text-[10px] text-gray-400">P1</span>
+                              </div>
+                            )}
+                            <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player1?.name || 'A confirmar'}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            {match.player2?.photo_url ? (
+                              <img src={match.player2.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                <span className="text-[10px] text-gray-400">P2</span>
+                              </div>
+                            )}
+                            <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player2?.name || 'A confirmar'}</span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {match.player2?.photo_url ? (
-                            <img src={match.player2.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
-                          ) : (
-                            <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
-                              <span className="text-[10px] text-gray-400">P2</span>
-                            </div>
-                          )}
-                          <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player2?.name || 'A confirmar'}</span>
+                    </div>
+                    
+                    <div className="border-t border-primary/10 pt-3">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-2 text-primary">
+                          <Clock className="w-5 h-5" />
+                          <span className="text-lg font-bold">{timeStr}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span>{dateStr}</span>
                         </div>
                       </div>
                     </div>

@@ -303,20 +303,22 @@ export default function ResultadosPage() {
                         {/* Match Footer */}
                         <div className="border-t border-primary/10 pt-4">
                           <div className="flex flex-col gap-1">
-                            <div className="flex items-center gap-2 text-primary">
-                              <Clock className="w-5 h-5" />
-                              <span className="text-xl font-bold">
-                                {match.scheduled_date ? new Date(match.scheduled_date).toLocaleTimeString('es-AR', {
-                                  timeZone: 'America/Argentina/Buenos_Aires',
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                  hour12: false
-                                }) + ' hs' : 'Sin hora'}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1.5 text-sm text-gray-400">
-                              <Calendar className="w-4 h-4" />
-                              <span>
+                            {!isCompleted && (
+                              <div className="flex items-center gap-2 text-primary">
+                                <Clock className="w-5 h-5" />
+                                <span className="text-xl font-bold">
+                                  {match.scheduled_date ? new Date(match.scheduled_date).toLocaleTimeString('es-AR', {
+                                    timeZone: 'America/Argentina/Buenos_Aires',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false
+                                  }) + ' hs' : 'Sin hora'}
+                                </span>
+                              </div>
+                            )}
+                            <div className={`flex items-center gap-1.5 ${isCompleted ? 'text-primary pt-1' : 'text-sm text-gray-400'}`}>
+                              <Calendar className={`w-4 h-4 ${isCompleted ? 'w-5 h-5' : ''}`} />
+                              <span className={isCompleted ? 'text-xl font-bold' : ''}>
                                 {match.scheduled_date ? (() => {
                                   let dStr = new Date(match.scheduled_date).toLocaleDateString('es-AR', {
                                     timeZone: 'America/Argentina/Buenos_Aires',
