@@ -10,10 +10,15 @@ export default function ResultadosPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('upcoming') // 'upcoming', 'completed', 'all'
   const [viewMode, setViewMode] = useState('cronograma') // 'cronograma' | 'cuadro'
+  const [selectedDateFilter, setSelectedDateFilter] = useState('all')
 
   useEffect(() => {
     fetchMatches()
   }, [tournament])
+
+  useEffect(() => {
+    setSelectedDateFilter('all')
+  }, [tournament, filter])
 
   const fetchMatches = async () => {
     setLoading(true)
@@ -100,6 +105,17 @@ export default function ResultadosPage() {
     return groups
   }, {})
 
+  // Sort matches inside each group by time, then round, then match_number
+  Object.keys(groupedMatches).forEach(dateStr => {
+    groupedMatches[dateStr].sort((a, b) => {
+      const timeA = a.scheduled_date ? new Date(a.scheduled_date).getTime() : Infinity
+      const timeB = b.scheduled_date ? new Date(b.scheduled_date).getTime() : Infinity
+      if (timeA !== timeB) return timeA - timeB
+      if (a.round !== b.round) return a.round - b.round
+      return a.match_number - b.match_number
+    })
+  })
+
   // Sort groups (A Confirmar last)
   const sortedDates = Object.keys(groupedMatches).sort((a, b) => {
     if (a === 'A Confirmar') return 1
@@ -110,6 +126,8 @@ export default function ResultadosPage() {
     const timeB = new Date(groupedMatches[b][0].scheduled_date).getTime() || Infinity
     return timeA - timeB
   })
+
+  const displayDates = selectedDateFilter === 'all' ? sortedDates : sortedDates.filter(d => d === selectedDateFilter)
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-5xl">
@@ -166,16 +184,39 @@ export default function ResultadosPage() {
       </div>
 
       {viewMode === 'cronograma' && (
-        <div className="mb-6 flex gap-2 w-full md:w-auto">
-          {['upcoming', 'completed', 'all'].map(f => (
-            <button 
-              key={f} 
-              onClick={() => setFilter(f)} 
-              className={`px-4 py-2 rounded-lg font-bold transition text-xs ${filter === f ? 'bg-secondary text-primary border border-primary' : 'bg-gray-dark text-gray-400 border border-transparent hover:text-primary'}`}
-            >
-              {f === 'all' ? 'Todos' : f === 'upcoming' ? 'Programados' : 'Finalizados'}
-            </button>
-          ))}
+        <div className="flex flex-col gap-4 mb-6">
+          <div className="flex gap-2 w-full md:w-auto">
+            {['upcoming', 'completed', 'all'].map(f => (
+              <button 
+                key={f} 
+                onClick={() => setFilter(f)} 
+                className={`px-4 py-2 rounded-lg font-bold transition text-xs ${filter === f ? 'bg-secondary text-primary border border-primary' : 'bg-gray-dark text-gray-400 border border-transparent hover:text-primary'}`}
+              >
+                {f === 'all' ? 'Todos' : f === 'upcoming' ? 'Programados' : 'Finalizados'}
+              </button>
+            ))}
+          </div>
+
+          {/* Date Filter */}
+          {sortedDates.length > 0 && (
+            <div className="flex gap-2 w-full overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-primary/20">
+              <button
+                onClick={() => setSelectedDateFilter('all')}
+                className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition text-xs ${selectedDateFilter === 'all' ? 'bg-primary text-secondary' : 'bg-gray-dark text-gray-400 border border-transparent hover:text-primary'}`}
+              >
+                Todos los días
+              </button>
+              {sortedDates.map(dateStr => (
+                <button
+                  key={dateStr}
+                  onClick={() => setSelectedDateFilter(dateStr)}
+                  className={`whitespace-nowrap px-4 py-2 rounded-lg font-bold transition text-xs ${selectedDateFilter === dateStr ? 'bg-primary text-secondary' : 'bg-gray-dark text-gray-400 border border-transparent hover:text-primary'}`}
+                >
+                  {dateStr}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -192,13 +233,13 @@ export default function ResultadosPage() {
         <div className="bg-gray-dark p-4 md:p-6 rounded-2xl border border-primary/10 overflow-hidden">
           <Bracket tournament={tournament} matches={matches} />
         </div>
-      ) : sortedDates.length === 0 ? (
+      ) : displayDates.length === 0 ? (
         <div className="bg-gray-dark border border-primary/20 rounded-xl p-12 text-center text-gray-400 my-8">
           No hay partidos en este torneo que coincidan con el filtro seleccionado.
         </div>
       ) : (
         <div className="space-y-10">
-          {sortedDates.map(dateStr => {
+          {displayDates.map(dateStr => {
             const dateMatches = groupedMatches[dateStr]
 
             return (
@@ -260,15 +301,34 @@ export default function ResultadosPage() {
                         </div>
 
                         {/* Match Footer */}
-                        <div className="border-t border-primary/10 pt-4 flex items-center justify-between text-xs text-gray-400">
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-4 h-4 text-primary" />
-                            {match.scheduled_date ? new Date(match.scheduled_date).toLocaleTimeString('es-AR', {
-                              timeZone: 'America/Argentina/Buenos_Aires',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            }) + ' hs' : 'Sin hora'}
-                          </span>
+                        <div className="border-t border-primary/10 pt-4">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-primary">
+                              <Clock className="w-5 h-5" />
+                              <span className="text-xl font-bold">
+                                {match.scheduled_date ? new Date(match.scheduled_date).toLocaleTimeString('es-AR', {
+                                  timeZone: 'America/Argentina/Buenos_Aires',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: false
+                                }) + ' hs' : 'Sin hora'}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-sm text-gray-400">
+                              <Calendar className="w-4 h-4" />
+                              <span>
+                                {match.scheduled_date ? (() => {
+                                  let dStr = new Date(match.scheduled_date).toLocaleDateString('es-AR', {
+                                    timeZone: 'America/Argentina/Buenos_Aires',
+                                    weekday: 'long',
+                                    day: 'numeric',
+                                    month: 'short'
+                                  });
+                                  return dStr.charAt(0).toUpperCase() + dStr.slice(1);
+                                })() : 'A confirmar'}
+                              </span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )
