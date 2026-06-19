@@ -81,6 +81,39 @@ export default function Home() {
     setLoading(false)
   }
 
+  const getRoundName = (roundNum, tourney) => {
+    if (!tourney) return `Ronda ${roundNum}`;
+    if (tourney === 'prequaly') {
+      switch (roundNum) {
+        case 1: return 'R1 (R48)'
+        case 2: return 'R2 (R32)'
+        case 3: return 'Octavos'
+        case 4: return 'Cuartos'
+        case 5: return 'Semifinales'
+        case 6: return 'Final'
+        default: return `Ronda ${roundNum}`
+      }
+    } else if (tourney === 'qualy' || tourney === 'm15_singles') {
+      switch (roundNum) {
+        case 1: return 'R1 (R32)'
+        case 2: return 'Octavos'
+        case 3: return 'Cuartos'
+        case 4: return 'Semifinales'
+        case 5: return 'Final'
+        default: return `Ronda ${roundNum}`
+      }
+    } else if (tourney === 'm15_doubles') {
+      switch (roundNum) {
+        case 1: return 'R1 (R16)'
+        case 2: return 'Cuartos'
+        case 3: return 'Semifinales'
+        case 4: return 'Final'
+        default: return `Ronda ${roundNum}`
+      }
+    }
+    return `Ronda ${roundNum}`
+  }
+
   // Duplicate sponsors array to ensure a seamless infinite scroll loop
   const carouselSponsors = [...sponsors, ...sponsors, ...sponsors]
   
@@ -222,8 +255,16 @@ export default function Home() {
                       return (
                         <div key={`${match.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 shrink-0 hover:border-primary/50 transition flex flex-col justify-between">
                         <div>
-                          <div className="flex justify-between items-center mb-4">
-                            <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                          <div className="flex justify-between items-start mb-4 gap-2">
+                            <div className="flex flex-col gap-1">
+                              <span className="text-[10px] font-black text-secondary bg-primary px-2 py-0.5 rounded uppercase tracking-wider w-max">
+                                {match.tournament ? match.tournament.replace('_', ' ') : 'Torneo'}
+                              </span>
+                              <span className="text-xs font-bold text-gray-300">
+                                {getRoundName(match.round, match.tournament)}
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-bold text-primary border border-primary/30 bg-primary/5 px-2 py-1 rounded whitespace-nowrap">
                               {match.court || 'Cancha a def.'}
                             </span>
                           </div>
