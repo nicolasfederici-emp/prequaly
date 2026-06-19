@@ -245,20 +245,20 @@ export default function ResultadosPage() {
             return (
               <div key={dateStr} className="space-y-6 mb-12">
                 {/* Header matching the requested design */}
-                <div className="bg-[#1a233a] rounded-t-xl pb-6 pt-8 px-4 text-center border-b-4 border-orange-500 shadow-lg">
-                  <h2 className="text-3xl md:text-5xl font-black text-orange-500 tracking-wider mb-4" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
+                <div className="bg-gray-dark rounded-t-xl pb-6 pt-8 px-4 text-center border-b-4 border-primary shadow-lg">
+                  <h2 className="text-3xl md:text-5xl font-black text-primary tracking-wider mb-4" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
                     {tournament.toUpperCase().replace('_', ' ')} - VERSUS
                   </h2>
-                  <h3 className="text-xl md:text-3xl font-bold text-yellow-50 tracking-widest mb-2 uppercase" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
+                  <h3 className="text-xl md:text-3xl font-bold text-white tracking-widest mb-2 uppercase" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
                     {tournament === 'prequaly' ? 'CLUB EMPALME CENTRAL' : 'CLUB NÁUTICO VILLA CONSTITUCIÓN'}
                   </h3>
-                  <h4 className="text-lg md:text-2xl font-bold text-yellow-50 tracking-widest uppercase" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
+                  <h4 className="text-lg md:text-2xl font-bold text-gray-300 tracking-widest uppercase" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
                     DIA {dateStr}
                   </h4>
                 </div>
                 
                 {/* Table Header Row */}
-                <div className="bg-orange-500 rounded-lg px-4 py-3 flex items-center justify-between text-slate-900 font-black uppercase text-sm md:text-lg tracking-wider shadow-md">
+                <div className="bg-primary rounded-lg px-4 py-3 flex items-center justify-between text-secondary font-black uppercase text-sm md:text-lg tracking-wider shadow-md">
                   <div className="flex-1 text-center pr-8 md:pr-32">VS</div>
                   <div className="flex gap-4 md:gap-6 w-32 md:w-48 justify-end">
                     <span className="w-16 md:w-20 text-center">HORA</span>
@@ -284,12 +284,12 @@ export default function ResultadosPage() {
                     const courtNum = match.court ? match.court.replace(/cancha\s*/i, '').trim() : '-'
 
                     return (
-                      <div key={match.id} className="bg-[#1a233a] rounded-xl p-3 md:p-4 flex flex-col md:flex-row items-stretch gap-3 md:gap-4 border border-slate-700/50 shadow-md relative overflow-hidden">
+                      <div key={match.id} className="bg-gray-dark rounded-xl p-3 md:p-4 flex flex-col md:flex-row items-stretch gap-3 md:gap-4 border border-primary/20 shadow-md relative overflow-hidden">
                         
                         {/* Overlay for completed matches */}
                         {isCompleted && (
                           <div className="absolute inset-0 bg-black/40 z-10 flex items-center justify-center pointer-events-none">
-                            <div className="bg-green-500/90 text-slate-900 px-6 py-2 rounded-full font-black text-xl tracking-widest transform -rotate-12 border-2 border-slate-900 shadow-xl">
+                            <div className="bg-green-500 text-secondary px-6 py-2 rounded-full font-black text-xl tracking-widest transform -rotate-12 border-2 border-secondary shadow-xl">
                               FINALIZADO
                             </div>
                           </div>
@@ -297,29 +297,29 @@ export default function ResultadosPage() {
 
                         {/* Players Column */}
                         <div className="flex-1 flex flex-col gap-2 w-full z-0">
-                          <div className="bg-[#3bb8c4] rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
-                            <span className="text-slate-900 font-bold tracking-wide flex-1 text-sm md:text-lg">
+                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
+                            <span className="text-white font-bold tracking-wide flex-1 text-sm md:text-lg">
                               {p1Name}
                             </span>
-                            {isCompleted && <span className="font-black text-slate-900 text-lg ml-2">{match.score1}</span>}
+                            {isCompleted && <span className="font-black text-primary text-lg ml-2">{match.score1}</span>}
                           </div>
-                          <div className="bg-[#3bb8c4] rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
-                            <span className="text-slate-900 font-bold tracking-wide flex-1 text-sm md:text-lg">
+                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
+                            <span className="text-white font-bold tracking-wide flex-1 text-sm md:text-lg">
                               {p2Name}
                             </span>
-                            {isCompleted && <span className="font-black text-slate-900 text-lg ml-2">{match.score2}</span>}
+                            {isCompleted && <span className="font-black text-primary text-lg ml-2">{match.score2}</span>}
                           </div>
                         </div>
                         
                         {/* Time & Court Columns */}
                         <div className="flex gap-3 md:gap-6 w-full md:w-auto z-0">
-                          <div className="bg-[#3bb8c4] rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
-                            <span className="text-slate-900 font-bold text-lg md:text-2xl">
+                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
+                            <span className="text-white font-bold text-lg md:text-2xl">
                               {timeStr}
                             </span>
                           </div>
-                          <div className="bg-[#3bb8c4] rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
-                            <span className="text-slate-900 font-bold text-lg md:text-2xl">
+                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
+                            <span className="text-white font-bold text-lg md:text-2xl">
                               {courtNum}
                             </span>
                           </div>
