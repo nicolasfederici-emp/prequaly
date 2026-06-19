@@ -1052,12 +1052,7 @@ export default function AdminPage() {
           >
             <Users className="w-4 h-4" /> Jugadores
           </button>
-          <button 
-            onClick={() => { setActiveTab('matches'); setMsg('') }} 
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold transition text-xs ${activeTab === 'matches' ? 'bg-primary text-secondary' : 'bg-gray-dark text-gray-300 hover:text-primary'}`}
-          >
-            <Calendar className="w-4 h-4" /> Programación
-          </button>
+
           <button 
             onClick={() => { setActiveTab('cuadro'); setMsg('') }} 
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-bold transition text-xs ${activeTab === 'cuadro' ? 'bg-primary text-secondary' : 'bg-gray-dark text-gray-300 hover:text-primary'}`}
@@ -1523,13 +1518,15 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* --- MATCHES TAB --- */}
-      {activeTab === 'matches' && (
-        <div>
+
+
+      {/* --- CUADRO TAB --- */}
+      {activeTab === 'cuadro' && (
+        <div className="bg-gray-dark p-6 rounded-2xl border border-primary/10 overflow-hidden relative">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-primary/10 pb-4">
             <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <Calendar className="w-6 h-6 text-primary" />
-              Programación ({matches.filter(m => m.tournament === selectedMatchTournament).length})
+              <LayoutGrid className="w-6 h-6 text-primary" />
+              Vista de Cuadro
             </h2>
             
             <div className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -1558,163 +1555,6 @@ export default function AdminPage() {
                 <RefreshCw className="w-4 h-4" /> Generar M15 Dobles (16)
               </button>
             </div>
-          </div>
-
-          {/* Tournament Selection Tab inside matches */}
-          <div className="flex flex-wrap gap-2 mb-6 bg-secondary/80 p-1.5 rounded-xl border border-primary/20">
-            <button 
-              onClick={() => { setSelectedMatchTournament('prequaly'); setSelectedRound(1); setMsg('') }}
-              className={`flex-1 text-center py-2.5 rounded-lg font-black transition text-xs ${selectedMatchTournament === 'prequaly' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-primary'}`}
-            >
-              PREQUALY (48)
-            </button>
-            <button 
-              onClick={() => { setSelectedMatchTournament('qualy'); setSelectedRound(1); setMsg('') }}
-              className={`flex-1 text-center py-2.5 rounded-lg font-black transition text-xs ${selectedMatchTournament === 'qualy' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-primary'}`}
-            >
-              QUALY (32)
-            </button>
-            <button 
-              onClick={() => { setSelectedMatchTournament('m15_singles'); setSelectedRound(1); setMsg('') }}
-              className={`flex-1 text-center py-2.5 rounded-lg font-black transition text-xs ${selectedMatchTournament === 'm15_singles' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-primary'}`}
-            >
-              M15 SINGLES (32)
-            </button>
-            <button 
-              onClick={() => { setSelectedMatchTournament('m15_doubles'); setSelectedRound(1); setMsg('') }}
-              className={`flex-1 text-center py-2.5 rounded-lg font-black transition text-xs ${selectedMatchTournament === 'm15_doubles' ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-primary'}`}
-            >
-              M15 DOBLES (16)
-            </button>
-          </div>
-
-          {/* Matches List grouped by selected round and tournament */}
-          {(() => {
-            const currentMatches = matches.filter(m => m.tournament === selectedMatchTournament);
-            let todayBA = 'Hoy';
-            try {
-              todayBA = new Date().toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-            } catch (e) {}
-            
-            const grouped = currentMatches.reduce((acc, m) => {
-              if (m.status === 'completed') {
-                acc['Finalizados'] = acc['Finalizados'] || [];
-                acc['Finalizados'].push(m);
-                return acc;
-              }
-              
-              if (!m.scheduled_date) {
-                acc['No Programados'] = acc['No Programados'] || [];
-                acc['No Programados'].push(m);
-                return acc;
-              }
-              
-              let mDate = 'Desconocido';
-              try {
-                mDate = new Date(m.scheduled_date).toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires' });
-              } catch (e) {}
-              
-              if (mDate === todayBA) {
-                acc['Hoy'] = acc['Hoy'] || [];
-                acc['Hoy'].push(m);
-              } else {
-                acc['Próximos Días'] = acc['Próximos Días'] || [];
-                acc['Próximos Días'].push(m);
-              }
-              return acc;
-            }, {});
-
-            const groupsOrder = ['Hoy', 'Próximos Días', 'No Programados', 'Finalizados'];
-
-            return (
-              <div className="space-y-8">
-                {groupsOrder.map(groupName => {
-                  if (!grouped[groupName] || grouped[groupName].length === 0) return null;
-                  return (
-                    <div key={groupName}>
-                      <h3 className="text-xl font-bold text-primary mb-4 border-b border-primary/20 pb-2 flex items-center gap-2">
-                        {groupName === 'Hoy' && <Calendar className="w-5 h-5" />}
-                        {groupName === 'Próximos Días' && <Calendar className="w-5 h-5" />}
-                        {groupName === 'No Programados' && <Clock className="w-5 h-5" />}
-                        {groupName === 'Finalizados' && <CheckCircle className="w-5 h-5" />}
-                        {groupName} ({grouped[groupName].length})
-                      </h3>
-                      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {grouped[groupName].map(match => (
-                          <div key={match.id} className="bg-gray-dark p-4 rounded-xl border border-primary/20 flex flex-col justify-between">
-                            <div>
-                              <div className="flex justify-between items-center mb-3">
-                                <span className="text-xs font-bold bg-secondary px-2.5 py-1 rounded text-primary border border-primary/10">
-                                  {getRoundNameLabel(match.round, selectedMatchTournament)} - P#{match.match_number}
-                                </span>
-                                <span className={`text-xs px-2.5 py-1 rounded font-bold ${
-                                  match.status === 'completed' 
-                                    ? 'bg-green-900/50 text-green-400' 
-                                    : match.status === 'scheduled' 
-                                    ? 'bg-blue-900/50 text-blue-400' 
-                                    : 'bg-gray-800 text-gray-400'
-                                }`}>
-                                  {match.status === 'completed' ? 'Finalizado' : match.status === 'scheduled' ? 'Programado' : 'No Programado'}
-                                </span>
-                              </div>
-
-                              <div className="space-y-2 mb-4">
-                                <div className={`flex justify-between items-center p-2 rounded ${match.winner_id === match.player1_id && match.status === 'completed' ? 'bg-primary/10 text-primary font-bold' : 'text-gray-300'}`}>
-                                  <span>{match.player1?.name || 'A confirmar'}</span>
-                                  <span className="font-mono text-sm">{match.status === 'completed' && match.score1 ? match.score1 : '-'}</span>
-                                </div>
-                                <div className={`flex justify-between items-center p-2 rounded ${match.winner_id === match.player2_id && match.status === 'completed' ? 'bg-primary/10 text-primary font-bold' : 'text-gray-300'}`}>
-                                  <span>{match.player2?.name || 'A confirmar'}</span>
-                                  <span className="font-mono text-sm">{match.status === 'completed' && match.score2 ? match.score2 : '-'}</span>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex justify-between items-center border-t border-primary/10 pt-4 mt-2">
-                              <span className="text-xs text-gray-500 flex items-center gap-1">
-                                <Calendar className="w-3.5 h-3.5" />
-                                {(() => {
-                                  if (!match.scheduled_date) return 'Sin fecha';
-                                  try {
-                                    return new Date(match.scheduled_date).toLocaleString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-                                  } catch (e) {
-                                    return 'Fecha inválida';
-                                  }
-                                })()}
-                              </span>
-                              
-                              <button 
-                                onClick={() => editMatch(match)}
-                                className="flex items-center gap-1.5 bg-secondary text-primary border border-primary/30 px-3.5 py-1.5 rounded-lg hover:bg-primary hover:text-secondary transition text-sm font-bold"
-                              >
-                                <Edit className="w-4 h-4" /> Cargar
-                              </button>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
-                {currentMatches.length === 0 && (
-                  <div className="col-span-full p-8 text-center text-gray-400 bg-gray-dark rounded-xl border border-primary/10">
-                    No hay partidos generados en esta ronda. Haz clic en "Generar Cuadro" en la parte superior derecha para empezar.
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-        </div>
-      )}
-
-      {/* --- CUADRO TAB --- */}
-      {activeTab === 'cuadro' && (
-        <div className="bg-gray-dark p-6 rounded-2xl border border-primary/10 overflow-hidden relative">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-primary/10 pb-4">
-            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-              <LayoutGrid className="w-6 h-6 text-primary" />
-              Vista de Cuadro
-            </h2>
           </div>
           
           <div className="flex flex-wrap gap-2 mb-6 bg-secondary/80 p-1.5 rounded-xl border border-primary/20">

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, Suspense } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Clock, Calendar, Trophy, RefreshCw, LayoutGrid, List } from 'lucide-react'
+import { Clock, Calendar, Trophy, RefreshCw, LayoutGrid, List, MapPin } from 'lucide-react'
 import Bracket from '@/components/Bracket'
 
 export default function ResultadosPage() {
@@ -257,19 +257,10 @@ export default function ResultadosPage() {
                   </h4>
                 </div>
                 
-                {/* Table Header Row */}
-                <div className="bg-primary rounded-lg px-4 py-3 flex items-center justify-between text-secondary font-black uppercase text-sm md:text-lg tracking-wider shadow-md">
-                  <div className="flex-1 text-center pr-8 md:pr-32">VS</div>
-                  <div className="flex gap-4 md:gap-6 w-32 md:w-48 justify-end">
-                    <span className="w-16 md:w-20 text-center">HORA</span>
-                    <span className="w-16 md:w-20 text-center">CANCHA</span>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
+                {/* Grid de partidos - 2 columnas en desktop */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   {dateMatches.map(match => {
                     const isCompleted = match.status === 'completed'
-                    // Clean names (e.g. "Medus, Andres" instead of "Andres Medus" if preferred, but we will just uppercase it)
                     const p1Name = match.player1?.name ? match.player1.name.toUpperCase() : 'A CONFIRMAR'
                     const p2Name = match.player2?.name ? match.player2.name.toUpperCase() : 'A CONFIRMAR'
                     
@@ -280,51 +271,51 @@ export default function ResultadosPage() {
                       hour12: false
                     }) : '--:--'
                     
-                    // Extract just the number from "Cancha 1", etc.
-                    const courtNum = match.court ? match.court.replace(/cancha\s*/i, '').trim() : '-'
+                    const courtNum = match.court ? match.court.replace(/cancha\s*/i, 'Cancha ').trim() : 'Cancha -'
 
                     return (
-                      <div key={match.id} className="bg-gray-dark rounded-xl p-3 md:p-4 flex flex-col md:flex-row items-stretch gap-3 md:gap-4 border border-primary/20 shadow-md relative overflow-hidden">
+                      <div key={match.id} className="bg-gray-dark rounded-xl border border-primary/20 shadow-md relative overflow-hidden flex flex-col hover:border-primary/50 transition">
                         
-                        {/* Overlay for completed matches */}
-                        {isCompleted && (
-                          <div className="absolute inset-0 bg-black/40 z-10 flex items-center justify-center pointer-events-none">
-                            <div className="bg-green-500 text-secondary px-6 py-2 rounded-full font-black text-xl tracking-widest transform -rotate-12 border-2 border-secondary shadow-xl">
-                              FINALIZADO
-                            </div>
+                        {/* Match Status/Info Header */}
+                        <div className="bg-secondary px-4 py-2 flex justify-between items-center border-b border-primary/10">
+                          <div className="flex items-center gap-2 text-gray-300 font-bold text-xs md:text-sm">
+                            <MapPin className="w-3.5 h-3.5 text-primary" />
+                            <span>{courtNum}</span>
                           </div>
-                        )}
+                          
+                          <div className="flex items-center gap-3">
+                            <span className="text-white font-black text-xs md:text-sm bg-primary/20 border border-primary/30 px-2 py-0.5 rounded text-primary">
+                              {timeStr} hs
+                            </span>
+                            {isCompleted && (
+                              <span className="text-xs font-bold text-green-400 border border-green-500/30 bg-green-900/30 px-2 py-0.5 rounded">
+                                FINALIZADO
+                              </span>
+                            )}
+                          </div>
+                        </div>
 
                         {/* Players Column */}
-                        <div className="flex-1 flex flex-col gap-2 w-full z-0">
-                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
-                            <span className="text-white font-bold tracking-wide flex-1 text-sm md:text-lg">
+                        <div className="flex-1 flex flex-col p-4 gap-4 justify-center relative">
+                          {/* Player 1 */}
+                          <div className="flex items-center justify-between">
+                            <span className={`font-bold tracking-wide text-sm md:text-base ${isCompleted && match.winner_id === match.player1_id ? 'text-primary' : 'text-white'}`}>
                               {p1Name}
                             </span>
-                            {isCompleted && <span className="font-black text-primary text-lg ml-2">{match.score1}</span>}
+                            {isCompleted && <span className={`font-black text-lg ${match.winner_id === match.player1_id ? 'text-primary' : 'text-gray-400'}`}>{match.score1}</span>}
                           </div>
-                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
-                            <span className="text-white font-bold tracking-wide flex-1 text-sm md:text-lg">
+                          
+                          {/* Divider */}
+                          <div className="w-full h-px bg-primary/10"></div>
+                          
+                          {/* Player 2 */}
+                          <div className="flex items-center justify-between">
+                            <span className={`font-bold tracking-wide text-sm md:text-base ${isCompleted && match.winner_id === match.player2_id ? 'text-primary' : 'text-white'}`}>
                               {p2Name}
                             </span>
-                            {isCompleted && <span className="font-black text-primary text-lg ml-2">{match.score2}</span>}
+                            {isCompleted && <span className={`font-black text-lg ${match.winner_id === match.player2_id ? 'text-primary' : 'text-gray-400'}`}>{match.score2}</span>}
                           </div>
                         </div>
-                        
-                        {/* Time & Court Columns */}
-                        <div className="flex gap-3 md:gap-6 w-full md:w-auto z-0">
-                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
-                            <span className="text-white font-bold text-lg md:text-2xl">
-                              {timeStr}
-                            </span>
-                          </div>
-                          <div className="bg-secondary border border-primary/20 rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
-                            <span className="text-white font-bold text-lg md:text-2xl">
-                              {courtNum}
-                            </span>
-                          </div>
-                        </div>
-                        
                       </div>
                     )
                   })}
