@@ -279,7 +279,7 @@ export default function ResultadosPage() {
                         {/* Match Status/Info Header */}
                         <div className="bg-secondary px-4 py-2 flex justify-between items-center border-b border-primary/10">
                           <div className="flex items-center gap-4 text-gray-300 font-bold text-xs md:text-sm">
-                            <span className="text-primary font-black uppercase tracking-wider">
+                            <span className="text-green-400 font-black uppercase tracking-wider">
                               {getRoundName(match.round)}
                             </span>
                             <div className="flex items-center gap-1.5">
