@@ -114,6 +114,26 @@ export default function Home() {
     return `Ronda ${roundNum}`
   }
 
+  const getVictoryText = (match) => {
+    const currentRound = match.round;
+    const tourney = match.tournament;
+    
+    let isFinal = false;
+    if (tourney === 'prequaly' && currentRound === 6) isFinal = true;
+    if ((tourney === 'qualy' || tourney === 'm15_singles') && currentRound === 5) isFinal = true;
+    if (tourney === 'm15_doubles' && currentRound === 4) isFinal = true;
+
+    if (isFinal) {
+      return `¡Campeón ${tourney ? tourney.replace('_', ' ').toUpperCase() : ''}!`;
+    }
+    
+    const nextRoundName = getRoundName(currentRound + 1, tourney);
+    // Remove the extra parenthesized sizes like (R48) if we want it cleaner, 
+    // but the getRoundName returns them so we can just use it.
+    const cleanNextRound = nextRoundName.split(' (')[0];
+    return `Avanza a ${cleanNextRound}`;
+  }
+
   // Duplicate sponsors array to ensure a seamless infinite scroll loop
   const carouselSponsors = [...sponsors, ...sponsors, ...sponsors]
   
@@ -344,8 +364,8 @@ export default function Home() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-bold text-white text-sm truncate">{w.winner?.name || 'A confirmar'}</h4>
-                        <p className="text-xs text-primary font-mono mt-1 bg-primary/10 border border-primary/20 inline-block px-1.5 py-0.5 rounded truncate max-w-full">
-                          {w.match.score || 'Victoria'}
+                        <p className="text-[10px] text-primary font-bold uppercase tracking-wider mt-1 bg-primary/10 border border-primary/20 inline-block px-2 py-0.5 rounded truncate max-w-full">
+                          {w.match.score ? `${w.match.score} • ${getVictoryText(w.match)}` : getVictoryText(w.match)}
                         </p>
                       </div>
                     </div>
