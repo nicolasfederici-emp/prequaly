@@ -10,8 +10,8 @@ export default function Home() {
   const [gallery, setGallery] = useState([])
   const [settings, setSettings] = useState({})
   const [upcomingMatches, setUpcomingMatches] = useState([])
+  const [todaysWinners, setTodaysWinners] = useState([])
   const [loading, setLoading] = useState(true)
-  const [selectedNews, setSelectedNews] = useState(null)
   const [selectedImage, setSelectedImage] = useState(null)
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export default function Home() {
         *,
         player1:player1_id (name, photo_url),
         player2:player2_id (name, photo_url)
-      `).not('scheduled_date', 'is', null).order('scheduled_date', { ascending: true }).limit(30)
+      `).not('scheduled_date', 'is', null)
     ])
 
     if (!spRes.error) setSponsors(spRes.data || [])
@@ -44,17 +44,37 @@ export default function Home() {
     }
     
     if (!mtRes.error && mtRes.data) {
-      // Filter out completed matches and empty dates
-      const validMatches = mtRes.data.filter(m => m.scheduled_date && m.scheduled_date.trim() !== '' && m.status !== 'completed')
+      const todayDateStr = new Date().toLocaleString("en-CA", {timeZone: "America/Argentina/Buenos_Aires"}).split(',')[0];
       
-      const todayDate = new Date()
-      const todaysMatches = validMatches.filter(m => {
-        const d = new Date(m.scheduled_date)
-        return !isNaN(d) && d.getDate() === todayDate.getDate() && d.getMonth() === todayDate.getMonth() && d.getFullYear() === todayDate.getFullYear()
-      })
+      const upcoming = [];
+      const winners = [];
+
+      mtRes.data.forEach(m => {
+        if (!m.scheduled_date) return;
+        
+        // Extract YYYY-MM-DD from scheduled_date
+        const matchDateStr = m.scheduled_date.split('T')[0];
+        const isToday = matchDateStr === todayDateStr;
+        const isFuture = matchDateStr > todayDateStr;
+
+        if (m.status === 'completed' && isToday) {
+          let winner = null;
+          if (m.winner_id === m.player1_id) winner = m.player1;
+          else if (m.winner_id === m.player2_id) winner = m.player2;
+
+          if (winner) {
+            winners.push({ match: m, winner: winner });
+          }
+        } else if (m.status !== 'completed' && (isToday || isFuture)) {
+          upcoming.push(m);
+        }
+      });
       
-      // If we have matches today, show them. Otherwise, show all upcoming valid matches
-      setUpcomingMatches(todaysMatches.length > 0 ? todaysMatches : validMatches.slice(0, 10))
+      upcoming.sort((a, b) => new Date(a.scheduled_date) - new Date(b.scheduled_date));
+      
+      const todaysUpcoming = upcoming.filter(m => m.scheduled_date.split('T')[0] === todayDateStr);
+      setUpcomingMatches(todaysUpcoming.length > 0 ? todaysUpcoming : upcoming.slice(0, 10));
+      setTodaysWinners(winners);
     }
     
     setLoading(false)
@@ -157,97 +177,141 @@ export default function Home() {
         </div>
       </div>
 
-      {/* MATCHES CAROUSEL */}
-      {upcomingMatches.length > 0 && (
+      {/* MATCHES AND WINNERS */}
+      {(upcomingMatches.length > 0 || todaysWinners.length > 0) && (
         <div className="bg-gray-900 border-b border-primary/10 py-8">
-          <div className="container mx-auto px-4 max-w-7xl">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2">
-                <Clock className="w-6 h-6 text-primary" />
-                PROGRAMACIÓN
-              </h2>
-              <Link href="/resultados" className="text-primary hover:text-white text-sm font-bold flex items-center gap-1 transition">
-                Ver todo <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+          <div className="container mx-auto px-4 max-w-7xl space-y-10">
             
-            <div className="relative overflow-hidden w-full">
-              <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-gray-900 to-transparent z-10 pointer-events-none"></div>
-              <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-gray-900 to-transparent z-10 pointer-events-none"></div>
-              
-              <div 
-                className="flex animate-infinite-scroll gap-4 pb-4 items-center"
-                style={{ animationDuration: `${settings.matches_carousel_speed || 30}s` }}
-              >
-                {carouselMatches.map((match, idx) => {
-                  const dateObj = new Date(match.scheduled_date)
-                  const timeStr = isNaN(dateObj) ? '-' : dateObj.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false }) + ' hs'
+            {/* PROGRAMACIÓN */}
+            {upcomingMatches.length > 0 && (
+              <div>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2">
+                    <Clock className="w-6 h-6 text-primary" />
+                    PROGRAMACIÓN
+                  </h2>
+                  <Link href="/resultados" className="text-primary hover:text-white text-sm font-bold flex items-center gap-1 transition">
+                    Ver todo <ArrowRight className="w-4 h-4" />
+                  </Link>
+                </div>
+                
+                <div className="relative overflow-hidden w-full">
+                  <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-gray-900 to-transparent z-10 pointer-events-none"></div>
+                  <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-gray-900 to-transparent z-10 pointer-events-none"></div>
                   
-                  let dateStr = 'A confirmar'
-                  if (!isNaN(dateObj)) {
-                    let dStr = dateObj.toLocaleDateString('es-AR', {
-                      timeZone: 'America/Argentina/Buenos_Aires',
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'short'
-                    })
-                    dateStr = dStr.charAt(0).toUpperCase() + dStr.slice(1)
-                  }
-
-                  return (
-                    <div key={`${match.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 shrink-0 hover:border-primary/50 transition flex flex-col justify-between">
-                    <div>
-                      <div className="flex justify-between items-center mb-4">
-                        <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
-                          {match.court || 'Cancha a def.'}
-                        </span>
-                      </div>
+                  <div 
+                    className="flex animate-infinite-scroll gap-4 pb-4 items-center"
+                    style={{ animationDuration: `${settings.matches_carousel_speed || 30}s` }}
+                  >
+                    {carouselMatches.map((match, idx) => {
+                      const dateObj = new Date(match.scheduled_date)
+                      const timeStr = isNaN(dateObj) ? '-' : dateObj.toLocaleTimeString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', hour: '2-digit', minute: '2-digit', hour12: false }) + ' hs'
                       
-                      <div className="space-y-3 mb-6">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {match.player1?.photo_url ? (
-                              <img src={match.player1.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
-                                <span className="text-[10px] text-gray-400">P1</span>
+                      let dateStr = 'A confirmar'
+                      if (!isNaN(dateObj)) {
+                        let dStr = dateObj.toLocaleDateString('es-AR', {
+                          timeZone: 'America/Argentina/Buenos_Aires',
+                          weekday: 'long',
+                          day: 'numeric',
+                          month: 'short'
+                        })
+                        dateStr = dStr.charAt(0).toUpperCase() + dStr.slice(1)
+                      }
+
+                      return (
+                        <div key={`${match.id}-${idx}`} className="min-w-[280px] md:min-w-[320px] bg-gray-dark border border-primary/20 rounded-xl p-4 shrink-0 hover:border-primary/50 transition flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-center mb-4">
+                            <span className="text-xs font-bold text-primary bg-primary/10 px-2 py-1 rounded">
+                              {match.court || 'Cancha a def.'}
+                            </span>
+                          </div>
+                          
+                          <div className="space-y-3 mb-6">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {match.player1?.photo_url ? (
+                                  <img src={match.player1.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                    <span className="text-[10px] text-gray-400">P1</span>
+                                  </div>
+                                )}
+                                <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player1?.name || 'A confirmar'}</span>
                               </div>
-                            )}
-                            <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player1?.name || 'A confirmar'}</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {match.player2?.photo_url ? (
+                                  <img src={match.player2.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                                ) : (
+                                  <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
+                                    <span className="text-[10px] text-gray-400">P2</span>
+                                  </div>
+                                )}
+                                <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player2?.name || 'A confirmar'}</span>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            {match.player2?.photo_url ? (
-                              <img src={match.player2.photo_url} alt="" className="w-6 h-6 rounded-full object-cover" />
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center">
-                                <span className="text-[10px] text-gray-400">P2</span>
-                              </div>
-                            )}
-                            <span className="font-bold text-sm text-gray-200 truncate max-w-[140px]">{match.player2?.name || 'A confirmar'}</span>
+                        
+                        <div className="border-t border-primary/10 pt-3">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2 text-primary">
+                              <Clock className="w-5 h-5" />
+                              <span className="text-lg font-bold">{timeStr}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 text-xs text-gray-400">
+                              <Calendar className="w-3.5 h-3.5" />
+                              <span>{dateStr}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="border-t border-primary/10 pt-3">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center gap-2 text-primary">
-                          <Clock className="w-5 h-5" />
-                          <span className="text-lg font-bold">{timeStr}</span>
-                        </div>
-                        <div className="flex items-center gap-1.5 text-xs text-gray-400">
-                          <Calendar className="w-3.5 h-3.5" />
-                          <span>{dateStr}</span>
-                        </div>
-                      </div>
-                    </div>
+                    )
+                  })}
                   </div>
-                )
-              })}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* WINNERS OF THE DAY */}
+            {todaysWinners.length > 0 && (
+              <div className={upcomingMatches.length > 0 ? "pt-6 border-t border-primary/10" : ""}>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-2">
+                    <Trophy className="w-6 h-6 text-primary" />
+                    GANADORES DE LA JORNADA
+                  </h2>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {todaysWinners.map((w, idx) => (
+                    <div key={`${w.match.id}-${idx}`} className="bg-gray-dark border border-primary/20 rounded-xl p-4 flex items-center gap-4 hover:border-primary/50 transition shadow-lg">
+                      <div className="relative shrink-0">
+                        {w.winner?.photo_url ? (
+                          <img src={w.winner.photo_url} alt={w.winner.name} className="w-14 h-14 rounded-full object-cover border-2 border-primary" />
+                        ) : (
+                          <div className="w-14 h-14 rounded-full bg-secondary border-2 border-primary flex items-center justify-center">
+                            <span className="text-sm font-bold text-gray-400">WIN</span>
+                          </div>
+                        )}
+                        <div className="absolute -bottom-2 -right-2 bg-primary text-secondary p-1.5 rounded-full border-2 border-gray-dark">
+                          <Trophy className="w-3 h-3" />
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-white text-sm truncate">{w.winner?.name || 'A confirmar'}</h4>
+                        <p className="text-xs text-primary font-mono mt-1 bg-primary/10 border border-primary/20 inline-block px-1.5 py-0.5 rounded truncate max-w-full">
+                          {w.match.score || 'Victoria'}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       )}
