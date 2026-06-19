@@ -1,18 +1,23 @@
-import { createClient } from '@supabase/supabase-js'
-import fs from 'fs'
+const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'YOUR_URL'
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'YOUR_KEY'
+const supabase = createClient(
+  'https://wrpdwbrlsygpadnytpkq.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndycGR3YnJsc3lncGFkbnl0cGtxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk4Mjg4OTEsImV4cCI6MjA5NTQwNDg5MX0.PcofYb920xicZxYo9evRUB0Fo0UrC84TovjYAfCeI18'
+);
 
-const envStr = fs.readFileSync('.env.local', 'utf-8')
-const envMatchUrl = envStr.match(/NEXT_PUBLIC_SUPABASE_URL=(.*)/)
-const envMatchKey = envStr.match(/NEXT_PUBLIC_SUPABASE_ANON_KEY=(.*)/)
-
-const supabase = createClient(envMatchUrl[1], envMatchKey[1])
-
-async function run() {
-  const { data, error } = await supabase.from('players').select('*').limit(1)
-  console.log(data)
-  if (error) console.log(error)
+async function check() {
+  const { data, error } = await supabase.from('matches').select('*').limit(1);
+  if (error) {
+    console.error('Error fetching matches:', error);
+  } else if (data && data.length > 0) {
+    console.log("Columns:", Object.keys(data[0]));
+    if (!Object.keys(data[0]).includes('court')) {
+        console.log("MISSING 'court' COLUMN");
+    } else {
+        console.log("'court' COLUMN EXISTS");
+    }
+  } else {
+    console.log("No matches found to infer columns.");
+  }
 }
-run()
+check();
