@@ -75,7 +75,8 @@ export default function AdminPage() {
     set2_p1: '', set2_p2: '', 
     set3_p1: '', set3_p2: '', 
     winner_id: '',
-    scheduled_date: '' 
+    scheduled_date: '',
+    court: ''
   })
   const [selectedMatchTournament, setSelectedMatchTournament] = useState('prequaly')
   const [selectedRound, setSelectedRound] = useState(1)
@@ -676,6 +677,14 @@ export default function AdminPage() {
     setLoading(false)
   }
 
+  const getLocalDatetimeLocal = (utcString) => {
+    if (!utcString) return '';
+    const d = new Date(utcString);
+    if (isNaN(d.getTime())) return '';
+    const tzOffset = d.getTimezoneOffset() * 60000;
+    return new Date(d.getTime() - tzOffset).toISOString().slice(0, 16);
+  }
+
   const editMatch = (match) => {
     const setsP1 = ['', '', '']
     const setsP2 = ['', '', '']
@@ -697,7 +706,8 @@ export default function AdminPage() {
       set2_p1: setsP1[1], set2_p2: setsP2[1],
       set3_p1: setsP1[2], set3_p2: setsP2[2],
       winner_id: match.winner_id || '',
-      scheduled_date: match.scheduled_date ? match.scheduled_date.slice(0, 16) : ''
+      scheduled_date: getLocalDatetimeLocal(match.scheduled_date),
+      court: match.court || ''
     })
     setEditingMatchId(match.id)
   }
@@ -721,7 +731,8 @@ export default function AdminPage() {
       score1: s1,
       score2: s2,
       winner_id: matchForm.winner_id || null,
-      scheduled_date: matchForm.scheduled_date ? new Date(matchForm.scheduled_date).toISOString() : null
+      scheduled_date: matchForm.scheduled_date ? new Date(matchForm.scheduled_date).toISOString() : null,
+      court: matchForm.court || null
     }
 
     try {
@@ -1157,6 +1168,30 @@ export default function AdminPage() {
                       onChange={e => setMatchForm({...matchForm, scheduled_date: e.target.value})} 
                       className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" 
                     />
+                  </div>
+
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Cancha Asignada</label>
+                    <select 
+                      value={matchForm.court} 
+                      onChange={e => setMatchForm({...matchForm, court: e.target.value})} 
+                      className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"
+                    >
+                      <option value="">No asignada</option>
+                      {selectedMatchTournament === 'prequaly' ? (
+                        <>
+                          <option value="Cancha 1">Cancha 1 (Empalme Central)</option>
+                          <option value="Cancha 2">Cancha 2 (Empalme Central)</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="Cancha 1">Cancha 1 (Náutico)</option>
+                          <option value="Cancha 2">Cancha 2 (Náutico)</option>
+                          <option value="Cancha 3">Cancha 3 (Náutico)</option>
+                          <option value="Cancha 4">Cancha 4 (Náutico)</option>
+                        </>
+                      )}
+                    </select>
                   </div>
                 </div>
 

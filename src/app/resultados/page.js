@@ -243,95 +243,88 @@ export default function ResultadosPage() {
             const dateMatches = groupedMatches[dateStr]
 
             return (
-              <div key={dateStr} className="space-y-4">
-                <div className="flex items-center gap-3 border-b border-primary/20 pb-2">
-                  <Calendar className="w-6 h-6 text-primary" />
-                  <h2 className="text-2xl font-bold text-primary">
-                    {dateStr}
+              <div key={dateStr} className="space-y-6 mb-12">
+                {/* Header matching the requested design */}
+                <div className="bg-[#1a233a] rounded-t-xl pb-6 pt-8 px-4 text-center border-b-4 border-orange-500 shadow-lg">
+                  <h2 className="text-3xl md:text-5xl font-black text-orange-500 tracking-wider mb-4" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
+                    {tournament.toUpperCase().replace('_', ' ')} - VERSUS
                   </h2>
+                  <h3 className="text-xl md:text-3xl font-bold text-yellow-50 tracking-widest mb-2 uppercase" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
+                    {tournament === 'prequaly' ? 'CLUB EMPALME CENTRAL' : 'CLUB NÁUTICO VILLA CONSTITUCIÓN'}
+                  </h3>
+                  <h4 className="text-lg md:text-2xl font-bold text-yellow-50 tracking-widest uppercase" style={{ fontFamily: 'var(--font-oswald), sans-serif' }}>
+                    DIA {dateStr}
+                  </h4>
                 </div>
                 
-                <div className="grid md:grid-cols-2 gap-4">
+                {/* Table Header Row */}
+                <div className="bg-orange-500 rounded-lg px-4 py-3 flex items-center justify-between text-slate-900 font-black uppercase text-sm md:text-lg tracking-wider shadow-md">
+                  <div className="flex-1 text-center pr-8 md:pr-32">VS</div>
+                  <div className="flex gap-4 md:gap-6 w-32 md:w-48 justify-end">
+                    <span className="w-16 md:w-20 text-center">HORA</span>
+                    <span className="w-16 md:w-20 text-center">CANCHA</span>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
                   {dateMatches.map(match => {
                     const isCompleted = match.status === 'completed'
+                    // Clean names (e.g. "Medus, Andres" instead of "Andres Medus" if preferred, but we will just uppercase it)
+                    const p1Name = match.player1?.name ? match.player1.name.toUpperCase() : 'A CONFIRMAR'
+                    const p2Name = match.player2?.name ? match.player2.name.toUpperCase() : 'A CONFIRMAR'
+                    
+                    const timeStr = match.scheduled_date ? new Date(match.scheduled_date).toLocaleTimeString('es-AR', {
+                      timeZone: 'America/Argentina/Buenos_Aires',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                      hour12: false
+                    }) : '--:--'
+                    
+                    // Extract just the number from "Cancha 1", etc.
+                    const courtNum = match.court ? match.court.replace(/cancha\s*/i, '').trim() : '-'
 
                     return (
-                      <div key={match.id} className="bg-gray-dark rounded-xl p-6 border border-primary/10 hover:border-primary/30 transition flex flex-col justify-between">
-                        <div>
-                          {/* Match Header */}
-                          <div className="flex justify-between items-center mb-4">
-                            <span className="text-xs text-primary font-mono font-bold">{getRoundName(match.round)} - #{match.match_number}</span>
-                            <span className={`text-xs px-2.5 py-0.5 rounded font-bold border ${isCompleted ? 'bg-green-950/20 text-green-400 border-green-500/20' : 'bg-gray-800 text-gray-400 border-gray-700'}`}>
-                              {isCompleted ? 'Finalizado' : 'Programado'}
+                      <div key={match.id} className="bg-[#1a233a] rounded-xl p-3 md:p-4 flex flex-col md:flex-row items-stretch gap-3 md:gap-4 border border-slate-700/50 shadow-md relative overflow-hidden">
+                        
+                        {/* Overlay for completed matches */}
+                        {isCompleted && (
+                          <div className="absolute inset-0 bg-black/40 z-10 flex items-center justify-center pointer-events-none">
+                            <div className="bg-green-500/90 text-slate-900 px-6 py-2 rounded-full font-black text-xl tracking-widest transform -rotate-12 border-2 border-slate-900 shadow-xl">
+                              FINALIZADO
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Players Column */}
+                        <div className="flex-1 flex flex-col gap-2 w-full z-0">
+                          <div className="bg-[#3bb8c4] rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
+                            <span className="text-slate-900 font-bold tracking-wide flex-1 text-sm md:text-lg">
+                              {p1Name}
+                            </span>
+                            {isCompleted && <span className="font-black text-slate-900 text-lg ml-2">{match.score1}</span>}
+                          </div>
+                          <div className="bg-[#3bb8c4] rounded-lg flex items-center px-4 py-3 md:py-4 shadow-inner">
+                            <span className="text-slate-900 font-bold tracking-wide flex-1 text-sm md:text-lg">
+                              {p2Name}
+                            </span>
+                            {isCompleted && <span className="font-black text-slate-900 text-lg ml-2">{match.score2}</span>}
+                          </div>
+                        </div>
+                        
+                        {/* Time & Court Columns */}
+                        <div className="flex gap-3 md:gap-6 w-full md:w-auto z-0">
+                          <div className="bg-[#3bb8c4] rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
+                            <span className="text-slate-900 font-bold text-lg md:text-2xl">
+                              {timeStr}
                             </span>
                           </div>
-
-                          {/* Players Score */}
-                          <div className="space-y-3 mb-6">
-                            {/* Player 1 */}
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <span className={`font-bold ${isCompleted && match.winner_id === match.player1_id ? 'text-primary text-base' : 'text-white'}`}>
-                                  {match.player1?.name || 'A confirmar'}
-                                </span>
-                                {match.player1?.club && (
-                                  <span className="text-xs text-gray-500 block">{match.player1.club}</span>
-                                )}
-                              </div>
-                              <span className="font-mono text-base font-bold bg-secondary/80 px-2.5 py-1 rounded text-primary">
-                                {isCompleted && match.score1 ? match.score1 : '-'}
-                              </span>
-                            </div>
-
-                            {/* Player 2 */}
-                            <div className="flex justify-between items-center">
-                              <div>
-                                <span className={`font-bold ${isCompleted && match.winner_id === match.player2_id ? 'text-primary text-base' : 'text-white'}`}>
-                                  {match.player2?.name || 'A confirmar'}
-                                </span>
-                                {match.player2?.club && (
-                                  <span className="text-xs text-gray-500 block">{match.player2.club}</span>
-                                )}
-                              </div>
-                              <span className="font-mono text-base font-bold bg-secondary/80 px-2.5 py-1 rounded text-primary">
-                                {isCompleted && match.score2 ? match.score2 : '-'}
-                              </span>
-                            </div>
+                          <div className="bg-[#3bb8c4] rounded-lg flex items-center justify-center flex-1 md:w-20 py-3 shadow-inner">
+                            <span className="text-slate-900 font-bold text-lg md:text-2xl">
+                              {courtNum}
+                            </span>
                           </div>
                         </div>
-
-                        {/* Match Footer */}
-                        <div className="border-t border-primary/10 pt-4">
-                          <div className="flex flex-col gap-1">
-                            {!isCompleted && (
-                              <div className="flex items-center gap-2 text-primary">
-                                <Clock className="w-5 h-5" />
-                                <span className="text-xl font-bold">
-                                  {match.scheduled_date ? new Date(match.scheduled_date).toLocaleTimeString('es-AR', {
-                                    timeZone: 'America/Argentina/Buenos_Aires',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: false
-                                  }) + ' hs' : 'Sin hora'}
-                                </span>
-                              </div>
-                            )}
-                            <div className={`flex items-center gap-1.5 ${isCompleted ? 'text-primary pt-1' : 'text-sm text-gray-400'}`}>
-                              <Calendar className={`w-4 h-4 ${isCompleted ? 'w-5 h-5' : ''}`} />
-                              <span className={isCompleted ? 'text-xl font-bold' : ''}>
-                                {match.scheduled_date ? (() => {
-                                  let dStr = new Date(match.scheduled_date).toLocaleDateString('es-AR', {
-                                    timeZone: 'America/Argentina/Buenos_Aires',
-                                    weekday: 'long',
-                                    day: 'numeric',
-                                    month: 'short'
-                                  });
-                                  return dStr.charAt(0).toUpperCase() + dStr.slice(1);
-                                })() : 'A confirmar'}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
+                        
                       </div>
                     )
                   })}
