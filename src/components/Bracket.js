@@ -73,43 +73,62 @@ function MatchCard({ match, onClick, hoveredPlayerId, setHoveredPlayerId }) {
   )
 }
 
-// ── SVG Bracket Connector ──
-function SvgConnector({ prevCount, nextCount, prevSlotH, totalH }) {
+// ── HTML Bracket Connector (Print friendly) ──
+function HtmlConnector({ prevCount, nextCount, prevSlotH, totalH }) {
   if (prevCount === 0 || nextCount === 0) return <div style={{ width: CONN_W }} />
 
-  const lines = []
   const strokeColor = 'rgba(208,253,62,0.3)'
+  const blocks = []
 
   if (prevCount === nextCount * 2) {
-    // 2:1 merge — two matches feed into one
+    // 2:1 merge
+    const blockH = prevSlotH * 2
     for (let j = 0; j < nextCount; j++) {
-      const y1 = (j * 2) * prevSlotH + prevSlotH / 2
-      const y2 = (j * 2 + 1) * prevSlotH + prevSlotH / 2
-      const yMid = (y1 + y2) / 2
-      const xMid = CONN_W / 2
-
-      lines.push(
-        <path
-          key={`m-${j}`}
-          d={`M 0 ${y1} H ${xMid} V ${y2} H 0 M ${xMid} ${yMid} H ${CONN_W}`}
-          stroke={strokeColor}
-          strokeWidth="1.5"
-          fill="none"
-        />
+      blocks.push(
+        <div key={`m-${j}`} style={{ height: blockH, position: 'relative', width: '100%' }}>
+          <div 
+            style={{
+              position: 'absolute',
+              top: prevSlotH / 2,
+              height: prevSlotH,
+              left: 0,
+              width: CONN_W / 2,
+              borderTop: `1.5px solid ${strokeColor}`,
+              borderBottom: `1.5px solid ${strokeColor}`,
+              borderRight: `1.5px solid ${strokeColor}`
+            }} 
+            className="print:!border-black"
+          />
+          <div 
+            style={{
+              position: 'absolute',
+              top: blockH / 2,
+              left: CONN_W / 2,
+              width: CONN_W / 2,
+              borderTop: `1.5px solid ${strokeColor}`
+            }} 
+            className="print:!border-black"
+          />
+        </div>
       )
     }
   } else if (prevCount === nextCount) {
     // 1:1 pass-through
     for (let i = 0; i < prevCount; i++) {
-      const y = i * prevSlotH + prevSlotH / 2
-      lines.push(
-        <line
-          key={`p-${i}`}
-          x1={0} y1={y} x2={CONN_W} y2={y}
-          stroke={strokeColor}
-          strokeWidth="1"
-          strokeDasharray="4 3"
-        />
+      const blockH = prevSlotH
+      blocks.push(
+        <div key={`p-${i}`} style={{ height: blockH, position: 'relative', width: '100%' }}>
+          <div 
+            style={{
+              position: 'absolute',
+              top: blockH / 2,
+              left: 0,
+              width: CONN_W,
+              borderTop: `1px dashed ${strokeColor}`
+            }} 
+            className="print:!border-black"
+          />
+        </div>
       )
     }
   }
@@ -118,9 +137,9 @@ function SvgConnector({ prevCount, nextCount, prevSlotH, totalH }) {
     <div className="shrink-0 flex flex-col" style={{ width: CONN_W }}>
       {/* Spacer to align with header + gap */}
       <div style={{ height: HEADER_H + GAP }} />
-      <svg width={CONN_W} height={totalH} className="block overflow-visible">
-        {lines}
-      </svg>
+      <div className="flex flex-col w-full">
+        {blocks}
+      </div>
     </div>
   )
 }
@@ -234,7 +253,7 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
                         {/* Left input stub (connects to connector) */}
                         {!isFirst && (
                           <div
-                            className="shrink-0"
+                            className="shrink-0 print:!border-black"
                             style={{
                               width: 8,
                               height: 0,
@@ -256,7 +275,7 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
                         {/* Right output stub (connects to connector) */}
                         {!isLast && (
                           <div
-                            className="shrink-0"
+                            className="shrink-0 print:!border-black"
                             style={{
                               width: 8,
                               height: 0,
@@ -269,9 +288,9 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
                   </div>
                 </div>
 
-                {/* ── SVG Connector Lines ── */}
+                {/* ── HTML Connector Lines ── */}
                 {!isLast && (
-                  <SvgConnector
+                  <HtmlConnector
                     prevCount={roundMatches.length}
                     nextCount={nextMatches.length}
                     prevSlotH={slotH}
