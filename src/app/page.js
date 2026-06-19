@@ -12,6 +12,7 @@ export default function Home() {
   const [upcomingMatches, setUpcomingMatches] = useState([])
   const [todaysWinners, setTodaysWinners] = useState([])
   const [loading, setLoading] = useState(true)
+  const [selectedNews, setSelectedNews] = useState(null)
   const [selectedImage, setSelectedImage] = useState(null)
 
   useEffect(() => {
