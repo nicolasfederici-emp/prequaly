@@ -278,14 +278,21 @@ export default function ResultadosPage() {
                         
                         {/* Match Status/Info Header */}
                         <div className="bg-secondary px-4 py-2 flex justify-between items-center border-b border-primary/10">
-                          <div className="flex items-center gap-2 text-gray-300 font-bold text-xs md:text-sm">
-                            <MapPin className="w-3.5 h-3.5 text-primary" />
-                            <span>{courtNum}</span>
+                          <div className="flex items-center gap-4 text-gray-300 font-bold text-xs md:text-sm">
+                            <span className="text-primary font-black uppercase tracking-wider">
+                              {getRoundName(match.round)}
+                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <MapPin className="w-3.5 h-3.5 text-primary" />
+                              <span>{courtNum}</span>
+                            </div>
                           </div>
                           
                           <div className="flex items-center gap-3">
                             <span className="text-white font-black text-xs md:text-sm bg-primary/20 border border-primary/30 px-2 py-0.5 rounded text-primary">
-                              {timeStr} hs
+                              {isCompleted && match.scheduled_date 
+                                ? new Date(match.scheduled_date).toLocaleDateString('es-AR', { timeZone: 'America/Argentina/Buenos_Aires', day: '2-digit', month: '2-digit' }) 
+                                : `${timeStr} hs`}
                             </span>
                             {isCompleted && (
                               <span className="text-xs font-bold text-green-400 border border-green-500/30 bg-green-900/30 px-2 py-0.5 rounded">
