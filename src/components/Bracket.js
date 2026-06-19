@@ -195,10 +195,9 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
 
   return (
     <>
-      {/* ═══════ DESKTOP BRACKET (horizontal with SVG connectors) ═══════ */}
       <div className="hidden md:block overflow-x-auto pb-8 -mx-4 px-4 print:block">
         <div
-          className="flex items-start"
+          className="flex items-start print-bracket"
           style={{ minWidth: rounds.length * COL_MIN_W + (rounds.length - 1) * CONN_W }}
         >
           {rounds.map((roundNum, roundIdx) => {

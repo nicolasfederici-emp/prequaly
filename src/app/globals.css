@@ -104,6 +104,24 @@ body {
     margin: 0 !important;
   }
 
+  /* Scale the entire bracket to fit on one landscape page */
+  .print-bracket {
+    zoom: 0.6 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    transform-origin: top left;
+  }
+
+  /* Fallback for firefox */
+  @-moz-document url-prefix() {
+    .print-bracket {
+      transform: scale(0.6) !important;
+      width: 166% !important; /* 1 / 0.6 to prevent clipping */
+    }
+  }
+
   /* Fix for the negative margin in the bracket container */
   .\-mx-4 {
     margin-left: 0 !important;
