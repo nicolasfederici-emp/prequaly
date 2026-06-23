@@ -113,11 +113,23 @@ export default function GaleriaPage() {
             >
               {/* Photo Box */}
               <div className="relative aspect-[4/3] w-full overflow-hidden bg-black">
-                <img 
-                  src={photo.image_url} 
-                  alt={photo.caption || 'Foto del torneo'} 
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
+                {photo.image_url && photo.image_url.match(/\.(mp4|avi)$/i) ? (
+                  <video 
+                    src={photo.image_url} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    muted
+                    loop
+                    playsInline
+                    onMouseOver={e => e.target.play()}
+                    onMouseOut={e => e.target.pause()}
+                  />
+                ) : (
+                  <img 
+                    src={photo.image_url} 
+                    alt={photo.caption || 'Foto del torneo'} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                )}
                 
                 {/* Category Badge on Image overlay */}
                 <span className={`absolute left-3 top-3 px-2.5 py-1 rounded-full text-[10px] font-black border uppercase tracking-wider backdrop-blur-md ${getTournamentColorClass(photo.tournament)}`}>
@@ -168,11 +180,20 @@ export default function GaleriaPage() {
 
             {/* Immersive Image Display */}
             <div className="relative max-h-[75vh] max-w-full overflow-hidden rounded-2xl shadow-2xl border border-primary/20 bg-secondary">
-              <img 
-                src={selectedPhoto.image_url} 
-                alt={selectedPhoto.caption || 'Foto del torneo'} 
-                className="max-h-[75vh] max-w-full object-contain mx-auto"
-              />
+              {selectedPhoto.image_url && selectedPhoto.image_url.match(/\.(mp4|avi)$/i) ? (
+                <video 
+                  src={selectedPhoto.image_url} 
+                  controls
+                  autoPlay
+                  className="max-h-[75vh] max-w-full object-contain mx-auto"
+                />
+              ) : (
+                <img 
+                  src={selectedPhoto.image_url} 
+                  alt={selectedPhoto.caption || 'Foto del torneo'} 
+                  className="max-h-[75vh] max-w-full object-contain mx-auto"
+                />
+              )}
             </div>
 
             {/* Bottom Caption */}

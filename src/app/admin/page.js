@@ -1119,7 +1119,7 @@ export default function AdminPage() {
                     className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
                   >
                     <option value="">A confirmar</option>
-                    {players.map(p => (
+                    {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
@@ -1132,7 +1132,7 @@ export default function AdminPage() {
                     className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-sm"
                   >
                     <option value="">A confirmar</option>
-                    {players.map(p => (
+                    {players.filter(p => p.tournament === selectedMatchTournament).map(p => (
                       <option key={p.id} value={p.id}>{p.name}</option>
                     ))}
                   </select>
@@ -1627,7 +1627,7 @@ export default function AdminPage() {
                       <label className="block text-xs text-gray-400 mb-1">Subir Archivo directamente</label>
                       <input 
                         type="file" 
-                        accept="image/*"
+                        accept="image/*,video/mp4,video/avi"
                         onChange={e => uploadFile(e, 'image_url', galleryForm, setGalleryForm)}
                         className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-3 file:py-1 file:font-black file:mr-3 file:cursor-pointer"
                       />
@@ -1645,7 +1645,11 @@ export default function AdminPage() {
                   </div>
                   {galleryForm.image_url && (
                     <div className="mt-2 bg-secondary/80 p-2 rounded-lg border border-primary/5 flex flex-col items-center">
-                      <img src={galleryForm.image_url} alt="" className="max-h-40 rounded border border-primary/25 object-contain" />
+                      {galleryForm.image_url.match(/\.(mp4|avi)$/i) ? (
+                        <video src={galleryForm.image_url} controls className="max-h-40 rounded border border-primary/25 object-contain" />
+                      ) : (
+                        <img src={galleryForm.image_url} alt="" className="max-h-40 rounded border border-primary/25 object-contain" />
+                      )}
                       <span className="text-xs text-gray-400 truncate max-w-full mt-2">{galleryForm.image_url}</span>
                     </div>
                   )}
