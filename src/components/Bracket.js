@@ -143,8 +143,6 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
     )
   }
 
-  return (
-    <>
   const renderHeaders = () => (
     <div className="flex items-start mb-2" style={{ minWidth: rounds.length * COL_MIN_W + (rounds.length - 1) * CONN_W }}>
       {rounds.map((roundNum, roundIdx) => (
@@ -259,6 +257,8 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
   // Offset to ensure the Final match (which is centered exactly at SPLIT_H) falls completely on Page 1
   const PRINT_OFFSET = 30
 
+  return (
+    <>
       {/* --- SCREEN VIEW (Full Bracket) --- */}
       <div className="hidden md:block print:hidden overflow-x-auto pb-8 -mx-4 px-4">
         {renderHeaders()}
