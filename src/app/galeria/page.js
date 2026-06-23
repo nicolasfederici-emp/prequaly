@@ -36,6 +36,27 @@ export default function GaleriaPage() {
     setLoading(false)
   }
 
+  // Effect to load scripts injected via dangerouslySetInnerHTML
+  useEffect(() => {
+    if (instagramWidget) {
+      // Create a temporary div to parse the HTML string
+      const tempDiv = document.createElement('div')
+      tempDiv.innerHTML = instagramWidget
+      
+      // Find all script tags
+      const scripts = tempDiv.getElementsByTagName('script')
+      for (let i = 0; i < scripts.length; i++) {
+        const src = scripts[i].src
+        if (src && !document.querySelector(`script[src="${src}"]`)) {
+          const script = document.createElement('script')
+          script.src = src
+          script.async = true
+          document.body.appendChild(script)
+        }
+      }
+    }
+  }, [instagramWidget])
+
   const getTournamentLabel = (tourn) => {
     switch (tourn) {
       case 'prequaly': return 'PreQualy'
