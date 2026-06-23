@@ -181,13 +181,30 @@ export default function AdminPage() {
 
   // --- REUSABLE STORAGE UPLOAD ---
   const uploadFile = async (e, fieldName, formState, setFormState) => {
-    const file = e.target.files[0]
+    let file = e.target.files[0]
     if (!file) return
     setLoading(true)
-    setMsg('Subiendo archivo a Supabase...')
+    setMsg('Procesando y subiendo archivo...')
     
     try {
-      const fileExt = file.name.split('.').pop()
+      let fileExt = file.name.split('.').pop().toLowerCase()
+      
+      if (fileExt === 'heic' || fileExt === 'heif') {
+        setMsg('Convirtiendo formato HEIC para compatibilidad web...')
+        const heic2any = (await import('heic2any')).default
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.8
+        })
+        const blobArray = Array.isArray(convertedBlob) ? convertedBlob : [convertedBlob]
+        file = new File([blobArray[0]], file.name.replace(/\.(heic|heif)$/i, '.jpg'), {
+          type: 'image/jpeg'
+        })
+        fileExt = 'jpg'
+        setMsg('Subiendo archivo convertido a Supabase...')
+      }
+      
       const fileName = `${fieldName}-${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`
       
       const { data, error } = await supabase.storage
@@ -1417,7 +1434,7 @@ export default function AdminPage() {
                       <label className="block text-xs text-gray-400 mb-1">Subir Archivo directamente</label>
                       <input 
                         type="file" 
-                        accept="image/*"
+                        accept="image/*,.heic,.heif"
                         onChange={e => uploadFile(e, 'photo_url', playerForm, setPlayerForm)}
                         className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-3 file:py-1 file:font-black file:mr-3 file:cursor-pointer"
                       />
@@ -1627,7 +1644,7 @@ export default function AdminPage() {
                       <label className="block text-xs text-gray-400 mb-1">Subir Archivo directamente</label>
                       <input 
                         type="file" 
-                        accept="image/*,video/mp4,video/avi"
+                        accept="image/*,video/mp4,video/avi,.heic,.heif"
                         onChange={e => uploadFile(e, 'image_url', galleryForm, setGalleryForm)}
                         className="w-full bg-secondary border border-primary/20 rounded px-3 py-1.5 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-3 file:py-1 file:font-black file:mr-3 file:cursor-pointer"
                       />
@@ -1739,7 +1756,7 @@ export default function AdminPage() {
                     <label className="block text-gray-300 mb-1 text-sm">Imagen de Noticia</label>
                     <input 
                       type="file" 
-                      accept="image/*"
+                      accept="image/*,.heic,.heif"
                       onChange={e => uploadFile(e, 'image', newsForm, setNewsForm)}
                       className="w-full bg-secondary border border-primary/20 rounded px-2.5 py-1 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-2 file:py-0.5 file:font-black file:mr-2 file:cursor-pointer"
                     />
@@ -1838,7 +1855,7 @@ export default function AdminPage() {
                     <label className="block text-gray-300 mb-1 text-sm">Logo del Sponsor</label>
                     <input 
                       type="file" 
-                      accept="image/*"
+                      accept="image/*,.heic,.heif"
                       onChange={e => uploadFile(e, 'logo_url', sponsorForm, setSponsorForm)}
                       className="w-full bg-secondary border border-primary/20 rounded px-2.5 py-1 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-2 file:py-0.5 file:font-black file:mr-2 file:cursor-pointer"
                     />
@@ -1913,7 +1930,7 @@ export default function AdminPage() {
                 <div className="flex gap-2">
                   <input 
                     type="file" 
-                    accept="image/*"
+                    accept="image/*,.heic,.heif"
                     onChange={e => uploadFile(e, 'home_hero_bg_image', settingsForm, setSettingsForm)}
                     className="w-1/3 bg-secondary border border-primary/20 rounded px-2.5 py-1 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-2 file:py-0.5 file:font-black file:cursor-pointer"
                   />
