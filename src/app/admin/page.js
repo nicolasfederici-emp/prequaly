@@ -55,6 +55,7 @@ export default function AdminPage() {
 
   // Players State
   const [players, setPlayers] = useState([])
+  const [playerFilter, setPlayerFilter] = useState('all')
   const [editingPlayerId, setEditingPlayerId] = useState(null)
   const [showPlayerForm, setShowPlayerForm] = useState(false)
   const [playerForm, setPlayerForm] = useState({ name: '', age: '', hand: 'right', club: '', paid: false, photo_url: '', tournament: 'prequaly' })
@@ -1473,7 +1474,18 @@ export default function AdminPage() {
             </div>
           )}
 
-          <div className="flex justify-end mb-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
+            <div className="flex flex-wrap gap-2 bg-secondary/80 p-1.5 rounded-xl border border-primary/20">
+              {['all', 'prequaly', 'qualy', 'm15_singles', 'm15_doubles'].map(t => (
+                <button 
+                  key={t}
+                  onClick={() => setPlayerFilter(t)}
+                  className={`flex-1 min-w-[90px] text-center py-2 px-3 rounded-lg font-black transition text-xs uppercase ${playerFilter === t ? 'bg-primary text-secondary' : 'text-gray-400 hover:text-primary'}`}
+                >
+                  {t === 'all' ? 'Todos' : t.replace('_', ' ')}
+                </button>
+              ))}
+            </div>
             <button 
               onClick={exportPlayersCSV}
               className="flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold transition text-sm"
@@ -1498,7 +1510,7 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {players.map((player, idx) => (
+                  {players.filter(p => playerFilter === 'all' || p.tournament === playerFilter).map((player, idx) => (
                     <tr key={player.id} className={`border-b border-gray-700 ${idx % 2 === 0 ? 'bg-gray-dark' : 'bg-gray-800/50'}`}>
                       <td className="px-4 py-2">
                         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
