@@ -73,76 +73,7 @@ function MatchCard({ match, onClick, hoveredPlayerId, setHoveredPlayerId }) {
   )
 }
 
-// ── HTML Bracket Connector (Print friendly) ──
-function HtmlConnector({ prevCount, nextCount, prevSlotH, totalH }) {
-  if (prevCount === 0 || nextCount === 0) return <div style={{ width: CONN_W }} />
 
-  const strokeColor = 'rgba(208,253,62,0.3)'
-  const blocks = []
-
-  if (prevCount === nextCount * 2) {
-    // 2:1 merge
-    const blockH = prevSlotH * 2
-    for (let j = 0; j < nextCount; j++) {
-      blocks.push(
-        <div key={`m-${j}`} style={{ height: blockH, position: 'relative', width: '100%' }}>
-          <div 
-            style={{
-              position: 'absolute',
-              top: prevSlotH / 2,
-              height: prevSlotH,
-              left: 0,
-              width: CONN_W / 2,
-              borderTop: `1.5px solid ${strokeColor}`,
-              borderBottom: `1.5px solid ${strokeColor}`,
-              borderRight: `1.5px solid ${strokeColor}`
-            }} 
-            className="print:!border-black"
-          />
-          <div 
-            style={{
-              position: 'absolute',
-              top: blockH / 2,
-              left: CONN_W / 2,
-              width: CONN_W / 2,
-              borderTop: `1.5px solid ${strokeColor}`
-            }} 
-            className="print:!border-black"
-          />
-        </div>
-      )
-    }
-  } else if (prevCount === nextCount) {
-    // 1:1 pass-through
-    for (let i = 0; i < prevCount; i++) {
-      const blockH = prevSlotH
-      blocks.push(
-        <div key={`p-${i}`} style={{ height: blockH, position: 'relative', width: '100%' }}>
-          <div 
-            style={{
-              position: 'absolute',
-              top: blockH / 2,
-              left: 0,
-              width: CONN_W,
-              borderTop: `1px dashed ${strokeColor}`
-            }} 
-            className="print:!border-black"
-          />
-        </div>
-      )
-    }
-  }
-
-  return (
-    <div className="shrink-0 flex flex-col" style={{ width: CONN_W }}>
-      {/* Spacer to align with header + gap */}
-      <div style={{ height: HEADER_H + GAP }} />
-      <div className="flex flex-col w-full">
-        {blocks}
-      </div>
-    </div>
-  )
-}
 
 export default function Bracket({ tournament, matches, onMatchClick }) {
   const [collapsedRounds, setCollapsedRounds] = React.useState({})
@@ -214,92 +145,156 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
 
   return (
     <>
-      <div className="hidden md:block overflow-x-auto pb-8 -mx-4 px-4 print:block">
-        <div
-          className="flex items-start print-bracket"
-          style={{ minWidth: rounds.length * COL_MIN_W + (rounds.length - 1) * CONN_W }}
-        >
-          {rounds.map((roundNum, roundIdx) => {
-            const roundMatches = matchesByRound[roundNum] || []
-            const count = roundMatches.length || 1
-            const multiplier = firstRoundCount / count
-            const slotH = SLOT_BASE * multiplier
+  const renderHeaders = () => (
+    <div className="flex items-start mb-2" style={{ minWidth: rounds.length * COL_MIN_W + (rounds.length - 1) * CONN_W }}>
+      {rounds.map((roundNum, roundIdx) => (
+        <Fragment key={`h-${roundNum}`}>
+          <div style={{ minWidth: COL_MIN_W, flex: '1 1 0' }}>
+            <div
+              className="text-center bg-gray-900 border border-primary/20 rounded-lg font-bold text-primary text-[11px] uppercase tracking-wider flex items-center justify-center select-none"
+              style={{ height: HEADER_H }}
+            >
+              {getRoundName(roundNum)}
+            </div>
+          </div>
+          {roundIdx !== rounds.length - 1 && <div style={{ width: CONN_W }} />}
+        </Fragment>
+      ))}
+    </div>
+  )
 
-            const isFirst = roundIdx === 0
-            const isLast = roundIdx === rounds.length - 1
-            const nextRound = rounds[roundIdx + 1]
-            const nextMatches = nextRound ? (matchesByRound[nextRound] || []) : []
+  const renderBody = () => (
+    <div className="flex items-start" style={{ minWidth: rounds.length * COL_MIN_W + (rounds.length - 1) * CONN_W }}>
+      {rounds.map((roundNum, roundIdx) => {
+        const roundMatches = matchesByRound[roundNum] || []
+        const count = roundMatches.length || 1
+        const multiplier = firstRoundCount / count
+        const slotH = SLOT_BASE * multiplier
 
-            return (
-              <Fragment key={roundNum}>
-                {/* ── Round Column ── */}
-                <div style={{ minWidth: COL_MIN_W, flex: '1 1 0' }}>
-                  {/* Header */}
-                  <div
-                    className="text-center bg-gray-900 border border-primary/20 rounded-lg font-bold text-primary text-[11px] uppercase tracking-wider flex items-center justify-center select-none"
-                    style={{ height: HEADER_H }}
-                  >
-                    {getRoundName(roundNum)}
-                  </div>
+        const isFirst = roundIdx === 0
+        const isLast = roundIdx === rounds.length - 1
+        const nextRound = rounds[roundIdx + 1]
+        const nextMatches = nextRound ? (matchesByRound[nextRound] || []) : []
 
-                  {/* Match Slots */}
-                  <div className="flex flex-col" style={{ marginTop: GAP }}>
-                    {roundMatches.map(match => (
+        return (
+          <Fragment key={`b-${roundNum}`}>
+            {/* ── Match Column ── */}
+            <div style={{ minWidth: COL_MIN_W, flex: '1 1 0' }}>
+              <div className="flex flex-col">
+                {roundMatches.map(match => (
+                  <div key={match.id} className="flex items-center" style={{ height: slotH }}>
+                    {/* Left input stub */}
+                    {!isFirst && (
                       <div
-                        key={match.id}
-                        className="flex items-center"
-                        style={{ height: slotH }}
-                      >
-                        {/* Left input stub (connects to connector) */}
-                        {!isFirst && (
-                          <div
-                            className="shrink-0 print:!border-black"
-                            style={{
-                              width: 8,
-                              height: 0,
-                              borderTop: '1.5px solid rgba(208,253,62,0.3)'
-                            }}
-                          />
-                        )}
-
-                        {/* Match Card */}
-                        <div className="flex-1 min-w-0" style={{ height: MATCH_H }}>
-                          <MatchCard 
-                            match={match} 
-                            onClick={onMatchClick} 
-                            hoveredPlayerId={hoveredPlayerId}
-                            setHoveredPlayerId={setHoveredPlayerId}
-                          />
-                        </div>
-
-                        {/* Right output stub (connects to connector) */}
-                        {!isLast && (
-                          <div
-                            className="shrink-0 print:!border-black"
-                            style={{
-                              width: 8,
-                              height: 0,
-                              borderTop: '1.5px solid rgba(208,253,62,0.3)'
-                            }}
-                          />
-                        )}
-                      </div>
-                    ))}
+                        className="shrink-0 print:!border-black"
+                        style={{ width: 8, height: 0, borderTop: '1.5px solid rgba(208,253,62,0.3)' }}
+                      />
+                    )}
+                    {/* Match Card */}
+                    <div className="flex-1 min-w-0" style={{ height: MATCH_H }}>
+                      <MatchCard 
+                        match={match} 
+                        onClick={onMatchClick} 
+                        hoveredPlayerId={hoveredPlayerId}
+                        setHoveredPlayerId={setHoveredPlayerId}
+                      />
+                    </div>
+                    {/* Right output stub */}
+                    {!isLast && (
+                      <div
+                        className="shrink-0 print:!border-black"
+                        style={{ width: 8, height: 0, borderTop: '1.5px solid rgba(208,253,62,0.3)' }}
+                      />
+                    )}
                   </div>
-                </div>
+                ))}
+              </div>
+            </div>
 
-                {/* ── HTML Connector Lines ── */}
-                {!isLast && (
-                  <HtmlConnector
-                    prevCount={roundMatches.length}
-                    nextCount={nextMatches.length}
-                    prevSlotH={slotH}
-                    totalH={totalBracketH}
-                  />
-                )}
-              </Fragment>
-            )
-          })}
+            {/* ── HTML Connector Lines ── */}
+            {!isLast && (
+              <div className="shrink-0 flex flex-col" style={{ width: CONN_W }}>
+                <div className="flex flex-col w-full">
+                  {(() => {
+                    const prevCount = roundMatches.length
+                    const nextCount = nextMatches.length
+                    const prevSlotH = slotH
+                    if (prevCount === 0 || nextCount === 0) return null
+
+                    const strokeColor = 'rgba(208,253,62,0.3)'
+                    const blocks = []
+
+                    if (prevCount === nextCount * 2) {
+                      const blockH = prevSlotH * 2
+                      for (let j = 0; j < nextCount; j++) {
+                        blocks.push(
+                          <div key={`m-${j}`} style={{ height: blockH, position: 'relative', width: '100%' }}>
+                            <div style={{ position: 'absolute', top: prevSlotH / 2, height: prevSlotH, left: 0, width: CONN_W / 2, borderTop: `1.5px solid ${strokeColor}`, borderBottom: `1.5px solid ${strokeColor}`, borderRight: `1.5px solid ${strokeColor}` }} className="print:!border-black" />
+                            <div style={{ position: 'absolute', top: blockH / 2, left: CONN_W / 2, width: CONN_W / 2, borderTop: `1.5px solid ${strokeColor}` }} className="print:!border-black" />
+                          </div>
+                        )
+                      }
+                    } else if (prevCount === nextCount) {
+                      for (let i = 0; i < prevCount; i++) {
+                        const blockH = prevSlotH
+                        blocks.push(
+                          <div key={`p-${i}`} style={{ height: blockH, position: 'relative', width: '100%' }}>
+                            <div style={{ position: 'absolute', top: blockH / 2, left: 0, width: CONN_W, borderTop: `1px dashed ${strokeColor}` }} className="print:!border-black" />
+                          </div>
+                        )
+                      }
+                    }
+                    return blocks
+                  })()}
+                </div>
+              </div>
+            )}
+          </Fragment>
+        )
+      })}
+    </div>
+  )
+
+  const SPLIT_H = (firstRoundCount / 2) * SLOT_BASE
+  // Offset to ensure the Final match (which is centered exactly at SPLIT_H) falls completely on Page 1
+  const PRINT_OFFSET = 30
+
+      {/* --- SCREEN VIEW (Full Bracket) --- */}
+      <div className="hidden md:block print:hidden overflow-x-auto pb-8 -mx-4 px-4">
+        {renderHeaders()}
+        {renderBody()}
+      </div>
+
+      {/* --- PRINT VIEW (Split across 2 pages) --- */}
+      <div className="hidden print:block w-full" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+        {/* Page 1: Top Half */}
+        <div style={{ pageBreakAfter: 'always', paddingBottom: '20px' }}>
+          <h3 className="text-black font-bold mb-4 text-center border-b pb-2 uppercase tracking-widest">
+            {tournament.replace('_', ' ')} - Mitad Superior
+          </h3>
+          <div className="scale-[0.95] origin-top-left">
+            {renderHeaders()}
+            <div style={{ height: SPLIT_H + PRINT_OFFSET, overflow: 'hidden', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
+                {renderBody()}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Page 2: Bottom Half */}
+        <div style={{ paddingTop: '20px' }}>
+          <h3 className="text-black font-bold mb-4 text-center border-b pb-2 uppercase tracking-widest mt-4">
+            {tournament.replace('_', ' ')} - Mitad Inferior
+          </h3>
+          <div className="scale-[0.95] origin-top-left">
+            {renderHeaders()}
+            <div style={{ height: SPLIT_H - PRINT_OFFSET, overflow: 'hidden', position: 'relative' }}>
+              <div style={{ position: 'absolute', top: -(SPLIT_H + PRINT_OFFSET), left: 0, width: '100%' }}>
+                {renderBody()}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
