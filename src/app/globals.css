@@ -65,8 +65,8 @@ body {
 
 @media print {
   @page {
-    size: landscape;
-    margin: 5mm;
+    size: portrait;
+    margin: 10mm;
   }
 
   body, html {
@@ -78,7 +78,7 @@ body {
   }
 
   /* Make sure container doesn't clip content when printing */
-  .overflow-x-auto, .overflow-hidden {
+  .overflow-x-auto {
     overflow: visible !important;
     overflow-x: visible !important;
   }
