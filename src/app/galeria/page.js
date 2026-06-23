@@ -8,13 +8,21 @@ export default function GaleriaPage() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('all') // 'all', 'prequaly', 'qualy', 'm15', 'general'
   const [selectedPhoto, setSelectedPhoto] = useState(null)
+  const [instagramWidget, setInstagramWidget] = useState('')
 
   useEffect(() => {
-    fetchPhotos()
+    fetchData()
   }, [])
 
-  const fetchPhotos = async () => {
+  const fetchData = async () => {
     setLoading(true)
+    
+    // Fetch settings first
+    const { data: settingsData } = await supabase.from('settings').select('*').eq('key', 'instagram_widget_code')
+    if (settingsData && settingsData.length > 0 && settingsData[0].value) {
+      setInstagramWidget(settingsData[0].value)
+    }
+
     const { data, error } = await supabase
       .from('gallery')
       .select('*')
@@ -61,6 +69,19 @@ export default function GaleriaPage() {
           <Camera className="w-10 h-10 text-primary" /> GALERÍA DE FOTOS
         </h1>
         <p className="text-gray-400 mt-1">Imágenes oficiales y momentos destacados de los torneos en tiempo real</p>
+      </div>
+
+      {instagramWidget && (
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">Últimas Novedades en Instagram</h2>
+          <div className="bg-gray-dark border border-primary/20 rounded-2xl p-4 sm:p-8 shadow-xl min-h-[300px] flex items-center justify-center">
+            <div dangerouslySetInnerHTML={{ __html: instagramWidget }} className="w-full max-w-4xl mx-auto overflow-hidden" />
+          </div>
+        </div>
+      )}
+
+      <div className="mb-6">
+        <h2 className="text-2xl font-bold text-white mb-6 border-l-4 border-primary pl-4">Galería Oficial del Torneo</h2>
       </div>
 
       {/* Filter Tabs */}

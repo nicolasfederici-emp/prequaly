@@ -56,6 +56,7 @@ export default function AdminPage() {
   // Players State
   const [players, setPlayers] = useState([])
   const [playerFilter, setPlayerFilter] = useState('all')
+  const [playerSearch, setPlayerSearch] = useState('')
   const [editingPlayerId, setEditingPlayerId] = useState(null)
   const [showPlayerForm, setShowPlayerForm] = useState(false)
   const [playerForm, setPlayerForm] = useState({ name: '', age: '', hand: 'right', club: '', paid: false, photo_url: '', tournament: 'prequaly' })
@@ -154,7 +155,8 @@ export default function AdminPage() {
     sede_prequaly_direccion: '',
     sede_prequaly_desc: '',
     sede_prequaly_mapa: '',
-    carousel_speed: '40'
+    carousel_speed: '40',
+    instagram_widget_code: ''
   })
 
   const login = (e) => {
@@ -1486,12 +1488,23 @@ export default function AdminPage() {
                 </button>
               ))}
             </div>
-            <button 
-              onClick={exportPlayersCSV}
-              className="flex items-center gap-2 bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold transition text-sm"
-            >
-              <Download className="w-4 h-4" /> Exportar CSV
-            </button>
+            
+            {/* Buscador y Exportar */}
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+              <input 
+                type="text" 
+                placeholder="Buscar por nombre o club..." 
+                value={playerSearch}
+                onChange={e => setPlayerSearch(e.target.value)}
+                className="flex-1 md:w-64 bg-gray-dark border border-primary/30 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-primary text-sm" 
+              />
+              <button 
+                onClick={exportPlayersCSV}
+                className="flex items-center justify-center gap-2 bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold transition text-sm"
+              >
+                <Download className="w-4 h-4" /> Exportar CSV
+              </button>
+            </div>
           </div>
 
           <div className="bg-gray-dark rounded-xl border border-primary/20 overflow-hidden">
@@ -1510,7 +1523,11 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {players.filter(p => playerFilter === 'all' || p.tournament === playerFilter).map((player, idx) => (
+                  {players.filter(p => {
+                    const matchesFilter = playerFilter === 'all' || p.tournament === playerFilter
+                    const matchesSearch = p.name.toLowerCase().includes(playerSearch.toLowerCase()) || (p.club && p.club.toLowerCase().includes(playerSearch.toLowerCase()))
+                    return matchesFilter && matchesSearch
+                  }).map((player, idx) => (
                     <tr key={player.id} className={`border-b border-gray-700 ${idx % 2 === 0 ? 'bg-gray-dark' : 'bg-gray-800/50'}`}>
                       <td className="px-4 py-2">
                         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/30">
@@ -2057,6 +2074,13 @@ export default function AdminPage() {
                     <p className="text-xs text-gray-500 mb-2">Un número menor significa mayor velocidad. Recomendado: 30.</p>
                     <input type="number" min="5" placeholder="30" value={settingsForm.matches_carousel_speed} onChange={e => setSettingsForm({...settingsForm, matches_carousel_speed: e.target.value})} className="w-full bg-gray-dark border border-primary/20 rounded px-4 py-2 text-sm text-white" />
                   </div>
+                </div>
+
+                <h4 className="text-lg font-bold text-primary mb-2 mt-6 border-t border-primary/10 pt-4">Integraciones Externas</h4>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Código Widget Instagram (Iframe o Script)</label>
+                  <p className="text-xs text-gray-500 mb-2">Pega aquí el código HTML (iframe/script) que te genere tu proveedor (ej. Elfsight, SnapWidget). Si hay código aquí, la página de Galería mostrará el feed de Instagram en lugar de las fotos subidas localmente.</p>
+                  <textarea placeholder="<script src='...'></script><div class='elfsight-app-xxx'></div>" value={settingsForm.instagram_widget_code} onChange={e => setSettingsForm({...settingsForm, instagram_widget_code: e.target.value})} className="w-full bg-gray-dark border border-primary/20 rounded px-4 py-2 text-sm text-white font-mono h-32" />
                 </div>
 
                 <div>
