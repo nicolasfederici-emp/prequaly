@@ -10,9 +10,14 @@ export const metadata = {
   description: 'Torneo Pre-Qualy oficial M15 ITF World Tennis Tour',
 }
 
+import Script from 'next/script'
+
 export default function RootLayout({ children }) {
   return (
     <html lang="es">
+      <head>
+        <Script src="https://elfsightcdn.com/platform.js" strategy="lazyOnload" />
+      </head>
       <body className={`${inter.className} ${oswald.variable}`}>
         <Navbar />
         <main className="min-h-screen bg-secondary text-white">
