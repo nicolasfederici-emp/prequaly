@@ -1855,62 +1855,64 @@ export default function AdminPage() {
           </div>
 
           {showSponsorForm && (
-            <div className="bg-gray-dark p-6 rounded-xl border border-primary/20 mb-8 max-w-2xl">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-primary">{editingSponsorId ? 'Editar Patrocinador' : 'Nuevo Patrocinador'}</h3>
-                <button onClick={resetSponsorForm} className="text-gray-400 hover:text-white">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-              <form onSubmit={saveSponsor} className="space-y-4">
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Nombre / Empresa</label>
-                    <input required value={sponsorForm.name} onChange={e => setSponsorForm({...sponsorForm, name: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Categoría</label>
-                      <select required value={sponsorForm.category} onChange={e => setSponsorForm({...sponsorForm, category: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white">
-                        <option value="principal">Title Sponsor (Principal)</option>
-                        <option value="oficial">Sponsor Oficial</option>
-                        <option value="colaborador">Colaborador</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Prioridad Visual (0-99)</label>
-                      <input type="number" min="0" value={sponsorForm.priority} onChange={e => setSponsorForm({...sponsorForm, priority: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
-                    </div>
-                  </div>
-                </div>
-                  
-                  {/* Sponsor Storage Upload support */}
-                  <div>
-                    <label className="block text-gray-300 mb-1 text-sm">Logo del Sponsor</label>
-                    <input 
-                      type="file" 
-                      accept="image/*,.heic,.heif"
-                      onChange={e => uploadFile(e, 'logo_url', sponsorForm, setSponsorForm)}
-                      className="w-full bg-secondary border border-primary/20 rounded px-2.5 py-1 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-2 file:py-0.5 file:font-black file:mr-2 file:cursor-pointer"
-                    />
-                    <input placeholder="https://..." value={sponsorForm.logo_url} onChange={e => setSponsorForm({...sponsorForm, logo_url: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-xs mt-2" />
-                  </div>
-                <div>
-                  <label className="block text-gray-300 mb-1 text-sm">Sitio Web o Instagram URL</label>
-                  <input placeholder="https://..." value={sponsorForm.website} onChange={e => setSponsorForm({...sponsorForm, website: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
-                </div>
-                <div>
-                  <label className="block text-gray-300 mb-1 text-sm">Descripción corta</label>
-                  <textarea rows="3" value={sponsorForm.description} onChange={e => setSponsorForm({...sponsorForm, description: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"></textarea>
-                </div>
-                
-                <div className="flex gap-4 pt-2">
-                  <button disabled={loading} type="submit" className="flex-1 bg-primary text-secondary font-bold py-3 rounded-lg hover:bg-yellow-400 transition flex items-center justify-center gap-2">
-                    <Save className="w-5 h-5" /> Guardar Patrocinador
+            <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 overflow-y-auto">
+              <div className="bg-gray-dark p-6 rounded-xl border-2 border-primary/30 max-w-2xl w-full relative shadow-2xl my-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-primary">{editingSponsorId ? 'Editar Patrocinador' : 'Nuevo Patrocinador'}</h3>
+                  <button onClick={resetSponsorForm} className="text-gray-400 hover:text-white">
+                    <X className="w-6 h-6" />
                   </button>
-                  <button type="button" onClick={resetSponsorForm} className="px-6 bg-gray-700 text-white font-bold py-3 rounded-lg hover:bg-gray-600 transition">Cancelar</button>
                 </div>
-              </form>
+                <form onSubmit={saveSponsor} className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Nombre / Empresa</label>
+                      <input required value={sponsorForm.name} onChange={e => setSponsorForm({...sponsorForm, name: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Categoría</label>
+                        <select required value={sponsorForm.category} onChange={e => setSponsorForm({...sponsorForm, category: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white">
+                          <option value="principal">Title Sponsor (Principal)</option>
+                          <option value="oficial">Sponsor Oficial</option>
+                          <option value="colaborador">Colaborador</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-gray-300 mb-1 text-sm font-bold text-primary">Prioridad Visual (0-99)</label>
+                        <input type="number" min="0" value={sponsorForm.priority} onChange={e => setSponsorForm({...sponsorForm, priority: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
+                      </div>
+                    </div>
+                  </div>
+                    
+                    {/* Sponsor Storage Upload support */}
+                    <div>
+                      <label className="block text-gray-300 mb-1 text-sm">Logo del Sponsor</label>
+                      <input 
+                        type="file" 
+                        accept="image/*,.heic,.heif"
+                        onChange={e => uploadFile(e, 'logo_url', sponsorForm, setSponsorForm)}
+                        className="w-full bg-secondary border border-primary/20 rounded px-2.5 py-1 text-xs text-white file:bg-primary file:text-secondary file:border-0 file:rounded file:px-2 file:py-0.5 file:font-black file:mr-2 file:cursor-pointer"
+                      />
+                      <input placeholder="https://..." value={sponsorForm.logo_url} onChange={e => setSponsorForm({...sponsorForm, logo_url: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white text-xs mt-2" />
+                    </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Sitio Web o Instagram URL</label>
+                    <input placeholder="https://..." value={sponsorForm.website} onChange={e => setSponsorForm({...sponsorForm, website: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Descripción corta</label>
+                    <textarea rows="3" value={sponsorForm.description} onChange={e => setSponsorForm({...sponsorForm, description: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white"></textarea>
+                  </div>
+                  
+                  <div className="flex gap-4 pt-2">
+                    <button disabled={loading} type="submit" className="flex-1 bg-primary text-secondary font-bold py-3 rounded-lg hover:bg-yellow-400 transition flex items-center justify-center gap-2">
+                      <Save className="w-5 h-5" /> Guardar Patrocinador
+                    </button>
+                    <button type="button" onClick={resetSponsorForm} className="px-6 bg-gray-700 text-white font-bold py-3 rounded-lg hover:bg-gray-600 transition">Cancelar</button>
+                  </div>
+                </form>
+              </div>
             </div>
           )}
 
@@ -1995,6 +1997,13 @@ export default function AdminPage() {
                     <input type="text" value={settingsForm.theme_text} onChange={e => setSettingsForm({...settingsForm, theme_text: e.target.value})} className="flex-1 bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
                   </div>
                 </div>
+              </div>
+              
+              <div className="flex gap-4 pt-4 pb-4 border-b border-primary/10">
+                <button disabled={loading} type="submit" className="flex-1 bg-primary text-secondary font-bold py-3 rounded-lg hover:bg-yellow-400 transition flex items-center justify-center gap-2">
+                  <Save className="w-5 h-5" /> Guardar Colores y Configuración
+                </button>
+                <button type="button" onClick={() => window.location.reload()} className="px-6 bg-gray-700 text-white font-bold py-3 rounded-lg hover:bg-gray-600 transition">Descartar Cambios</button>
               </div>
             </div>
 
