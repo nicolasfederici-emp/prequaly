@@ -25,13 +25,13 @@
 
 /* TEMA DE TENIS: Cancha de polvo de ladrillo y red */
 body {
-  background-color: #081411;
+  background-color: var(--theme-secondary, #081411);
   /* Patrón de red de tenis con líneas finas del color amarillo óptico */
   background-image: 
     linear-gradient(to right, rgba(208, 253, 62, 0.02) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(208, 253, 62, 0.02) 1px, transparent 1px);
   background-size: 28px 28px;
-  color: #ffffff;
+  color: var(--theme-text, #ffffff);
 }
 
 /* Efecto de doble fleje (línea de cancha) en los bordes de tarjetas */

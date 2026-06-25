@@ -156,7 +156,12 @@ export default function AdminPage() {
     sede_prequaly_desc: '',
     sede_prequaly_mapa: '',
     carousel_speed: '40',
-    instagram_widget_code: ''
+    instagram_widget_code: '',
+    theme_primary: '#D0FD3E',
+    theme_secondary: '#081411',
+    theme_clay: '#C2563C',
+    theme_gray_dark: '#111E1A',
+    theme_text: '#ffffff'
   })
 
   const login = (e) => {
@@ -1948,6 +1953,51 @@ export default function AdminPage() {
 
           <form onSubmit={saveSettings} className="space-y-8 bg-gray-dark p-6 rounded-xl border border-primary/20">
             
+            {/* APARIENCIA Y COLORES */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2 flex justify-between items-center">
+                Apariencia y Colores
+              </h3>
+              
+              <div className="grid md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Color Primario (Acentos)</label>
+                  <div className="flex gap-2">
+                    <input type="color" value={settingsForm.theme_primary} onChange={e => setSettingsForm({...settingsForm, theme_primary: e.target.value})} className="h-10 w-16 bg-secondary border border-primary/20 rounded cursor-pointer" />
+                    <input type="text" value={settingsForm.theme_primary} onChange={e => setSettingsForm({...settingsForm, theme_primary: e.target.value})} className="flex-1 bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Fondo Principal</label>
+                  <div className="flex gap-2">
+                    <input type="color" value={settingsForm.theme_secondary} onChange={e => setSettingsForm({...settingsForm, theme_secondary: e.target.value})} className="h-10 w-16 bg-secondary border border-primary/20 rounded cursor-pointer" />
+                    <input type="text" value={settingsForm.theme_secondary} onChange={e => setSettingsForm({...settingsForm, theme_secondary: e.target.value})} className="flex-1 bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Fondo de Tarjetas</label>
+                  <div className="flex gap-2">
+                    <input type="color" value={settingsForm.theme_gray_dark} onChange={e => setSettingsForm({...settingsForm, theme_gray_dark: e.target.value})} className="h-10 w-16 bg-secondary border border-primary/20 rounded cursor-pointer" />
+                    <input type="text" value={settingsForm.theme_gray_dark} onChange={e => setSettingsForm({...settingsForm, theme_gray_dark: e.target.value})} className="flex-1 bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Color Arcilla (Decorativo)</label>
+                  <div className="flex gap-2">
+                    <input type="color" value={settingsForm.theme_clay} onChange={e => setSettingsForm({...settingsForm, theme_clay: e.target.value})} className="h-10 w-16 bg-secondary border border-primary/20 rounded cursor-pointer" />
+                    <input type="text" value={settingsForm.theme_clay} onChange={e => setSettingsForm({...settingsForm, theme_clay: e.target.value})} className="flex-1 bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-300 mb-1">Color de Texto Principal</label>
+                  <div className="flex gap-2">
+                    <input type="color" value={settingsForm.theme_text} onChange={e => setSettingsForm({...settingsForm, theme_text: e.target.value})} className="h-10 w-16 bg-secondary border border-primary/20 rounded cursor-pointer" />
+                    <input type="text" value={settingsForm.theme_text} onChange={e => setSettingsForm({...settingsForm, theme_text: e.target.value})} className="flex-1 bg-secondary border border-primary/20 rounded px-4 py-2 text-sm text-white" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* INICIO SECTION */}
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-primary border-b border-primary/10 pb-2 flex justify-between items-center">
