@@ -9,7 +9,7 @@ module.exports = {
     extend: {
       colors: {
         primary: '#D0FD3E',      // Amarillo pelota de tenis
-        secondary: '#081411',    // Verde cancha oscuro
+        secondary: '#16322A',    // Verde cancha oscuro (Aún más claro)
         clay: '#C2563C',         // Polvo de ladrillo
         'gray-dark': '#111E1A',  // Fondo de tarjetas oscuro
       },

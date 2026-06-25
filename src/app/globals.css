@@ -25,7 +25,7 @@
 
 /* TEMA DE TENIS: Cancha de polvo de ladrillo y red */
 body {
-  background-color: #081411;
+  background-color: #16322A;
   /* Patrón de red de tenis con líneas finas del color amarillo óptico */
   background-image: 
     linear-gradient(to right, rgba(208, 253, 62, 0.02) 1px, transparent 1px),

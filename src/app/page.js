@@ -183,7 +183,7 @@ export default function Home() {
       {/* HERO SECTION */}
       <div 
         className="relative py-32 overflow-hidden border-b border-primary/10 bg-cover bg-center"
-        style={{ backgroundImage: `linear-gradient(rgba(8, 20, 17, 0.82), rgba(8, 20, 17, 0.88)), url("${settings.home_hero_bg_image || '/tennis_hero_bg.png'}")` }}
+        style={{ backgroundImage: `linear-gradient(rgba(22, 50, 42, 0.82), rgba(22, 50, 42, 0.88)), url("${settings.home_hero_bg_image || '/tennis_hero_bg.png'}")` }}
       >
         {/* Subtle grid background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(208,253,62,0.015)_1px,transparent_1px),linear-gradient(to_bottom,rgba(208,253,62,0.015)_1px,transparent_1px)] bg-[size:3rem_3rem] pointer-events-none"></div>
