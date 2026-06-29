@@ -46,6 +46,7 @@ export const COUNTRIES = [
   { code: 'ro', name: 'Rumania' },
   { code: 'bg', name: 'Bulgaria' },
   { code: 'gr', name: 'Grecia' },
+  { code: 'hu', name: 'Hungría' },
   { code: 'tr', name: 'Turquía' },
   { code: 'au', name: 'Australia' },
   { code: 'nz', name: 'Nueva Zelanda' },
