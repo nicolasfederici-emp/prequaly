@@ -10,7 +10,7 @@ const CONN_W = 28    // connector column width
 const COL_MIN_W = 180 // minimum column width
 
 // ── Match Card (compact, fixed-height) ──
-function MatchCard({ match, onClick, hoveredPlayerId, setHoveredPlayerId }) {
+function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlayerId }) {
   const done = match.status === 'completed'
   const isP1Hovered = hoveredPlayerId && match.player1_id && match.player1_id === hoveredPlayerId
   const isP2Hovered = hoveredPlayerId && match.player2_id && match.player2_id === hoveredPlayerId
@@ -37,11 +37,20 @@ function MatchCard({ match, onClick, hoveredPlayerId, setHoveredPlayerId }) {
         <div className="flex items-center gap-1.5 min-w-0">
           {match.player1?.photo_url
             ? <img src={match.player1.photo_url} alt="" className="w-4 h-4 rounded-full object-cover shrink-0" />
-            : <User className={`w-3.5 h-3.5 shrink-0 ${isP1Hovered ? 'text-white' : 'text-primary/40'}`} />
+            : ['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) && match.player1?.nationality
+              ? <img src={`https://flagcdn.com/24x18/${match.player1.nationality.toLowerCase()}.png`} alt={match.player1.nationality} className="w-4 h-3 rounded-[2px] object-cover shrink-0 border border-gray-600" title={match.player1.nationality} />
+              : <User className={`w-3.5 h-3.5 shrink-0 ${isP1Hovered ? 'text-white' : 'text-primary/40'}`} />
           }
-          <span className="truncate text-[11px] max-w-[105px]">
-            {match.player1?.name || 'A confirmar'}
-          </span>
+          <div className="flex flex-col truncate">
+            <span className="truncate text-[11px] leading-tight max-w-[105px]">
+              {match.player1?.name || 'A confirmar'}
+            </span>
+            {['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) ? (
+              <span className="text-[8px] text-gray-500 uppercase leading-none">
+                {match.player1?.nationality || ''} {match.player1?.atp_rank ? `ATP:${match.player1.atp_rank}` : ''} {match.player1?.itf_rank ? `ITF:${match.player1.itf_rank}` : ''}
+              </span>
+            ) : null}
+          </div>
         </div>
         <span className="font-score text-[12px] tracking-wider font-bold ml-1 shrink-0">
           {done && match.score1 ? match.score1 : ''}
@@ -59,11 +68,20 @@ function MatchCard({ match, onClick, hoveredPlayerId, setHoveredPlayerId }) {
         <div className="flex items-center gap-1.5 min-w-0">
           {match.player2?.photo_url
             ? <img src={match.player2.photo_url} alt="" className="w-4 h-4 rounded-full object-cover shrink-0" />
-            : <User className={`w-3.5 h-3.5 shrink-0 ${isP2Hovered ? 'text-white' : 'text-primary/40'}`} />
+            : ['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) && match.player2?.nationality
+              ? <img src={`https://flagcdn.com/24x18/${match.player2.nationality.toLowerCase()}.png`} alt={match.player2.nationality} className="w-4 h-3 rounded-[2px] object-cover shrink-0 border border-gray-600" title={match.player2.nationality} />
+              : <User className={`w-3.5 h-3.5 shrink-0 ${isP2Hovered ? 'text-white' : 'text-primary/40'}`} />
           }
-          <span className="truncate text-[11px] max-w-[105px]">
-            {match.player2?.name || 'A confirmar'}
-          </span>
+          <div className="flex flex-col truncate">
+            <span className="truncate text-[11px] leading-tight max-w-[105px]">
+              {match.player2?.name || 'A confirmar'}
+            </span>
+            {['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) ? (
+              <span className="text-[8px] text-gray-500 uppercase leading-none">
+                {match.player2?.nationality || ''} {match.player2?.atp_rank ? `ATP:${match.player2.atp_rank}` : ''} {match.player2?.itf_rank ? `ITF:${match.player2.itf_rank}` : ''}
+              </span>
+            ) : null}
+          </div>
         </div>
         <span className="font-score text-[12px] tracking-wider font-bold ml-1 shrink-0">
           {done && match.score2 ? match.score2 : ''}
@@ -192,6 +210,7 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
                     <div className="flex-1 min-w-0" style={{ height: MATCH_H }}>
                       <MatchCard 
                         match={match} 
+                        tournament={tournament}
                         onClick={onMatchClick} 
                         hoveredPlayerId={hoveredPlayerId}
                         setHoveredPlayerId={setHoveredPlayerId}
@@ -254,8 +273,8 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
   )
 
   const SPLIT_H = (firstRoundCount / 2) * SLOT_BASE
-  // Offset to ensure the Final match (which is centered exactly at SPLIT_H) falls completely on Page 1
-  const PRINT_OFFSET = 30
+  // We no longer manually split into two pages because strict pixel clipping cuts matches in half.
+  // Instead, we use a single page layout that natively scales to fit the printed page.
 
   return (
     <>
@@ -265,35 +284,16 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
         {renderBody()}
       </div>
 
-      {/* --- PRINT VIEW (Split across 2 pages) --- */}
+      {/* --- PRINT VIEW --- */}
       <div className="hidden print:block w-full" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
-        {/* Page 1: Top Half */}
-        <div style={{ pageBreakAfter: 'always', paddingBottom: '20px' }}>
-          <h3 className="text-black font-bold mb-4 text-center border-b pb-2 uppercase tracking-widest">
-            {tournament.replace('_', ' ')} - Mitad Superior
+        {/* Single page for all brackets. Browser automatically scales 'max-content' to fit the page width */}
+        <div className="w-full">
+          <h3 className="text-black font-bold mb-6 text-center border-b pb-2 uppercase tracking-widest text-xl">
+            {tournament.replace('_', ' ')} - CUADRO COMPLETO
           </h3>
-          <div className="scale-[0.95] origin-top-left">
+          <div className="origin-top-left w-[max-content]">
             {renderHeaders()}
-            <div style={{ height: SPLIT_H + PRINT_OFFSET, overflow: 'hidden', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, width: '100%' }}>
-                {renderBody()}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Page 2: Bottom Half */}
-        <div style={{ paddingTop: '20px' }}>
-          <h3 className="text-black font-bold mb-4 text-center border-b pb-2 uppercase tracking-widest mt-4">
-            {tournament.replace('_', ' ')} - Mitad Inferior
-          </h3>
-          <div className="scale-[0.95] origin-top-left">
-            {renderHeaders()}
-            <div style={{ height: SPLIT_H - PRINT_OFFSET, overflow: 'hidden', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: -(SPLIT_H + PRINT_OFFSET), left: 0, width: '100%' }}>
-                {renderBody()}
-              </div>
-            </div>
+            {renderBody()}
           </div>
         </div>
       </div>
@@ -330,6 +330,7 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
                     <div key={match.id} style={{ height: 52 }}>
                       <MatchCard 
                         match={match} 
+                        tournament={tournament}
                         onClick={onMatchClick}
                         hoveredPlayerId={hoveredPlayerId}
                         setHoveredPlayerId={setHoveredPlayerId}

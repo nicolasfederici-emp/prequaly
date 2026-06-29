@@ -59,7 +59,7 @@ export default function AdminPage() {
   const [playerSearch, setPlayerSearch] = useState('')
   const [editingPlayerId, setEditingPlayerId] = useState(null)
   const [showPlayerForm, setShowPlayerForm] = useState(false)
-  const [playerForm, setPlayerForm] = useState({ name: '', age: '', hand: 'right', club: '', paid: false, photo_url: '', tournament: 'prequaly' })
+  const [playerForm, setPlayerForm] = useState({ name: '', age: '', hand: 'right', club: '', nationality: '', atp_rank: '', itf_rank: '', paid: false, photo_url: '', tournament: 'prequaly' })
 
   // Auto-Draw State
   const [showSeedModal, setShowSeedModal] = useState(false)
@@ -246,6 +246,9 @@ export default function AdminPage() {
       age: parseInt(playerForm.age) || 0,
       hand: playerForm.hand,
       club: playerForm.club,
+      nationality: playerForm.nationality,
+      atp_rank: parseInt(playerForm.atp_rank) || null,
+      itf_rank: parseInt(playerForm.itf_rank) || null,
       paid: playerForm.paid,
       photo_url: playerForm.photo_url,
       tournament: playerForm.tournament
@@ -276,6 +279,9 @@ export default function AdminPage() {
       age: player.age.toString(),
       hand: player.hand,
       club: player.club || '',
+      nationality: player.nationality || '',
+      atp_rank: player.atp_rank ? player.atp_rank.toString() : '',
+      itf_rank: player.itf_rank ? player.itf_rank.toString() : '',
       paid: player.paid,
       photo_url: player.photo_url || '',
       tournament: player.tournament || 'prequaly'
@@ -297,7 +303,7 @@ export default function AdminPage() {
   }
 
   const resetPlayerForm = () => {
-    setPlayerForm({ name: '', age: '', hand: 'right', club: '', paid: false, photo_url: '', tournament: 'prequaly' })
+    setPlayerForm({ name: '', age: '', hand: 'right', club: '', nationality: '', atp_rank: '', itf_rank: '', paid: false, photo_url: '', tournament: 'prequaly' })
     setEditingPlayerId(null)
     setShowPlayerForm(false)
   }
@@ -1388,13 +1394,14 @@ export default function AdminPage() {
           )}
 
           {showPlayerForm && (
-            <div className="bg-gray-dark p-6 rounded-xl border border-primary/20 mb-8 max-w-2xl">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold text-primary">{editingPlayerId ? 'Editar Jugador' : 'Nuevo Jugador'}</h3>
-                <button onClick={resetPlayerForm} className="text-gray-400 hover:text-white">
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+            <div className="fixed inset-0 bg-black/85 flex items-center justify-center p-4 z-50 overflow-y-auto">
+              <div className="bg-gray-dark p-6 rounded-xl border-2 border-primary/30 max-w-2xl w-full relative shadow-2xl my-8">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-xl font-bold text-primary">{editingPlayerId ? 'Editar Jugador' : 'Nuevo Jugador'}</h3>
+                  <button onClick={resetPlayerForm} className="absolute right-4 top-4 text-gray-400 hover:text-white transition">
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
               <form onSubmit={savePlayer} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1424,9 +1431,26 @@ export default function AdminPage() {
                     </select>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-gray-300 mb-1 text-sm">Club / Procedencia</label>
-                  <input value={playerForm.club} onChange={e => setPlayerForm({...playerForm, club: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Club / Procedencia (Para PreQualy)</label>
+                    <input value={playerForm.club} onChange={e => setPlayerForm({...playerForm, club: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" placeholder="Ej: Náutico Hacoaj" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Nacionalidad (Para ITF, ej: ar, br, us)</label>
+                    <input value={playerForm.nationality} onChange={e => setPlayerForm({...playerForm, nationality: e.target.value.toLowerCase()})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" placeholder="Código ISO de 2 letras: ar" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Ranking ATP (Opcional)</label>
+                    <input type="number" value={playerForm.atp_rank} onChange={e => setPlayerForm({...playerForm, atp_rank: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" placeholder="Ej: 343" />
+                  </div>
+                  <div>
+                    <label className="block text-gray-300 mb-1 text-sm">Ranking ITF (Opcional)</label>
+                    <input type="number" value={playerForm.itf_rank} onChange={e => setPlayerForm({...playerForm, itf_rank: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" placeholder="Ej: 908" />
+                  </div>
                 </div>
                 
                 {/* Photo Selector with Storage Upload option */}
@@ -1474,7 +1498,8 @@ export default function AdminPage() {
                 </div>
               </form>
             </div>
-          )}
+          </div>
+        )}
 
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
             <div className="flex flex-wrap gap-2 bg-secondary/80 p-1.5 rounded-xl border border-primary/20">
@@ -1517,8 +1542,8 @@ export default function AdminPage() {
                     <th className="px-4 py-3 text-primary font-bold">Torneo</th>
                     <th className="px-4 py-3 text-primary font-bold">Edad</th>
                     <th className="px-4 py-3 text-primary font-bold">Mano</th>
-                    <th className="px-4 py-3 text-primary font-bold">Club</th>
-                    <th className="px-4 py-3 text-primary font-bold">Pago</th>
+                    <th className="px-4 py-3 text-primary font-bold">Nacionalidad</th>
+                    <th className="px-4 py-3 text-primary font-bold">Ranking ATP/ITF</th>
                     <th className="px-4 py-3 text-center text-primary font-bold">Acciones</th>
                   </tr>
                 </thead>
@@ -1538,11 +1563,18 @@ export default function AdminPage() {
                       <td className="px-4 py-3 font-semibold text-primary uppercase text-xs">{player.tournament === 'prequaly' ? 'PreQualy' : player.tournament === 'qualy' ? 'Qualy' : player.tournament === 'm15_singles' ? 'M15 Singles' : 'M15 Dobles'}</td>
                       <td className="px-4 py-3 text-gray-300">{player.age}</td>
                       <td className="px-4 py-3 text-gray-300">{player.hand === 'right' ? 'Derecha' : 'Izquierda'}</td>
-                      <td className="px-4 py-3 text-gray-300">{player.club || '-'}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-1 rounded text-xs font-bold ${player.paid ? 'bg-green-900/50 text-green-400 border border-green-700' : 'bg-red-900/50 text-red-400 border border-red-700'}`}>
-                          {player.paid ? 'PAGADO' : 'PENDIENTE'}
-                        </span>
+                      <td className="px-4 py-3 text-gray-300">
+                        {player.nationality ? (
+                          <div className="flex items-center gap-2">
+                            <img src={`https://flagcdn.com/24x18/${player.nationality.toLowerCase()}.png`} alt={player.nationality} className="w-4 h-3 rounded-[2px] object-cover border border-gray-600" />
+                            <span className="uppercase text-xs font-bold">{player.nationality}</span>
+                          </div>
+                        ) : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-gray-300 text-xs">
+                        {player.atp_rank ? <span className="mr-2">ATP: <strong className="text-white">{player.atp_rank}</strong></span> : null}
+                        {player.itf_rank ? <span>ITF: <strong className="text-white">{player.itf_rank}</strong></span> : null}
+                        {!player.atp_rank && !player.itf_rank && '-'}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-center gap-2">

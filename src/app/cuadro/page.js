@@ -31,8 +31,8 @@ function CuadroContent() {
       .from('matches')
       .select(`
         *,
-        player1:player1_id (id, name, club, photo_url),
-        player2:player2_id (id, name, club, photo_url)
+        player1:player1_id (id, name, club, photo_url, nationality, atp_rank, itf_rank),
+        player2:player2_id (id, name, club, photo_url, nationality, atp_rank, itf_rank)
       `)
       .eq('tournament', tournament)
       .order('match_number', { ascending: true })
