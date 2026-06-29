@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react'
 import { User, ChevronDown, ChevronRight, Trophy } from 'lucide-react'
+import { COUNTRIES } from '@/utils/countries'
 
 // ── Bracket Layout Constants ──
 const MATCH_H = 44   // match card fixed height (px)
@@ -34,20 +35,20 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
           done && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
         }`}
       >
-        <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           {match.player1?.photo_url
-            ? <img src={match.player1.photo_url} alt="" className="w-4 h-4 rounded-full object-cover shrink-0" />
+            ? <img src={match.player1.photo_url} alt="" className="w-5 h-5 rounded-full object-cover shrink-0" />
             : ['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) && match.player1?.nationality
-              ? <img src={`https://flagcdn.com/24x18/${match.player1.nationality.toLowerCase()}.png`} alt={match.player1.nationality} className="w-4 h-3 rounded-[2px] object-cover shrink-0 border border-gray-600" title={match.player1.nationality} />
-              : <User className={`w-3.5 h-3.5 shrink-0 ${isP1Hovered ? 'text-white' : 'text-primary/40'}`} />
+              ? <img src={`https://flagcdn.com/32x24/${match.player1.nationality.toLowerCase()}.png`} alt={match.player1.nationality} className="w-5 h-3.5 rounded-[2px] object-cover shrink-0 border border-gray-600" title={match.player1.nationality} />
+              : <User className={`w-4 h-4 shrink-0 ${isP1Hovered ? 'text-white' : 'text-primary/40'}`} />
           }
           <div className="flex flex-col truncate">
             <span className="truncate text-[11px] leading-tight max-w-[105px]">
               {match.player1?.name || 'A confirmar'}
             </span>
             {['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) ? (
-              <span className="text-[8px] text-gray-500 uppercase leading-none">
-                {match.player1?.nationality || ''} {match.player1?.atp_rank ? `ATP:${match.player1.atp_rank}` : ''} {match.player1?.itf_rank ? `ITF:${match.player1.itf_rank}` : ''}
+              <span className="text-[9px] text-gray-400 leading-tight truncate max-w-[105px]">
+                {COUNTRIES.find(c => c.code === match.player1?.nationality)?.name || match.player1?.nationality || ''} {match.player1?.atp_rank ? <span className="text-gray-500 font-medium ml-0.5">ATP:{match.player1.atp_rank}</span> : ''} {match.player1?.itf_rank ? <span className="text-gray-500 font-medium ml-0.5">ITF:{match.player1.itf_rank}</span> : ''}
               </span>
             ) : null}
           </div>
@@ -65,20 +66,20 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
           done && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
         }`}
       >
-        <div className="flex items-center gap-1.5 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           {match.player2?.photo_url
-            ? <img src={match.player2.photo_url} alt="" className="w-4 h-4 rounded-full object-cover shrink-0" />
+            ? <img src={match.player2.photo_url} alt="" className="w-5 h-5 rounded-full object-cover shrink-0" />
             : ['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) && match.player2?.nationality
-              ? <img src={`https://flagcdn.com/24x18/${match.player2.nationality.toLowerCase()}.png`} alt={match.player2.nationality} className="w-4 h-3 rounded-[2px] object-cover shrink-0 border border-gray-600" title={match.player2.nationality} />
-              : <User className={`w-3.5 h-3.5 shrink-0 ${isP2Hovered ? 'text-white' : 'text-primary/40'}`} />
+              ? <img src={`https://flagcdn.com/32x24/${match.player2.nationality.toLowerCase()}.png`} alt={match.player2.nationality} className="w-5 h-3.5 rounded-[2px] object-cover shrink-0 border border-gray-600" title={match.player2.nationality} />
+              : <User className={`w-4 h-4 shrink-0 ${isP2Hovered ? 'text-white' : 'text-primary/40'}`} />
           }
           <div className="flex flex-col truncate">
             <span className="truncate text-[11px] leading-tight max-w-[105px]">
               {match.player2?.name || 'A confirmar'}
             </span>
             {['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) ? (
-              <span className="text-[8px] text-gray-500 uppercase leading-none">
-                {match.player2?.nationality || ''} {match.player2?.atp_rank ? `ATP:${match.player2.atp_rank}` : ''} {match.player2?.itf_rank ? `ITF:${match.player2.itf_rank}` : ''}
+              <span className="text-[9px] text-gray-400 leading-tight truncate max-w-[105px]">
+                {COUNTRIES.find(c => c.code === match.player2?.nationality)?.name || match.player2?.nationality || ''} {match.player2?.atp_rank ? <span className="text-gray-500 font-medium ml-0.5">ATP:{match.player2.atp_rank}</span> : ''} {match.player2?.itf_rank ? <span className="text-gray-500 font-medium ml-0.5">ITF:{match.player2.itf_rank}</span> : ''}
               </span>
             ) : null}
           </div>
