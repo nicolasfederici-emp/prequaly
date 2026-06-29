@@ -6,6 +6,7 @@ import {
   CheckCircle, RefreshCw, Upload, Calendar, Star, Settings, Camera, LayoutGrid, Clock, Download
 } from 'lucide-react'
 import Bracket from '@/components/Bracket'
+import { COUNTRIES } from '@/utils/countries'
 
 const getMaxRound = (tournament) => {
   if (tournament === 'prequaly') return 6
@@ -1437,8 +1438,23 @@ export default function AdminPage() {
                     <input value={playerForm.club} onChange={e => setPlayerForm({...playerForm, club: e.target.value})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" placeholder="Ej: Náutico Hacoaj" />
                   </div>
                   <div>
-                    <label className="block text-gray-300 mb-1 text-sm">Nacionalidad (Para ITF, ej: ar, br, us)</label>
-                    <input value={playerForm.nationality} onChange={e => setPlayerForm({...playerForm, nationality: e.target.value.toLowerCase()})} className="w-full bg-secondary border border-primary/30 rounded-lg px-4 py-2 text-white" placeholder="Código ISO de 2 letras: ar" />
+                    <label className="block text-gray-300 mb-1 text-sm">Nacionalidad (Para ITF)</label>
+                    <div className="relative">
+                      <select 
+                        value={playerForm.nationality} 
+                        onChange={e => setPlayerForm({...playerForm, nationality: e.target.value})} 
+                        className="w-full bg-secondary border border-primary/30 rounded-lg pl-10 pr-4 py-2 text-white appearance-none"
+                      >
+                        {COUNTRIES.map(c => (
+                          <option key={c.code} value={c.code}>{c.name}</option>
+                        ))}
+                      </select>
+                      {playerForm.nationality && (
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                          <img src={`https://flagcdn.com/24x18/${playerForm.nationality}.png`} alt="" className="w-4 h-3 rounded-sm object-cover border border-gray-600" />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
