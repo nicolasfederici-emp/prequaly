@@ -4,8 +4,8 @@ import { COUNTRIES } from '@/utils/countries'
 
 // ── Bracket Layout Constants ──
 const MATCH_H = 44   // match card fixed height (px)
-const GAP = 6        // vertical gap between base slots
-const SLOT_BASE = MATCH_H + GAP  // 50px per slot in the densest round
+const GAP = 26       // vertical gap between base slots (aumentado para mayor separación)
+const SLOT_BASE = MATCH_H + GAP  // 70px per slot in the densest round
 const HEADER_H = 28  // round header height
 const CONN_W = 28    // connector column width
 const COL_MIN_W = 180 // minimum column width
