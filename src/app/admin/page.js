@@ -312,7 +312,7 @@ export default function AdminPage() {
   const exportPlayersCSV = () => {
     if (players.length === 0) return setMsg('No hay jugadores para exportar')
     
-    const headers = ['Nombre', 'Torneo', 'Edad', 'Mano', 'Club', 'Pagado', 'Fecha de Registro']
+    const headers = ['Nombre', 'Torneo', 'Edad', 'Mano', 'Nacionalidad', 'Ranking ATP', 'Ranking ITF', 'Club', 'Pagado', 'Fecha de Registro']
     const csvContent = '\uFEFF' + [
       headers.join(';'),
       ...players.map(p => [
@@ -320,6 +320,9 @@ export default function AdminPage() {
         `"${p.tournament}"`,
         p.age,
         `"${p.hand}"`,
+        `"${p.nationality ? (COUNTRIES.find(c => c.code === p.nationality)?.name || p.nationality) : ''}"`,
+        p.atp_rank || '',
+        p.itf_rank || '',
         `"${p.club || ''}"`,
         p.paid ? 'SI' : 'NO',
         `"${new Date(p.created_at).toLocaleDateString()}"`
