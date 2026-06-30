@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 import { Search, User, Trophy, RefreshCw } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { COUNTRIES } from '@/utils/countries'
 
 export default function JugadoresPage() {
   const [players, setPlayers] = useState([])
@@ -61,7 +62,7 @@ export default function JugadoresPage() {
   })
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
+    <div className="container mx-auto px-4 py-8">
       {/* Title */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 border-b border-primary/10 pb-6">
         <div>
@@ -132,11 +133,12 @@ export default function JugadoresPage() {
               <thead>
                 <tr className="bg-gray-900 border-b border-primary/20">
                   <th className="px-6 py-4 text-primary font-bold text-xs w-12 text-center uppercase tracking-wider">#</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider">Nombre</th>
+                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Nombre</th>
                   <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider">Torneo</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider">Club / Procedencia</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider">Mano</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider">Edad</th>
+                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Nacionalidad</th>
+                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Ranking ATP/ITF</th>
+                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Mano</th>
+                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Edad</th>
                 </tr>
               </thead>
               <tbody>
@@ -147,7 +149,7 @@ export default function JugadoresPage() {
                     className="border-b border-secondary/40 hover:bg-primary/5 transition cursor-pointer group"
                   >
                     <td className="px-6 py-4 text-gray-500 font-mono text-center font-bold text-sm">{idx + 1}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/10 flex-shrink-0">
                           {player.photo_url ? (
@@ -159,16 +161,28 @@ export default function JugadoresPage() {
                         <span className="font-bold text-white group-hover:text-primary transition">{player.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getTournamentColorClass(player.tournament)}`}>
                         {getTournamentLabel(player.tournament)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-300 font-medium text-sm">{player.club || '-'}</td>
-                    <td className="px-6 py-4 text-gray-400 text-sm">
+                    <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
+                      {player.nationality ? (
+                        <div className="flex items-center gap-2">
+                          <img src={`https://flagcdn.com/24x18/${player.nationality.toLowerCase()}.png`} alt={player.nationality} className="w-4 h-3 rounded-[2px] object-cover border border-gray-600" />
+                          <span className="uppercase text-xs font-bold">{COUNTRIES.find(c => c.code === player.nationality)?.name || player.nationality}</span>
+                        </div>
+                      ) : '-'}
+                    </td>
+                    <td className="px-6 py-4 text-gray-300 text-xs whitespace-nowrap">
+                      {player.atp_rank ? <span className="mr-2">ATP: <strong className="text-white">{player.atp_rank}</strong></span> : null}
+                      {player.itf_rank ? <span>ITF: <strong className="text-white">{player.itf_rank}</strong></span> : null}
+                      {!player.atp_rank && !player.itf_rank && '-'}
+                    </td>
+                    <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">
                       {player.hand === 'right' ? 'Derecha' : 'Izquierda'}
                     </td>
-                    <td className="px-6 py-4 text-gray-400 text-sm">{player.age} años</td>
+                    <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">{player.age} años</td>
                   </tr>
                 ))}
               </tbody>

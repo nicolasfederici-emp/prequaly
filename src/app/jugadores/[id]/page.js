@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { User, Trophy, Calendar, CheckCircle2, XCircle, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
+import { COUNTRIES } from '@/utils/countries'
 
 export default function FichaJugadorPage() {
   const params = useParams()
@@ -109,6 +110,26 @@ export default function FichaJugadorPage() {
 
           <div className="flex-1 text-center md:text-left mt-6 md:mt-0">
             <h1 className="text-4xl font-bold text-primary mb-2">{player.name}</h1>
+            
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-4">
+              {player.nationality && (
+                <div className="flex items-center gap-2 bg-gray-800 px-3 py-1.5 rounded-lg border border-gray-700">
+                  <img src={`https://flagcdn.com/24x18/${player.nationality.toLowerCase()}.png`} alt={player.nationality} className="w-5 h-3.5 rounded-[2px] object-cover" />
+                  <span className="uppercase text-xs font-bold text-gray-300">{COUNTRIES.find(c => c.code === player.nationality)?.name || player.nationality}</span>
+                </div>
+              )}
+              {player.atp_rank && (
+                <div className="bg-blue-900/40 text-blue-400 border border-blue-700/40 px-3 py-1.5 rounded-lg text-xs font-bold">
+                  ATP: {player.atp_rank}
+                </div>
+              )}
+              {player.itf_rank && (
+                <div className="bg-purple-900/40 text-purple-400 border border-purple-700/40 px-3 py-1.5 rounded-lg text-xs font-bold">
+                  ITF: {player.itf_rank}
+                </div>
+              )}
+            </div>
+
             <p className="text-xl text-gray-300 mb-4">{player.club || 'Club no especificado'}</p>
             
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm text-gray-400 mb-6">
