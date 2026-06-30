@@ -278,11 +278,12 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
   const bracketHeight = firstRoundCount * SLOT_BASE + HEADER_H
   
   // A4 Landscape printable area (approximate pixels at 96dpi with 5mm margins)
-  const A4_WIDTH = 1080
-  const A4_HEIGHT = 720 // leave room for title
+  // We use conservative values to absolutely guarantee it fits on 1 page
+  const AVAILABLE_WIDTH = 1040
+  const AVAILABLE_HEIGHT = 660 // Leave plenty of room for title and browser headers
   
-  const scaleW = A4_WIDTH / bracketWidth
-  const scaleH = A4_HEIGHT / bracketHeight
+  const scaleW = AVAILABLE_WIDTH / bracketWidth
+  const scaleH = AVAILABLE_HEIGHT / bracketHeight
   const printScale = Math.min(scaleW, scaleH, 1.4) // Cap scale to prevent massive sizes
 
   return (
@@ -294,24 +295,26 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
       </div>
 
       {/* --- PRINT VIEW --- */}
-      <div className="hidden print:flex w-full flex-col items-center" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
+      <div className="hidden print:flex absolute left-0 top-0 bg-white z-[99999] w-full h-full flex-col items-center justify-center m-0 p-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
         <style type="text/css" media="print">
           {`
-            @page { size: landscape; margin: 10mm; }
-            body { margin: 0; background: white; }
+            @page { size: landscape; margin: 5mm; }
+            html, body { height: 100vh; overflow: hidden; margin: 0; padding: 0; background: white; }
+            * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            
+            /* Hide nextjs wrappers that might add height */
+            #__next { height: 100vh; overflow: hidden; }
           `}
         </style>
-        <div className="w-full max-w-[1080px] mx-auto flex flex-col items-center">
-          <h3 className="text-black font-bold mb-4 text-center border-b border-black pb-2 uppercase tracking-widest text-2xl w-full">
+        <div className="w-full flex flex-col items-center justify-center">
+          <h3 className="text-black font-bold mb-4 text-center border-b border-black pb-2 uppercase tracking-widest text-2xl w-[90%]">
             {tournament.replace('_', ' ')} - CUADRO COMPLETO
           </h3>
           <div 
-            className="relative mx-auto flex justify-center" 
+            className="relative flex justify-center" 
             style={{ 
               width: bracketWidth * printScale, 
-              height: bracketHeight * printScale,
-              pageBreakInside: 'avoid',
-              breakInside: 'avoid'
+              height: bracketHeight * printScale
             }}
           >
             <div 
