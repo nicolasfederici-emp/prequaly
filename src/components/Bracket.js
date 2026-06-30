@@ -30,7 +30,7 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
       <div 
         onMouseEnter={() => match.player1_id && setHoveredPlayerId(match.player1_id)}
         onMouseLeave={() => setHoveredPlayerId(null)}
-        className={`flex-1 flex justify-between items-center px-2.5 border-b border-secondary/30 transition-colors print:!bg-transparent print:!text-black print:!border-black ${
+        className={`flex-1 flex justify-between items-center px-2.5 border-b border-secondary/30 transition-colors print:!bg-transparent print:!text-black print:!border-transparent ${
           isP1Hovered ? 'bg-primary/20 text-white font-bold' :
           done && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
         }`}
@@ -311,18 +311,19 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
             {tournament.replace('_', ' ')} - CUADRO COMPLETO
           </h3>
           <div 
-            className="relative flex justify-center" 
+            className="flex justify-center" 
             style={{ 
-              width: bracketWidth * printScale, 
-              height: bracketHeight * printScale
+              width: '100%', 
+              display: 'flex',
+              justifyContent: 'center'
             }}
           >
             <div 
-              className="origin-top-left absolute left-0 top-0" 
               style={{ 
-                transform: `scale(${printScale})`, 
-                width: bracketWidth, 
-                height: bracketHeight 
+                zoom: printScale,
+                pageBreakInside: 'avoid',
+                breakInside: 'avoid',
+                transformOrigin: 'top center'
               }}
             >
               {renderHeaders()}
