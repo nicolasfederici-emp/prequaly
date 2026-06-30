@@ -21,7 +21,7 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
   return (
     <div
       onClick={() => onClick && onClick(match)}
-      className={`bg-gray-dark border rounded-lg overflow-hidden cursor-pointer transition-all duration-300 h-full flex flex-col ${
+      className={`bg-gray-dark border rounded-lg overflow-hidden cursor-pointer transition-all duration-300 h-full flex flex-col print:!border-none print:!bg-transparent print:!shadow-none ${
         isMatchHovered ? 'border-primary ring-2 ring-primary/50 z-10 relative scale-105' : 
         isDimmed ? 'border-primary/5 opacity-40 grayscale' : 'border-primary/10 hover:border-primary/50'
       }`}
@@ -30,7 +30,7 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
       <div 
         onMouseEnter={() => match.player1_id && setHoveredPlayerId(match.player1_id)}
         onMouseLeave={() => setHoveredPlayerId(null)}
-        className={`flex-1 flex justify-between items-center px-2.5 border-b border-secondary/30 transition-colors ${
+        className={`flex-1 flex justify-between items-center px-2.5 border-b border-secondary/30 transition-colors print:!bg-transparent print:!text-black print:!border-black ${
           isP1Hovered ? 'bg-primary/20 text-white font-bold' :
           done && match.winner_id === match.player1_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
         }`}
@@ -47,8 +47,8 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
               {match.player1?.name || 'A confirmar'}
             </span>
             {['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) ? (
-              <span className="text-[9px] text-gray-400 leading-tight truncate max-w-[105px]">
-                {COUNTRIES.find(c => c.code === match.player1?.nationality)?.name || match.player1?.nationality || ''} {match.player1?.atp_rank ? <span className="text-gray-500 font-medium ml-0.5">ATP:{match.player1.atp_rank}</span> : ''} {match.player1?.itf_rank ? <span className="text-gray-500 font-medium ml-0.5">ITF:{match.player1.itf_rank}</span> : ''}
+              <span className="text-[9px] text-gray-400 print:!text-gray-600 leading-tight truncate max-w-[105px]">
+                {COUNTRIES.find(c => c.code === match.player1?.nationality)?.name || match.player1?.nationality || ''} {match.player1?.atp_rank ? <span className="text-gray-500 print:!text-gray-600 font-medium ml-0.5">ATP:{match.player1.atp_rank}</span> : ''} {match.player1?.itf_rank ? <span className="text-gray-500 print:!text-gray-600 font-medium ml-0.5">ITF:{match.player1.itf_rank}</span> : ''}
               </span>
             ) : null}
           </div>
@@ -61,7 +61,7 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
       <div 
         onMouseEnter={() => match.player2_id && setHoveredPlayerId(match.player2_id)}
         onMouseLeave={() => setHoveredPlayerId(null)}
-        className={`flex-1 flex justify-between items-center px-2.5 transition-colors ${
+        className={`flex-1 flex justify-between items-center px-2.5 transition-colors print:!bg-transparent print:!text-black ${
           isP2Hovered ? 'bg-primary/20 text-white font-bold' :
           done && match.winner_id === match.player2_id ? 'bg-primary/5 text-primary font-bold' : 'text-gray-300'
         }`}
@@ -78,8 +78,8 @@ function MatchCard({ match, tournament, onClick, hoveredPlayerId, setHoveredPlay
               {match.player2?.name || 'A confirmar'}
             </span>
             {['qualy', 'm15_singles', 'm15_doubles'].includes(tournament) ? (
-              <span className="text-[9px] text-gray-400 leading-tight truncate max-w-[105px]">
-                {COUNTRIES.find(c => c.code === match.player2?.nationality)?.name || match.player2?.nationality || ''} {match.player2?.atp_rank ? <span className="text-gray-500 font-medium ml-0.5">ATP:{match.player2.atp_rank}</span> : ''} {match.player2?.itf_rank ? <span className="text-gray-500 font-medium ml-0.5">ITF:{match.player2.itf_rank}</span> : ''}
+              <span className="text-[9px] text-gray-400 print:!text-gray-600 leading-tight truncate max-w-[105px]">
+                {COUNTRIES.find(c => c.code === match.player2?.nationality)?.name || match.player2?.nationality || ''} {match.player2?.atp_rank ? <span className="text-gray-500 print:!text-gray-600 font-medium ml-0.5">ATP:{match.player2.atp_rank}</span> : ''} {match.player2?.itf_rank ? <span className="text-gray-500 print:!text-gray-600 font-medium ml-0.5">ITF:{match.player2.itf_rank}</span> : ''}
               </span>
             ) : null}
           </div>
@@ -277,10 +277,10 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
   const bracketWidth = rounds.length * COL_MIN_W + (rounds.length - 1) * CONN_W
   const bracketHeight = firstRoundCount * SLOT_BASE + HEADER_H
   
-  // A4 Landscape printable area (approximate pixels at 96dpi with 5mm margins)
-  // We use conservative values to absolutely guarantee it fits on 1 page
-  const AVAILABLE_WIDTH = 1040
-  const AVAILABLE_HEIGHT = 660 // Leave plenty of room for title and browser headers
+  // A4 Portrait printable area (approximate pixels at 96dpi with 5mm margins)
+  // We use conservative values to absolutely guarantee it fits on 1 page vertically
+  const AVAILABLE_WIDTH = 730
+  const AVAILABLE_HEIGHT = 1000 // Leave plenty of room for title and browser headers
   
   const scaleW = AVAILABLE_WIDTH / bracketWidth
   const scaleH = AVAILABLE_HEIGHT / bracketHeight
@@ -298,7 +298,7 @@ export default function Bracket({ tournament, matches, onMatchClick }) {
       <div className="hidden print:flex absolute left-0 top-0 bg-white z-[99999] w-full h-full flex-col items-center justify-center m-0 p-0" style={{ WebkitPrintColorAdjust: 'exact', printColorAdjust: 'exact' }}>
         <style type="text/css" media="print">
           {`
-            @page { size: landscape; margin: 5mm; }
+            @page { size: portrait; margin: 5mm; }
             html, body { height: 100vh; overflow: hidden; margin: 0; padding: 0; background: white; }
             * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             
