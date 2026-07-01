@@ -7,6 +7,7 @@ import { COUNTRIES } from '@/utils/countries'
 
 export default function JugadoresPage() {
   const [players, setPlayers] = useState([])
+  const [settings, setSettings] = useState({})
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all') // 'all', 'prequaly', 'qualy', 'm15_singles', 'm15_doubles'
@@ -18,17 +19,29 @@ export default function JugadoresPage() {
 
   const fetchPlayers = async () => {
     setLoading(true)
-    const { data, error } = await supabase
-      .from('players')
-      .select('*')
-      .order('name')
+    const [pRes, sRes] = await Promise.all([
+      supabase.from('players').select('*').order('name'),
+      supabase.from('settings').select('*')
+    ])
     
-    if (error) {
-      console.error('Error fetching players:', error)
+    if (pRes.error) {
+      console.error('Error fetching players:', pRes.error)
     } else {
-      setPlayers(data || [])
+      setPlayers(pRes.data || [])
     }
+
+    if (sRes.data) {
+      const setMap = {}
+      sRes.data.forEach(s => setMap[s.key] = s.value)
+      setSettings(setMap)
+    }
+    
     setLoading(false)
+  }
+
+  const isVisible = (colKey, defaultVal = true) => {
+    const s = settings[`public_col_${colKey}`]
+    return s !== undefined ? s === 'true' : defaultVal
   }
 
   const getTournamentLabel = (tourn) => {
@@ -134,11 +147,13 @@ export default function JugadoresPage() {
                 <tr className="bg-gray-900 border-b border-primary/20">
                   <th className="px-6 py-4 text-primary font-bold text-xs w-12 text-center uppercase tracking-wider">#</th>
                   <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Nombre</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider">Torneo</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Nacionalidad</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Ranking ATP/ITF</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Mano</th>
-                  <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Edad</th>
+                  {isVisible('torneo', true) && <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider">Torneo</th>}
+                  {isVisible('nacionalidad', true) && <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Nacionalidad</th>}
+                  {isVisible('ranking', true) && <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Ranking ATP/ITF</th>}
+                  {isVisible('mano', true) && <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Mano</th>}
+                  {isVisible('edad', true) && <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Edad</th>}
+                  {isVisible('club', false) && <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Club</th>}
+                  {isVisible('pago', false) && <th className="px-6 py-4 text-primary font-bold text-xs uppercase tracking-wider whitespace-nowrap">Pago</th>}
                 </tr>
               </thead>
               <tbody>
@@ -151,38 +166,58 @@ export default function JugadoresPage() {
                     <td className="px-6 py-4 text-gray-500 font-mono text-center font-bold text-sm">{idx + 1}</td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/10 flex-shrink-0">
-                          {player.photo_url ? (
-                            <img src={player.photo_url} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <User className="w-5 h-5 text-primary" />
-                          )}
-                        </div>
+                        {isVisible('foto', true) && (
+                          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center overflow-hidden border border-primary/10 flex-shrink-0">
+                            {player.photo_url ? (
+                              <img src={player.photo_url} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <User className="w-5 h-5 text-primary" />
+                            )}
+                          </div>
+                        )}
                         <span className="font-bold text-white group-hover:text-primary transition">{player.name}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getTournamentColorClass(player.tournament)}`}>
-                        {getTournamentLabel(player.tournament)}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
-                      {player.nationality ? (
-                        <div className="flex items-center gap-2">
-                          <img src={`https://flagcdn.com/24x18/${player.nationality.toLowerCase()}.png`} alt={player.nationality} className="w-4 h-3 rounded-[2px] object-cover border border-gray-600" />
-                          <span className="uppercase text-xs font-bold">{COUNTRIES.find(c => c.code === player.nationality)?.name || player.nationality}</span>
-                        </div>
-                      ) : '-'}
-                    </td>
-                    <td className="px-6 py-4 text-gray-300 text-xs whitespace-nowrap">
-                      {player.atp_rank ? <span className="mr-2">ATP: <strong className="text-white">{player.atp_rank}</strong></span> : null}
-                      {player.itf_rank ? <span>ITF: <strong className="text-white">{player.itf_rank}</strong></span> : null}
-                      {!player.atp_rank && !player.itf_rank && '-'}
-                    </td>
-                    <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">
-                      {player.hand === 'right' ? 'Derecha' : 'Izquierda'}
-                    </td>
-                    <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">{player.age} años</td>
+                    {isVisible('torneo', true) && (
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`px-2.5 py-1 rounded-full text-xs font-bold border ${getTournamentColorClass(player.tournament)}`}>
+                          {getTournamentLabel(player.tournament)}
+                        </span>
+                      </td>
+                    )}
+                    {isVisible('nacionalidad', true) && (
+                      <td className="px-6 py-4 text-gray-300 whitespace-nowrap">
+                        {player.nationality ? (
+                          <div className="flex items-center gap-2">
+                            <img src={`https://flagcdn.com/24x18/${player.nationality.toLowerCase()}.png`} alt={player.nationality} className="w-4 h-3 rounded-[2px] object-cover border border-gray-600" />
+                            <span className="uppercase text-xs font-bold">{COUNTRIES.find(c => c.code === player.nationality)?.name || player.nationality}</span>
+                          </div>
+                        ) : '-'}
+                      </td>
+                    )}
+                    {isVisible('ranking', true) && (
+                      <td className="px-6 py-4 text-gray-300 text-xs whitespace-nowrap">
+                        {player.atp_rank ? <span className="mr-2">ATP: <strong className="text-white">{player.atp_rank}</strong></span> : null}
+                        {player.itf_rank ? <span>ITF: <strong className="text-white">{player.itf_rank}</strong></span> : null}
+                        {!player.atp_rank && !player.itf_rank && '-'}
+                      </td>
+                    )}
+                    {isVisible('mano', true) && (
+                      <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">
+                        {player.hand === 'right' ? 'Derecha' : 'Izquierda'}
+                      </td>
+                    )}
+                    {isVisible('edad', true) && (
+                      <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">{player.age} años</td>
+                    )}
+                    {isVisible('club', false) && (
+                      <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">{player.club || '-'}</td>
+                    )}
+                    {isVisible('pago', false) && (
+                      <td className="px-6 py-4 text-gray-400 text-sm whitespace-nowrap">
+                        {player.paid ? <span className="text-green-400 font-bold">Sí</span> : <span className="text-red-400">No</span>}
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>

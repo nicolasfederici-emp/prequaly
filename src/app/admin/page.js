@@ -1551,6 +1551,44 @@ export default function AdminPage() {
             </div>
           </div>
 
+          {/* Configuración de columnas públicas */}
+          <div className="mb-6 bg-gray-800/50 p-4 rounded-xl border border-primary/20">
+            <h3 className="text-sm font-bold text-primary mb-3">Columnas Visibles en Panel Público (Usuarios)</h3>
+            <div className="flex flex-wrap gap-4">
+              {[
+                { key: 'foto', label: 'Foto', default: true },
+                { key: 'torneo', label: 'Torneo', default: true },
+                { key: 'edad', label: 'Edad', default: true },
+                { key: 'mano', label: 'Mano', default: true },
+                { key: 'nacionalidad', label: 'Nacionalidad', default: true },
+                { key: 'ranking', label: 'Ranking ATP/ITF', default: true },
+                { key: 'club', label: 'Club / Procedencia', default: false },
+                { key: 'pago', label: 'Pago', default: false }
+              ].map(col => {
+                const settingKey = `public_col_${col.key}`
+                const isChecked = settingsForm[settingKey] !== undefined 
+                  ? settingsForm[settingKey] === 'true' 
+                  : col.default
+
+                return (
+                  <label key={col.key} className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      checked={isChecked}
+                      onChange={async (e) => {
+                        const val = e.target.checked ? 'true' : 'false'
+                        setSettingsForm(prev => ({...prev, [settingKey]: val}))
+                        await supabase.from('settings').upsert({ key: settingKey, value: val })
+                      }}
+                      className="w-4 h-4 accent-primary" 
+                    />
+                    <span className="text-gray-300 text-sm">{col.label}</span>
+                  </label>
+                )
+              })}
+            </div>
+          </div>
+
           <div className="bg-gray-dark rounded-xl border border-primary/20 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -1563,6 +1601,8 @@ export default function AdminPage() {
                     <th className="px-4 py-3 text-primary font-bold">Mano</th>
                     <th className="px-4 py-3 text-primary font-bold">Nacionalidad</th>
                     <th className="px-4 py-3 text-primary font-bold">Ranking ATP/ITF</th>
+                    <th className="px-4 py-3 text-primary font-bold">Club</th>
+                    <th className="px-4 py-3 text-primary font-bold">Pago</th>
                     <th className="px-4 py-3 text-center text-primary font-bold">Acciones</th>
                   </tr>
                 </thead>
@@ -1594,6 +1634,10 @@ export default function AdminPage() {
                         {player.atp_rank ? <span className="mr-2">ATP: <strong className="text-white">{player.atp_rank}</strong></span> : null}
                         {player.itf_rank ? <span>ITF: <strong className="text-white">{player.itf_rank}</strong></span> : null}
                         {!player.atp_rank && !player.itf_rank && '-'}
+                      </td>
+                      <td className="px-4 py-3 text-gray-300 text-sm whitespace-nowrap">{player.club || '-'}</td>
+                      <td className="px-4 py-3 text-gray-300 text-sm">
+                        {player.paid ? <span className="text-green-400 font-bold">Sí</span> : <span className="text-red-400">No</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-center gap-2">
